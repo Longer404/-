@@ -89,13 +89,35 @@ export default {
         statusbar: true, // 底部的状态栏
         menubar: 'file edit insert view format table tools help', // （1级菜单）最上方的菜单
         branding: false, // （隐藏右下角技术支持）水印“Powered by TinyMCE”
+
+        // images_upload_url: 'http://localhost:3000/upload/test',
+        // images_upload_base_path: 'http://localhost:3000/',
+
         // 此处为图片上传处理函数，这个直接用了base64的图片形式上传图片，
         // 如需ajax上传可参考https://www.tiny.cloud/docs/configure/file-image-upload/#images_upload_handler
+        // images_upload_handler: (blobInfo, success, failure) => {
+        //   // const img = 'data:image/jpeg;base64,' + blobInfo.base64()
+        //   // success(img)
+        //   success(blobInfo)
+        //   console.log(blobInfo)
+        //   console.log(failure)
+        // }
         images_upload_handler: (blobInfo, success, failure) => {
-          const img = 'data:image/jpeg;base64,' + blobInfo.base64()
-          success(img)
-          console.log(failure)
+          let formData = new FormData();
+          console.log(blobInfo.filename())
+          formData.append('file',blobInfo.blob())
+          axios.post('/upload/test', formData).then(Response =>{
+            console.log(Response.data.url)
+            console.log(Response)
+            if (Response.status == 200){
+              success(Response.data.url)
+            } else {
+              console.log(failure) 
+            }
+          })
+
         }
+        
       },
       myValue: this.value
     }

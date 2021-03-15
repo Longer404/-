@@ -4,15 +4,19 @@ const koaBody = require('koa-body');
 const { connect } = require('./db');
 const registerRoutes = require('./routers');
 const cors = require('@koa/cors');
-
+const static = require('koa-static')
 
 const app = new Koa();
+
+app.use(static(__dirname + '/public/uploads'))
 
 connect().then(() => {
     // 服务端运行跨域
     app.use(cors());
 
     app.use(koaBody());
+
+    
 
     // 注册路由 
     registerRoutes(app);
@@ -21,5 +25,7 @@ connect().then(() => {
     app.listen(3000, () => {
         console.log('启动成功');
     });
+
+    
 });
 
