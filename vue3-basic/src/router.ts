@@ -38,7 +38,7 @@ const router = createRouter({
       name: 'create',
       component: CreatePost,
       meta: { requiredLogin: true }
-  }
+    }
   ]
 })
 router.beforeEach((to, from, next) => {

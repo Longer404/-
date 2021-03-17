@@ -9,9 +9,7 @@
     <button @click="submittest">
         提交
     </button>
-  <div v-html="myValue">
-      
-  </div>
+    <!-- <div v-html="myValue"></div> -->
   </div>
 </template>
 
@@ -79,7 +77,7 @@ export default {
         skin_url: `${this.baseUrl}/tinymce/skins/ui/oxide`,
         // skin_url: 'tinymce/skins/ui/oxide-dark', // 暗色系
         convert_urls: false,
-        height: 300,
+        height: 500,
         // content_css（为编辑区指定css文件）,加上就不显示字数统计了
         // content_css: `${this.baseUrl}tinymce/skins/content/default/content.css`,
         // （指定需加载的插件）

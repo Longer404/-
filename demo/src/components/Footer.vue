@@ -18,9 +18,15 @@ export default defineComponent({
     color: #333;
     text-align: center;
     line-height: 60px;
+    /* display: flex; */
+    /* height: 100%; */
     width: 100%;
-    min-width: 1200px;
-    /* margin-top: 60px; */
+    min-width: 1000px;
+    /* bottom: 0  !important; */
+    /* margin-top: auto; */
+    /* position: absolute; */
+    /* bottom: 0; */
+    /* margin-top: 100px; */
     /* position: fixed;
     bottom: 0;
     left: 0; */

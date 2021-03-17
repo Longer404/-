@@ -1,17 +1,27 @@
 <template>
     <div class="testheader">
         <div class="leftdiv">
-            bishe
+            <router-link to="/">
+                bishe
+            </router-link>
         </div>
         <div class="rightdiv">
-            <el-button size="small"  type="primary">register</el-button>
-            <el-button size="small"  type="primary">login</el-button>
+            <el-button size="small"  type="primary">
+                <router-link to="/register">
+                    register
+                </router-link>
+            </el-button>
+            <el-button size="small"  type="primary">
+                <router-link to="/login">
+                    login
+                </router-link>
+            </el-button>
         </div>
     </div>
 </template>
 
 <script>
-import { defineComponent } from '@vue/composition-api'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     setup() {
@@ -21,28 +31,31 @@ export default defineComponent({
 </script>
 
 <style>
-.testheader {
+  a {
+      text-decoration: none;/* 去掉下划线 */
+      color: inherit;
+  }
+  .testheader {
     background-color: #B3C021;
     /* color: #333;
     text-align: center;
     line-height: 60px; */
-    height: 50px;
+    min-height: 50px !important;
     /* position: fixed; */
-    top: 0;
-    left: 0;
+    /* top: 0; */
+    /* left: 0; */
     /* box-shadow: 0 2px 8px #fff; */
     display: flex;
     align-items: center;
     justify-content: space-between;
     /* padding: 0 16px; */
     /* padding-left: 16px; */
-    min-width: 1200px;
+    min-width: 1000px;
     width: 100%;
     /* z-index: 1; */
     /* overflow: hidden; */
   }
   .leftdiv {
-
       padding-left: 16px;
   }
   .rightdiv {

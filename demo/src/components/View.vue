@@ -1,4 +1,5 @@
 <template>
+  <div>
     <div class="top-pic">
     </div>
     <el-menu
@@ -45,7 +46,7 @@
         </div>
       </div>
     </div>
-    
+  </div>
 </template>
 
 <script>
@@ -95,12 +96,12 @@ export default {
 <style>
   html,body {
     margin: 0 auto;
-    
+    text-align: center;
   }
-  .paomadeng {
-    /* width: 500px; */
+  /* .paomadeng {
+    width: 500px;
     margin-left: 10%;
-  }
+  } */
   .el-menu {
     padding-left: 10% !important;
     /* height: 50px; */
@@ -114,11 +115,11 @@ export default {
   .top-pic {
     height: 100px;
     background: #B3C0D1;
-    min-width: 1200px;
+    min-width: 1000px;
     width: 100%;
   }
   .toplist {
-    margin-right: 10%;
+    /* margin-right: 10%; */
     width: 200px;
     background: #000;
   }
@@ -129,28 +130,30 @@ export default {
     /* padding-left: 10%;
     padding-right: 10%; */
     /* width: 100%; */
-    margin-top: 10px;
-    min-width: 1200px;
+    /* margin-top: 10px; */
+    margin: 0 auto;
+    width: 1000px;
     /* width: 100%; */
     height: 360px;
     background: rgb(166, 209, 235);
   }
   .cardlist {
-    min-width: 1200px;
+    width: 1000px;
     /* height: 500px; */
     /* padding: 0 10% 0 10%; */
-    margin-top: 20px;
+    /* margin-top: 20px; */
+    margin: 0 auto;
     display: flex;
     justify-content: space-between;
   }
   .cardlist-letf {
-    width: 750px;
-    margin-left: 10%;
+    min-width: 500px;
+    /* margin-left: 10%; */
     /* background: #B3C0D1;
     height: 500px; */
   }
   .cards {
-    margin-top: 10px;
+    margin-top: 20px;
     margin-bottom: 10px;
     /* margin-left: 10%; */
     background: #B3C0D1;
@@ -171,8 +174,9 @@ export default {
     position: sticky;
     top:0;
     background: #000;
-    width: 200px;
-    margin-right: 10%;
+    min-width: 200px;
+    margin-top: 20px;
+    /* margin-right: 10%; */
     height: 640px;
   }
   .cardtitle {
