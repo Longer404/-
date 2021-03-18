@@ -50,6 +50,13 @@ const router = createRouter({
             component: () => import('./components/Register.vue')
             // meta: { redirectAlreadyLogin: true }
         },
+        {
+            path: '/form',
+            name: 'form',
+            // component: Register,
+            component: () => import('./components/Form.vue')
+            // meta: { redirectAlreadyLogin: true }
+        },
     ]
 })
 

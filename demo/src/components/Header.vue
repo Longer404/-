@@ -6,14 +6,19 @@
             </router-link>
         </div>
         <div class="rightdiv">
+            <el-button size="small"  type="danger">
+                <router-link to="/form">
+                    发表文章
+                </router-link>
+            </el-button>
             <el-button size="small"  type="primary">
                 <router-link to="/register">
-                    register
+                    登录
                 </router-link>
             </el-button>
             <el-button size="small"  type="primary">
                 <router-link to="/login">
-                    login
+                    注册
                 </router-link>
             </el-button>
         </div>

@@ -30,11 +30,33 @@
 
     <div class="cardlist">
       <div class="cardlist-letf">
-        <div v-for="n in numbers" :key="n" class="cards">
+        <div v-for="article in articles" :key="article" class="cards">
           <div class="cardleft">
             <div class="cardpic">
-              {{n}}
+              
             </div>
+          <div class="undercardpic">
+            <li>点赞</li>
+            <li>收藏</li>
+            <li>不点赞</li>
+          </div>
+          </div>
+          <div class="cardright">
+            <h2 class="cardtitle">{{article.title}}</h2>
+            <div class="cardauthor">
+              {{article.createAt}}
+            </div>
+            <div class="cardabout-box">
+              <p class="cardabout"> 
+                {{article.about}}
+              </p>
+            </div>
+            <div class="cardtags"> 
+              <el-tag size="mini" effect="dark" type="info">标签1</el-tag>
+              <el-tag size="mini" effect="plain" type="info">超小标签</el-tag>
+              <el-tag size="mini"  type="info">标签3</el-tag>
+            </div>
+            
           </div>
           
           
@@ -42,6 +64,7 @@
       </div>
       <div class="cardlist-right">
         <div class="cardtitle">
+          <!-- {{resp}} -->
           cardtitle
         </div>
       </div>
@@ -50,53 +73,85 @@
 </template>
 
 <script>
-export default {
+import axios from 'axios';
+import { defineComponent, onMounted, ref} from 'vue'
+// import { defineComponent, onMounted } from 'vue'
+
+export default defineComponent ({
   data() {
     return {
-      numbers: [ 1, 2, 3, 4, 5 ]
+      numbers: [ 1, 2, 3, 4, 5 ],
+      // articles:[]
     }
   },
-  // computed: {
-  //   evenNumbers() {
-  //     return this.numbers.filter(number => number % 2 === 0)
-  //   }
-  // }
-   // 获取元素
+  setup() {
+    // const articles = [
+    //   {
+    //     title: '这是第一个标题',
+    //     createAt: Date(),
+    //     about: '这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要'
+    //   },
+    //   {
+    //     title: '这是第二个标题',
+    //     createAt: Date(),
+    //     about: '这是第二篇文章的内容摘要'
+    //   },
+    //   {
+    //     title: '这是第三个标题',
+    //     createAt: Date(),
+    //     about: '这是第三篇文章的内容摘要'
+    //   },
+    //   {
+    //     title: '这是第四个标题',
+    //     createAt: Date(),
+    //     about: '这是第四篇文章的内容摘要'
+    //   },
+    //   {
+    //     title: '这是第五个标题',
+    //     createAt: Date(),
+    //     about: '这是第五篇文章的内容摘要'
+    //   },
+    // ];
+    const articles = ref(articles);
+    // var articles = []
+    onMounted(async () => {
+      // const res = 
+      // await axios.get('/article/list').then(res => {
+      //   console.log(res.data.data)
+      //   this.articles = res.data.data
+      // });
+      // console.log(res.data.data)
+      // return res
+      let res = await axios.get('/article/list');
+      console.log(res.data.data)
+      // return res
+      articles.value = res.data.data
+      // articles = res.data.data
+      // console.log(articles)
+    });
+    // const articles = res.data.data
+    
+    return {
+      articles,
+      // resp
+    }
+  }
   
+})
   
-}
-  // window.onscroll = function() {
-  //   const scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-  //     const goTop = document.querySelector('.cardlist-right')
-  //       if (scrollTop > 570) {
-  //           goTop.style.position = 'fixed';
-  //           goTop.style.top = '10px';
-  //         console.log(1)
-  //       } else {
-  //           goTop.style.top = '0';
-  //           goTop.style.position = 'relative';
-  //         console.log(2)
-  //       }
-  // }
-  // var cardleft = document.querySelector('.cardlist-letf') ;
-  // var cardright = document.querySelector('.cardlist-right');
-  // var cardTop = cardleft.offsetTop;
-  // var rightTop = cardright.offsetTop - cardTop;
-  // document.addEventListener('scroll', function() {
-  //   if(window.pageYOffset >= cardTop) {
-  //     cardright.style.position = 'fixed';
-  //     cardright.style.top = rightTop + 'px';
-  //   } else {
-  //     cardright.style.position = 'absolute';
-  //     cardright.style.top = cardTop + 'px';
-  //   }
-  // })
 </script>
 
 <style>
   html,body {
     margin: 0 auto;
     text-align: center;
+  }
+  p {
+    margin: 0;
+  }
+  h2 {
+    margin: 0;
+    font-weight: normal;
   }
   /* .paomadeng {
     width: 500px;
@@ -147,7 +202,7 @@ export default {
     justify-content: space-between;
   }
   .cardlist-letf {
-    min-width: 500px;
+    min-width: 720px;
     /* margin-left: 10%; */
     /* background: #B3C0D1;
     height: 500px; */
@@ -158,29 +213,67 @@ export default {
     /* margin-left: 10%; */
     background: #B3C0D1;
     height: 200px;
+    display: flex;
     /* width: 750px; */
+    justify-content: space-between;
   }
-  .cardleft {
-    width: 240px;
+  .cardcontext {
+    /* width: 240px; */
+    /* display: flex; */
+  }
+  .cardright {
+    width: 460px;
+    text-align: left;
+  }
+  .cardtitle {
+    margin-top: 10px;
+  }
+  /* 标题下方发表日期以及作者信息的样式 */
+  .cardauthor {
+    margin-top: 5px;
+    font-weight: 100;
+    font-size: 12px;
+    /* text-align: left; */
+  }
+  .cardabout-box {
+    height: 79px;
+  }
+  /* 内容摘要的样式 */
+  .cardabout {
+    margin-top: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+  }
+  .cardtags {
+    padding-top: 8px;
+  }
+  .el-tag {
+    margin-right: 10px;
   }
   .cardpic {
-    /* width: 240px; */
+    width: 240px;
     height: 150px;
     background: #475669;
+  }
+  .undercardpic {
+    margin-top: 10px;
+    display: flex;
+    /* width: 750px; */
+    justify-content: space-between;
   }
   .cardlist-right {
     /* 粘性布局，当距离顶端0像素时位置固定 */
     position: -webkit-sticky;
     position: sticky;
     top:0;
-    background: #000;
+    background: #555;
     min-width: 200px;
     margin-top: 20px;
     /* margin-right: 10%; */
     height: 640px;
-  }
-  .cardtitle {
-    
   }
 
   .el-carousel {

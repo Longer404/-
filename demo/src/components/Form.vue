@@ -116,6 +116,7 @@ export default defineComponent({
     /* padding-bottom: 100px; */
     /* height: 100%; */
     height: 100%;
+    min-height: 850px;
     /* display: flex; */
     /* flex-flow: column; */
     /* justify-content: flex-start; */
@@ -123,6 +124,7 @@ export default defineComponent({
   .sonfrombox {
     margin: 0 auto;
     width: 720px;
+    height: 100%;
   }
   .el-input {
     width: 500px !important;
