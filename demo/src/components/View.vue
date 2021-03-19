@@ -17,7 +17,7 @@
     </el-menu>
     <div class="testcent">
       <div class="paomadeng">
-        <el-carousel :interval="5000" arrow="always">
+        <el-carousel :interval="3000" arrow="always">
           <el-carousel-item v-for="item in 4" :key="item">
           <h3>{{ item }}</h3>
           </el-carousel-item>
@@ -32,14 +32,12 @@
       <div class="cardlist-letf">
         <div v-for="article in articles" :key="article" class="cards">
           <div class="cardleft">
-            <div class="cardpic">
-              
+            <div class="cardpic"></div>
+            <div class="undercardpic">
+              <li>点赞</li>
+              <li>收藏</li>
+              <li>不点赞</li>
             </div>
-          <div class="undercardpic">
-            <li>点赞</li>
-            <li>收藏</li>
-            <li>不点赞</li>
-          </div>
           </div>
           <div class="cardright">
             <h2 class="cardtitle">{{article.title}}</h2>
@@ -56,12 +54,49 @@
               <el-tag size="mini" effect="plain" type="info">超小标签</el-tag>
               <el-tag size="mini"  type="info">标签3</el-tag>
             </div>
-            
           </div>
-          
-          
+        </div>
+        <div class="pagebox">
+          <el-pagination
+            background
+            layout="prev, pager, next"
+            @current-change="setPage"
+            :total="total"
+            :current-page="curpage"
+            :page-size="5"
+            >
+          </el-pagination>
         </div>
       </div>
+      <!-- <div v-else class="cardlist-letf">
+        <div v-for="n in numbers" :key="n" class="cards">
+          <div class="cardleft">
+            <div class="cardpic"></div>
+            <div class="undercardpic">
+              <li>点赞</li>
+              <li>收藏</li>
+              <li>不点赞</li>
+            </div>
+          </div>
+          <div class="cardright">
+            <h2 class="cardtitle">这是第{{n}}个标题</h2>
+            <div class="cardauthor">
+              这是第{{n}}个文章的日期
+            </div>
+            <div class="cardabout-box">
+              <p class="cardabout"> 
+                这是第{{n}}个文章的摘要
+              </p>
+            </div>
+            <div class="cardtags"> 
+              <el-tag size="mini" effect="dark" type="info">标签1</el-tag>
+              <el-tag size="mini" effect="plain" type="info">超小标签</el-tag>
+              <el-tag size="mini"  type="info">标签3</el-tag>
+            </div>
+          </div>
+        </div>
+        
+      </div> -->
       <div class="cardlist-right">
         <div class="cardtitle">
           <!-- {{resp}} -->
@@ -112,9 +147,32 @@ export default defineComponent ({
     //     about: '这是第五篇文章的内容摘要'
     //   },
     // ];
-    const articles = ref(articles);
+
+    // 请求获取数据库中的文章后存放在articles中
+    const articles = ref([]);
+    // 请求到的文章总数total，默认为1
+    const total = ref(1)
+    // 当前页面（页码？）curpage（currentPage）默认为1
+    const curpage = ref(1)
+    // const cardseen = ref(true)
     // var articles = []
+
+    // 将请求封装成一个方法getList,在请求的过程中会发送当前页码
+    const getList = async () => {
+      let res = await axios.get('/article/list', {
+        params: {
+          page: curpage.value
+        }
+      });
+      // 将请求返回的文章数组赋值给articles
+      articles.value = res.data.data.list
+      // 将请求返回的文章总数赋值给total
+      total.value = res.data.data.total
+    }
+
+    // 组件挂载时先调用getList方法请求文章列表
     onMounted(async () => {
+      getList();
       // const res = 
       // await axios.get('/article/list').then(res => {
       //   console.log(res.data.data)
@@ -122,17 +180,39 @@ export default defineComponent ({
       // });
       // console.log(res.data.data)
       // return res
-      let res = await axios.get('/article/list');
-      console.log(res.data.data)
+      
+      // .catch((error) => {
+      //   if (error.request) {
+      //     console.log(3)
+      //     cardseen.value = false
+      //   }
+      // }) ;
+      // console.log(res.data)
       // return res
-      articles.value = res.data.data
+      
       // articles = res.data.data
       // console.log(articles)
+      // if (articles.value) {
+      //   console.log(1)
+      // } else {
+      //   console.log(2)
+      // }
     });
+
+    // 当页码改变时执行setPage函数，将改变后的页码赋值给curpage
+    const setPage = (page) => {
+      // 将改变后的页码赋值给curpage
+      curpage.value = page;
+      // 然后再调用一次getList方法发送请求获取文章列表
+      getList();
+    }
     // const articles = res.data.data
     
     return {
       articles,
+      total,
+      setPage,
+      curpage
       // resp
     }
   }
@@ -263,6 +343,10 @@ export default defineComponent ({
     display: flex;
     /* width: 750px; */
     justify-content: space-between;
+  }
+  .pagebox {
+    margin-top: 30px;
+    margin-bottom: 30px;
   }
   .cardlist-right {
     /* 粘性布局，当距离顶端0像素时位置固定 */

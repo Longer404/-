@@ -52,41 +52,13 @@ router.post('/article', async (context) => {
 });
 
 router.get('/list', async (context) => {
-    // context.body = '登录成功';
-    // const {
-    //     email,
-    //     password,
-    // } = context.request.body;
+    
+    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
+    const {
+        page = 1,
+        size = 5,
+    } = context.query;
 
-    // const one = await User.findOne({
-    //     email,
-    // }).exec();
-
-    // if (!one) {
-    //     context.body = {
-    //         code: 0,
-    //         msg: '用户名或密码错误',
-    //         data: null,
-    //     };
-    //     return;
-    // }
-
-    // const user = {
-    //     email: one.email,
-    //     _id: one._id,
-    // };
-
-    // if (one.password === password) {
-    //     context.body = {
-    //         code: 1,
-    //         msg: '登录成功',
-    //         data: {
-    //             user,
-    //             token: jwt.sign(user, 'testdata'),
-    //         },
-    //     };
-    //     return;
-    // }
     console.log(1)
     // const article = new Article({
     //     title: '第一篇文章',
@@ -96,12 +68,28 @@ router.get('/list', async (context) => {
     //     content: '这是第一篇文章的内容',
     // })
     // const res = await article.save();
-    const list = await Article.find().exec();
 
+    // 将数据库中article表的记录的总数传给total
+    const total = await Article.countDocuments();
+    // const list = await Article.find().exec();
+
+    // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
+    const list = await Article
+        .find()
+        .skip((page - 1) * size)
+        .limit(size)
+        .exec();
+
+    // 最后返回前端所需的数据
     context.body = {
         code: 1,
         msg: '获取成功',
-        data: list,
+        data: {
+            total,
+            page,
+            size,
+            list,
+        }
     };
 });
 

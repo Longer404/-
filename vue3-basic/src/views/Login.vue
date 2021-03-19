@@ -67,7 +67,7 @@ export default defineComponent({
           repeatPassword: ''
         });
 
-        const register = () => {
+        const register = async () => {
           console.log(formData);
           if (formData.email === '') {
 
@@ -80,12 +80,19 @@ export default defineComponent({
             return;
 
           }
-          axios.post('/user/login', {
+          const {data} = await axios.post('/user/login', {
             email: formData.email,
             // nickName: formData.nickName,
             password: formData.password,
               
           });
+          console.log(data);
+          if (data.code) {
+            message.success(data.msg);
+            return;
+          }
+
+          message.error(data.msg)
         };
 
         const onFormSubmit = (result: boolean) => {

@@ -36,7 +36,7 @@
                 </el-container>
                 
             </el-container>
-            <el-footer>Footer</el-footer>
+            <!-- <el-footer>Footer</el-footer> -->
             <el-carousel indicator-position="outside">
                 <el-carousel-item v-for="item in 4" :key="item">
                 <h3>{{ item }}</h3>

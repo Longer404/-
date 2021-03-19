@@ -16,6 +16,7 @@ router.post('/register', async (context) => {
         nickName,
         password,
     } = context.request.body;
+    console.log(context)
 
     // 使用findOne方法查询User表中是否存在与前端传来的用户名相同的用户名
     const one = await User.findOne({
@@ -58,6 +59,15 @@ router.post('/login', async (context) => {
         password,
     } = context.request.body;
 
+    if (email === '' || password === '') {
+        context.body = {
+            code: 0,
+            msg: '字段不能为空',
+            data: null
+        }
+    }
+    // console.log(email,password)
+    
     const one = await User.findOne({
         email,
     }).exec();

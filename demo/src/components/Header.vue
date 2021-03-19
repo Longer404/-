@@ -12,12 +12,12 @@
                 </router-link>
             </el-button>
             <el-button size="small"  type="primary">
-                <router-link to="/register">
+                <router-link to="/login">
                     登录
                 </router-link>
             </el-button>
             <el-button size="small"  type="primary">
-                <router-link to="/login">
+                <router-link to="/register">
                     注册
                 </router-link>
             </el-button>
