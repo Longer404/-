@@ -38,6 +38,7 @@
 <script>
 import { defineComponent, reactive } from 'vue'
 import axios from 'axios'
+import { ElMessage } from 'element-plus'
 
 export default defineComponent({
     data() {
@@ -112,7 +113,7 @@ export default defineComponent({
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
-      register (ruleForm) {
+      async register (ruleForm) {
         console.log(ruleForm);
         // if (formData.nickName === '') {
 
@@ -126,12 +127,22 @@ export default defineComponent({
 
         // }
         // user.register(formData.nickName, formData.password);
-        axios.post('/user/register', {
+        const { data } = await axios.post('/user/register', {
           email: ruleForm.email,
           nickName: ruleForm.name,
           password: ruleForm.pass,
           
         });
+        console.log(data);
+        if (data.code) {
+            ElMessage.success({
+                message: data.msg,
+                type: 'success'
+            });
+            // message.success(data.msg);
+            return;
+          }
+        ElMessage.error(data.msg);
       }
 
     },

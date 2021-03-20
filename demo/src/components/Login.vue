@@ -1,5 +1,5 @@
 <template>
-    <div class="registerbox">
+    <div class="loginbox">
         <el-form  status-icon label-width="100px" class="demo-ruleForm">
             <el-form-item prop="email" label="邮箱">
                 <el-input v-model="formData.email" placeholder="请输入邮箱地址"></el-input>
@@ -35,16 +35,16 @@ import { ElMessage } from 'element-plus'
 
 export default defineComponent({
     data() {
-    //   var validatePass = (rule, value, callback) => {
-    //     if (value === '') {
-    //       callback(new Error('请输入密码'));
-    //     } else {
-    //       if (this.ruleForm.checkPass !== '') {
-    //         this.$refs.ruleForm.validateField('checkPass');
-    //       }
-    //       callback();
-    //     }
-    //   };
+      //   var validatePass = (rule, value, callback) => {
+      //     if (value === '') {
+      //       callback(new Error('请输入密码'));
+      //     } else {
+      //       if (this.ruleForm.checkPass !== '') {
+      //         this.$refs.ruleForm.validateField('checkPass');
+      //       }
+      //       callback();
+      //     }
+      //   };
     
       return {
         // dynamicValidateForm: {
@@ -144,7 +144,7 @@ export default defineComponent({
     height: 100%;
     margin: 0 auto;
   }
-  .registerbox {
+  .loginbox {
     min-width: 1000px;
     height: 100%;
     margin: 0 auto;
