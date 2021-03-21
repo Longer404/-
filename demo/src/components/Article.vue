@@ -2,26 +2,27 @@
     <div class="main-box">
         <div class="nav-bar">
             <el-button class="firstbut" type="text" icon="el-icon-edit">分区1</el-button>
-            <el-button type="text" icon="el-icon-edit">分区2</el-button>
-            <el-button type="text" icon="el-icon-edit">分区3</el-button>
-            <el-button type="text" icon="el-icon-edit">分区4</el-button>
-            <el-button type="text" icon="el-icon-edit">分区5</el-button>
+            <el-button  class="firstbut" type="text" icon="el-icon-edit">分区2</el-button>
+            <el-button  class="firstbut" type="text" icon="el-icon-edit">分区3</el-button>
+            <el-button  class="firstbut" type="text" icon="el-icon-edit">分区4</el-button>
+            <el-button  class="firstbut" type="text" icon="el-icon-edit">分区5</el-button>
         </div>
         <div class="page-container">
             <div class="head-container">
                 <div class="cover-img">
                 </div>
-                <h1>文章标题</h1>
+                <h1>{{detailInfo.title}}</h1>
                 <div class="info">创作日期，阅读量，评论，点赞</div>
             </div>
             
-            <div>正文</div>
+            <div>{{detailInfo.content}}</div>
+            <!-- <div v-html="testInfo"></div> -->
         </div>
         <div class="fix-box">
             <div class="author-box">
                 <div class="block"><el-avatar :size="72" :src="'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"></el-avatar></div>
                 <div class="author-info">
-                    <h4>作者名</h4>
+                    <h4>{{detailInfo.author}}</h4>
                     <div class="article-info">阅读量</div>
                     <el-button>点赞</el-button>
                 </div>
@@ -42,11 +43,37 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue'
+import { defineComponent, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import axios from 'axios'
 
 export default defineComponent({
     setup() {
-        
+        const route = useRoute();
+
+        const id =route.params.id;
+
+        const detailInfo = ref({});
+
+        // const testInfo = '<h1>测试</h1>'
+
+        console.log(id);
+
+        const getArticle = async () => {
+            const res = await axios.get(`/article/${id}`)
+            // console.log(res.data)
+            detailInfo.value = res.data.data
+        }
+
+        onMounted(() => {
+            // axios.get(`/article/${articles._id}`)
+            getArticle();
+        })
+
+        return {
+            detailInfo,
+            // testInfo
+        }
     },
 })
 </script>
@@ -72,10 +99,11 @@ export default defineComponent({
   }
   .firstbut {
       margin-left: 10px;
-  }
-  .el-button {
       margin-top: 15px;
   }
+  /* .el-button {
+      margin-top: 15px;
+  } */
   .page-container {
       height: 1500px;
       width: 600px;

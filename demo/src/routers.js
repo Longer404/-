@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// import View from './components/View.vue'
+import View from './components/View.vue'
 import Login from './components/Login.vue'
 // import Register from '../components/Register.vue'
-// import Article from './components/Article.vue'
-import Account from './components/Account.vue'
+import Article from './components/Article.vue'
+// import Account from './components/Account.vue'
+// import Test from './components/test.vue'
 
 // const routes = [
 //     {
@@ -37,7 +38,7 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            component: Account,
+            component: View,
         },
         {
             path: '/login',
@@ -59,7 +60,17 @@ const router = createRouter({
             component: () => import('./components/Form.vue')
             // meta: { redirectAlreadyLogin: true }
         },
+        {
+            path: '/article/:id',
+            name: 'article',
+            component: Article,
+            // component: () => import('./components/Article.vue')
+        }
     ]
+})
+
+router.afterEach(() => {
+    window.scrollTo(0,0);
 })
 
 export default router;

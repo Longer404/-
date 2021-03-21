@@ -39,7 +39,7 @@
               <li>不点赞</li>
             </div>
           </div>
-          <div class="cardright">
+          <div class="cardright" @click="goToDetail(article)">
             <h2 class="cardtitle">{{article.title}}</h2>
             <div class="cardauthor">
               {{article.createAt}}
@@ -111,6 +111,7 @@
 import axios from 'axios';
 import { defineComponent, onMounted, ref} from 'vue'
 // import { defineComponent, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent ({
   data() {
@@ -147,6 +148,8 @@ export default defineComponent ({
     //     about: '这是第五篇文章的内容摘要'
     //   },
     // ];
+
+    const router = useRouter()
 
     // 请求获取数据库中的文章后存放在articles中
     const articles = ref([]);
@@ -208,11 +211,18 @@ export default defineComponent ({
     }
     // const articles = res.data.data
     
+    const goToDetail = async (articles) => {
+      console.log(articles)
+      axios.get(`/article/${articles._id}`)
+      router.push(`/article/${articles._id}`)
+    }
+
     return {
       articles,
       total,
       setPage,
-      curpage
+      curpage,
+      goToDetail
       // resp
     }
   }
@@ -224,7 +234,7 @@ export default defineComponent ({
 <style>
   html,body {
     margin: 0 auto;
-    text-align: center;
+    /* text-align: center; */
   }
   p {
     margin: 0;
@@ -347,6 +357,7 @@ export default defineComponent ({
   .pagebox {
     margin-top: 30px;
     margin-bottom: 30px;
+    text-align: center;
   }
   .cardlist-right {
     /* 粘性布局，当距离顶端0像素时位置固定 */

@@ -93,4 +93,30 @@ router.get('/list', async (context) => {
     };
 });
 
+router.get('/:id', async (context) => {
+
+    const {
+        id,
+    } = context.params;
+
+    const one = await Article.findOne({
+        _id: id,
+    }).exec();
+
+    if (!one) {
+        context.body = {
+            msg: '文章不存在',
+            code: 0,
+            data: null
+        }
+        return;
+    }
+
+    context.body = {
+        msg: '查询成功',
+        data: one,
+        code: 1,
+    }
+});
+
 module.exports = router;
