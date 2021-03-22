@@ -7,6 +7,7 @@ const ArticleSchema = new mongoose.Schema({
     createAt: String,
     about: String,
     content: String,
+    partition: String,
     meta: getMeta(),
 });
 

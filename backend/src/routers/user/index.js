@@ -1,6 +1,8 @@
 const Router = require('@koa/router');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const config = require('../../project.config')
+const { verify, getToken } =require('../../helpers/token')
 
 const User = mongoose.model('User');
 
@@ -82,6 +84,7 @@ router.post('/login', async (context) => {
     }
 
     const user = {
+        nickname: one.nickname,
         email: one.email,
         _id: one._id,
     };
@@ -92,7 +95,7 @@ router.post('/login', async (context) => {
             msg: '登录成功',
             data: {
                 user,
-                token: jwt.sign(user, 'testdata'),
+                token: jwt.sign(user, config.JWT_SECRET),
             },
         };
         return;
@@ -103,6 +106,15 @@ router.post('/login', async (context) => {
         msg: '用户名或密码错误',
         data: null,
     };
+});
+
+router.get('/info', async (context) => {
+    context.body = {
+        data: await verify(getToken(context)),
+        code: 1,
+        msg: '获取成功',
+    }
+    
 });
 
 module.exports = router;

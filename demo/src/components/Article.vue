@@ -15,8 +15,8 @@
                 <div class="info">创作日期，阅读量，评论，点赞</div>
             </div>
             
-            <div>{{detailInfo.content}}</div>
-            <!-- <div v-html="testInfo"></div> -->
+            <!-- <div>{{detailInfo.content}}</div> -->
+            <div v-html="detailInfo.content"></div>
         </div>
         <div class="fix-box">
             <div class="author-box">
@@ -82,6 +82,15 @@ export default defineComponent({
   h4 {
     margin: 0;
     font-weight: normal;
+  }
+  /* 
+    为自适应盒子的宽度暂时这样设置文章内图片的显示大小
+    先限制最大宽度，然后高度自适应变化避免图片被拉伸
+  */
+  img {
+      max-width: 600px;
+      /* width: auto; */
+      height: auto;
   }
   .main-box {
       min-width: 1000px;

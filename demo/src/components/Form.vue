@@ -2,10 +2,10 @@
   <div class="formbox">
     <div class="sonfrombox">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="right" label-width="100px"  class="demo-ruleForm">
-          <el-form-item label="活动名称" prop="name">
+          <el-form-item label="标题" prop="name">
               <el-input  v-model="ruleForm.name"></el-input>
           </el-form-item>
-          <el-form-item label="活动区域" prop="region">
+          <el-form-item label="分区" prop="region">
               <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
               <el-option label="区域一" value="shanghai"></el-option>
               <el-option label="区域二" value="beijing"></el-option>
@@ -16,8 +16,8 @@
           </el-form-item> -->
           
           
-          <el-form-item label="活动形式" prop="desc">
-              <el-input type="textarea" v-model="ruleForm.desc"></el-input>
+          <el-form-item label="摘要" prop="desc">
+              <el-input type="textarea" resize="none" v-model="ruleForm.desc"></el-input>
           </el-form-item>
           <el-form-item>
               <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
@@ -31,6 +31,7 @@
           :disabled="disabled"
           @onClick="onClick"
       />
+      <el-button type="danger" @click="postArticle">发表！</el-button>
     </div>
   </div>
 </template>
@@ -39,6 +40,7 @@
 
 import { defineComponent } from 'vue'
 import tinymce from './Tiny.vue'
+import axios from 'axios'
 
 export default defineComponent({
     components: {
@@ -46,6 +48,14 @@ export default defineComponent({
     },
     data() {
       return {
+
+        // total: {
+        //   title: '',
+        //   about: '',
+        //   content: '',
+        //   partition: '',
+        // },
+
         ruleForm: {
           name: '',
           region: '',
@@ -91,7 +101,27 @@ export default defineComponent({
       },
       resetForm(formName) {
         this.$refs[formName].resetFields();
+      },
+      // const formdata = ref({})
+      postArticle(){
+        // 父组件通过$refs拿到子组件里的数据
+        // console.log(this.$refs.editor.myValue)
+        // console.log(this.$refs.ruleForm)
+        const total = {
+          title: this.$refs.ruleForm.model.name,
+          partition: this.$refs.ruleForm.model.region,
+          about: this.$refs.ruleForm.model.desc,
+          content: this.$refs.editor.myValue
+        }
+        console.log(total)
+        axios.post('/upload/article', {
+            essay: total
+        });
       }
+      // return {
+      //   formdata,
+      //   getmes
+      // }
     },
     setup() {
         

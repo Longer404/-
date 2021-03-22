@@ -1,4 +1,5 @@
 <template>
+  <div class="main-user-box">
     <div class="user-center">
         <el-tabs type="border-card">
             <!-- <el-tab-pane>
@@ -40,11 +41,33 @@
                 </el-form>
 
             </el-tab-pane>
-            <el-tab-pane label="投稿管理">投稿管理</el-tab-pane>
+            <el-tab-pane label="投稿管理">
+              投稿管理
+              <div class="card-manage">
+                <div class="card-case">
+                  <div class="card-img">
+
+                  </div>
+                  <div class="card-info">
+                    <div class="card-info-title">
+                      标题
+                    </div>
+                    <div class="card-info-date">
+                      创作日期
+                    </div>
+                    <div class="card-info-handle">
+                      <el-button type="primary">编辑</el-button>
+                      <el-button type="danger">删除</el-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-tab-pane>
             <el-tab-pane label="收藏夹">收藏夹</el-tab-pane>
             <!-- <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane> -->
         </el-tabs>
     </div>
+  </div>
 </template>
 
 <script>
@@ -98,10 +121,48 @@ export default defineComponent({
 </script>
 
 <style>
+.main-user-box {
+  min-width: 1000px;
+}
 .user-center {
     margin: 20px auto;
     min-height: 800px;
     width: 800px;
     background: #555;
+}
+.card-manage {
+    display: flex;
+    justify-content: center;
+}
+.card-case {
+    height: 120px;
+    width: 500px;
+    padding: 20px;
+    box-shadow: gray 2px 2px 5px;
+    border-radius: 4px ;
+    background: #555;
+    display: flex;
+    justify-content: space-between;
+}
+.card-img {
+    width: 180px;
+    background: rgb(149, 240, 184);
+}
+.card-info {
+    width: 280px;
+    background: rgb(140, 117, 241);
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-between;
+}
+.card-info-title {
+    font-size: 24px;
+}
+.card-info-date {
+    font-size: 16px;
+    font-weight: 200;
+}
+.card-info-handle {
+    text-align: right;
 }
 </style>

@@ -32,6 +32,9 @@
 import { defineComponent, reactive } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import store from '../store'
+import { useRouter } from 'vue-router'
+import { setToken } from '../helpers/token'
 
 export default defineComponent({
     data() {
@@ -86,6 +89,9 @@ export default defineComponent({
     },
 
     setup() {
+
+        const router = useRouter();
+
         const formData = reactive({
           email: '',
         //   nickName: '',
@@ -94,7 +100,7 @@ export default defineComponent({
         });
         // axios.get('/article');
         const login = async () => {
-        //   console.log(formData);
+          //   console.log(formData);
           if (formData.email === '') {
             ElMessage.warning({
                 message: '请输入邮箱地址',
@@ -112,7 +118,7 @@ export default defineComponent({
             return;
 
           }
-          const {data} = await axios.post('/user/login', {
+          const { data } = await axios.post('/user/login', {
             email: formData.email,
             // nickName: formData.nickName,
             password: formData.password,
@@ -124,11 +130,18 @@ export default defineComponent({
                 message: data.msg,
                 type: 'success'
             });
+            store.commit('setUserInfo', data);
+
+            setToken(data.data.token);
+            
+            router.replace('/');
+            // console.log(store.state);
+
             // message.success(data.msg);
             return;
           }
-        ElMessage.error(data.msg);
-        //   message.error(data.msg)
+          ElMessage.error(data.msg);
+          //   message.error(data.msg)
         };
 
         return {

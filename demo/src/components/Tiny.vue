@@ -84,6 +84,8 @@ export default {
         plugins: this.plugins,
         toolbar: this.toolbar, // （自定义工具栏）
 
+        resize: false,
+
         statusbar: true, // 底部的状态栏
         menubar: 'file edit insert view format table tools help', // （1级菜单）最上方的菜单
         branding: false, // （隐藏右下角技术支持）水印“Powered by TinyMCE”
@@ -142,7 +144,7 @@ export default {
         // const base64Data = this.myValue.split("<(\\S*?)[^>]*>.*?|<.*? />")
         // console.log(base64Data)
         console.log(this.myValue)
-        axios.post('/upload/test', {
+        axios.post('/upload/article', {
             essay: this.myValue
         });
     }

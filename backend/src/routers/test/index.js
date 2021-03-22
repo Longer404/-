@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const multer = require('koa-multer')
 
 const Test = mongoose.model('Test');
+const Article = mongoose.model('Article');
 
 var storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -30,7 +31,9 @@ router.post('/test', upload.single('file'), async (context) => {
     //     essay
     // } = context.request.body;
     // console.log(storage.fileFormat.filename)
-    console.log(context.req)
+    console.log(1)
+    // console.log(context.req)
+    
     // console.log(upload.filename)
     // context.res.send(context.req.file.filename)
     context.body = {
@@ -61,8 +64,8 @@ router.post('/test', upload.single('file'), async (context) => {
     // });
 
     // const res = await test.save();
-    console.log(1)
-    console.log(context.request.body);
+    
+    // console.log(context.request.body);
     console.log(2)
 
     // context.body = {
@@ -72,48 +75,67 @@ router.post('/test', upload.single('file'), async (context) => {
     // };
 });
 
-// router.post('/login', async (context) => {
-//     // context.body = '登录成功';
-//     const {
-//         email,
-//         password,
-//     } = context.request.body;
+router.post('/article', async (context) => {
+    // context.body = '注册成功';
+    // 新建两个变量获取前端返回的数据；
+    const {
+        essay
+    } = context.request.body;
+    // console.log(storage.fileFormat.filename)
+    console.log(essay)
+    // console.log(context.req)
+    
+    // console.log(upload.filename)
+    // context.res.send(context.req.file.filename)
 
-//     const one = await User.findOne({
-//         email,
-//     }).exec();
+    // context.body = {
+    //     filename: context.req.file.filename,
+    //     url: `${context.origin}/${context.req.file.filename}`
+    //     // msg:'成功'
+    //     // url: `${context.origin}/upload/${filename}`
+    // }
 
-//     if (!one) {
-//         context.body = {
-//             code: 0,
-//             msg: '用户名或密码错误',
-//             data: null,
-//         };
-//         return;
-//     }
+    // 使用findOne方法查询User表中是否存在与前端传来的用户名相同的用户名
+    // const one = await User.findOne({
+    //     nickname: nickName,
+    // }).exec();
 
-//     const user = {
-//         email: one.email,
-//         _id: one._id,
-//     };
+    // 如果存在则返回以下信息
+    // if (one) {
+    //     context.body = {
+    //         code: 0,
+    //         msg: '已存在该用户',
+    //         data: null,
+    //     };
+    //     return;
+    // }
 
-//     if (one.password === password) {
-//         context.body = {
-//             code: 1,
-//             msg: '登录成功',
-//             data: {
-//                 user,
-//                 token: jwt.sign(user, 'testdata'),
-//             },
-//         };
-//         return;
-//     }
+    // 将两个变量的值传给user的model以创建数据库信息
+    // const test = new Test({
+    //     essay: essay
+    // });
 
-//     context.body = {
-//         code: 0,
-//         msg: '用户名或密码错误',
-//         data: null,
-//     };
-// });
+    // const res = await test.save();
+    
+    // console.log(context.request.body);
+
+    const article = new Article({
+        title: essay.title,
+        createAt: Date(),
+        about: essay.about,
+        content: essay.content,
+        partition: essay.partition
+    })
+    const res = await article.save();
+
+    console.log(2)
+
+    context.body = {
+        code: 1,
+        msg: '成功',
+        // data: context.request.body,
+        data: res
+    };
+});
 
 module.exports = router;
