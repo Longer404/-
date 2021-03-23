@@ -5,7 +5,35 @@
                 bishe
             </router-link>
         </div>
-        <div class="rightdiv">
+        
+        <div v-if="isLogin" class="rightdiv">
+            
+            <el-dropdown>
+                <span class="el-dropdown-link">
+                    <img class="user-avatar" src="../assets/avatar.png">
+                    <i class=" el-icon--right"></i>
+                </span>
+                <template #dropdown>
+                    <el-dropdown-menu>
+                    <el-dropdown-item>
+                        <router-link to="/account">
+                            个人中心
+                        </router-link>
+                    </el-dropdown-item>
+                    <!-- <el-dropdown-item>狮子头</el-dropdown-item> -->
+                    <!-- <el-dropdown-item>螺蛳粉</el-dropdown-item> -->
+                    <!-- <el-dropdown-item >双皮奶</el-dropdown-item> -->
+                    <el-dropdown-item divided>退出登录</el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
+            </el-dropdown>
+            <el-button size="small"  type="danger">
+                <router-link to="/form">
+                    发表文章
+                </router-link>
+            </el-button>
+        </div>
+        <div v-else class="rightdiv">
             <el-button size="small"  type="danger">
                 <router-link to="/form">
                     发表文章
@@ -26,11 +54,25 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
+// import store from '../store'
 
 export default defineComponent({
     setup() {
-        
+        const isLogin = ref(true)
+        // onMounted(() => {
+        //     // console.log(store.state.userInfo.data)
+        //     if(store.state.userInfo.data.code === 1) {
+        //         isLogin.value = true
+        //         console.log(1)
+        //     } else {
+        //         isLogin.value = false
+        //         console.log(2)
+        //     }
+        // });
+        return {
+            isLogin
+        }
     },
 })
 </script>
@@ -65,5 +107,21 @@ export default defineComponent({
   }
   .rightdiv {
       padding-right: 16px;
+      height: 50px;
+      display: flex;
+        align-items: center;
   } 
+  .user-avatar {
+      width: 50px;
+      height: auto;
+      border-radius:50%;
+      margin-right: 20px;
+  }
+  .el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
+  }
+  .el-icon-arrow-down {
+    font-size: 12px;
+  }
 </style>

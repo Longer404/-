@@ -78,7 +78,7 @@ export default defineComponent({
 })
 </script>
 
-<style >
+<style>
   h4 {
     margin: 0;
     font-weight: normal;
@@ -88,7 +88,7 @@ export default defineComponent({
     先限制最大宽度，然后高度自适应变化避免图片被拉伸
   */
   img {
-      max-width: 600px;
+      width: 600px;
       /* width: auto; */
       height: auto;
   }

@@ -76,6 +76,9 @@ router.get('/list', async (context) => {
     // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
     const list = await Article
         .find()
+        .sort({
+            _id: -1,
+        })
         .skip((page - 1) * size)
         .limit(size)
         .exec();

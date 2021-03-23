@@ -3,23 +3,28 @@
     <div class="top-pic">
     </div>
     <el-menu
-      :default-active="activeIndex2"
+      :default-active="activeIndex"
       class="el-menu-demo"
       mode="horizontal"
       @select="handleSelect"
-      background-color="#545c64"
+      active-text-color="#409EFF"
+      >
+      <!-- background-color="#409EFF"
       text-color="#fff"
-      active-text-color="#ffd04b">
-      <el-menu-item index="1">处理中心</el-menu-item>
-      <el-menu-item index="2">我的工作台</el-menu-item>
-      <el-menu-item index="3">消息中心</el-menu-item>
-      <el-menu-item index="4">订单管理</el-menu-item>
+      active-text-color="#E6A23C" -->
+      <el-menu-item index="1">首页</el-menu-item>
+      <el-menu-item index="2">动画资讯</el-menu-item>
+      <el-menu-item index="3">漫画资讯</el-menu-item>
+      <el-menu-item index="4">动漫周边</el-menu-item>
+      <el-menu-item index="5">同人创作</el-menu-item>
+      <el-menu-item index="6">漫展消息</el-menu-item>
     </el-menu>
     <div class="testcent">
       <div class="paomadeng">
         <el-carousel :interval="3000" arrow="always">
-          <el-carousel-item v-for="item in 4" :key="item">
-          <h3>{{ item }}</h3>
+          <el-carousel-item v-for="(item,index) in imgArr" :key="index">
+          <!-- <h3>{{ item }}</h3> -->
+            <img class="carousel-image" :src="item.imgUrl">
           </el-carousel-item>
         </el-carousel>
       </div>
@@ -112,12 +117,20 @@ import axios from 'axios';
 import { defineComponent, onMounted, ref} from 'vue'
 // import { defineComponent, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import store from '../store'
 
 export default defineComponent ({
   data() {
     return {
+      imgArr:[
+        {imgUrl: require('../assets/01.png')},
+        {imgUrl: require('../assets/02.png')},
+        {imgUrl: require('../assets/03.png')},
+        {imgUrl: require('../assets/04.png')},
+      ],
       numbers: [ 1, 2, 3, 4, 5 ],
       // articles:[]
+      activeIndex: '1',
     }
   },
   setup() {
@@ -176,6 +189,7 @@ export default defineComponent ({
     // 组件挂载时先调用getList方法请求文章列表
     onMounted(async () => {
       getList();
+      console.log(store.state);
       // const res = 
       // await axios.get('/article/list').then(res => {
       //   console.log(res.data.data)
@@ -257,6 +271,25 @@ export default defineComponent ({
     height: 50px !important;
     align-items: center;
   } */
+  .el-carousel {
+    height: 360px;
+    width: 637.5px;
+  }
+  .carousel-image {
+    height: 360px;
+    width: auto;
+  }
+  .el-carousel-item {
+    height: 360px;
+  }
+  .el-carousel__container {
+    height: 360px;
+    width: 637.5px;
+  }
+  .el-carousel--horizontal {
+    height: 360px;
+    width: 637.5px;
+  }
   .top-pic {
     height: 100px;
     background: #B3C0D1;
@@ -371,7 +404,7 @@ export default defineComponent ({
     height: 640px;
   }
 
-  .el-carousel {
+  /* .el-carousel {
       width: 500px;
   }
   .el-carousel__item h3 {
@@ -380,7 +413,7 @@ export default defineComponent ({
     opacity: 0.75;
     line-height: 300px;
     margin: 0;
-  }
+  } */
 
   .el-carousel__item:nth-child(2n) {
     background-color: #99a9bf;
