@@ -8,10 +8,10 @@ import axios from 'axios'
 import router from './routers'
 import TestSlot from './components/test.vue'
 import store from './store'
-import { getToken } from './helpers/token'
+// import { getToken } from './helpers/token'
 
 axios.defaults.baseURL = 'http://localhost:3000/';
-axios.defaults.headers['Authorization'] = `Bearer ${getToken()}`;
+// axios.defaults.headers['Authorization'] = `Bearer ${getToken()}`;
 
 // createApp(App).mount('#app')
 const app = createApp(App);

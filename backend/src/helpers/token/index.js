@@ -28,6 +28,8 @@ const middleware = (app) => {
         path: [
             /^\/user\/login/,
             /^\/user\/register/,
+            /^\/article\/list/,
+            /^\/article\//,
         ],
     }));
 };

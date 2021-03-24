@@ -6,13 +6,14 @@
             </router-link>
         </div>
         
-        <div v-if="isLogin" class="rightdiv">
+        <div v-if="$store.state.userStatus" class="rightdiv">
             
             <el-dropdown>
                 <span class="el-dropdown-link">
                     <img class="user-avatar" src="../assets/avatar.png">
                     <i class=" el-icon--right"></i>
                 </span>
+                <!-- <h1>{{isLogin}}</h1> -->
                 <template #dropdown>
                     <el-dropdown-menu>
                     <el-dropdown-item>
@@ -23,7 +24,7 @@
                     <!-- <el-dropdown-item>狮子头</el-dropdown-item> -->
                     <!-- <el-dropdown-item>螺蛳粉</el-dropdown-item> -->
                     <!-- <el-dropdown-item >双皮奶</el-dropdown-item> -->
-                    <el-dropdown-item divided>退出登录</el-dropdown-item>
+                    <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
@@ -39,6 +40,7 @@
                     发表文章
                 </router-link>
             </el-button>
+            <!-- <h1>{{isLogin}}</h1> -->
             <el-button size="small"  type="primary">
                 <router-link to="/login">
                     登录
@@ -54,24 +56,44 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+// import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 // import store from '../store'
+import { setToken } from '../helpers/token'
 
 export default defineComponent({
+    // props: {
+    //     isLogin: store.state.userStatus
+    // },
     setup() {
-        const isLogin = ref(true)
-        // onMounted(() => {
+        // const isLogin = ref(true)
+        // onMounted( async () => {
         //     // console.log(store.state.userInfo.data)
-        //     if(store.state.userInfo.data.code === 1) {
+        //     console.log('挂载头部')
+        //     isLogin.value = await store.state.userStatus
+        //     if(store.state.userStatus) {
+        //         console.log(store.state.userStatus)
         //         isLogin.value = true
-        //         console.log(1)
+        //         console.log(1.1)
         //     } else {
+        //         console.log(store.state.userStatus)
         //         isLogin.value = false
-        //         console.log(2)
+        //         console.log(2.2)
         //     }
         // });
+        // return {
+        //     isLogin
+        // }
+        const logout = () => {
+            setToken('');
+            window.location.href = '/';
+        };
+
+        onMounted(() => {
+            console.log('挂载头部')
+        })
         return {
-            isLogin
+            logout,
         }
     },
 })

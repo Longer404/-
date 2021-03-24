@@ -3,7 +3,7 @@ const koaBody = require('koa-body');
 // const Body = require('koa-body');
 const { connect } = require('./db');
 const registerRoutes = require('./routers');
-const { middleware: koaJwtMiddleware} = require('./helpers/token')
+// const { middleware: koaJwtMiddleware, catchTokenError} = require('./helpers/token')
 const cors = require('@koa/cors');
 const static = require('koa-static')
 
@@ -17,7 +17,8 @@ connect().then(() => {
 
     app.use(koaBody());
 
-    koaJwtMiddleware(app);
+    // app.use(catchTokenError);
+    // koaJwtMiddleware(app);
 
     // 注册路由 
     registerRoutes(app);

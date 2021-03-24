@@ -130,10 +130,12 @@ export default defineComponent({
                 message: data.msg,
                 type: 'success'
             });
+            // 设置全局状态
             store.commit('setUserInfo', data);
-
+            store.commit('setUserStatus',true);
+            // 将token存在本地
             setToken(data.data.token);
-            
+            // 跳转到首页
             router.replace('/');
             // console.log(store.state);
 

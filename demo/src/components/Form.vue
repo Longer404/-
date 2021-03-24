@@ -41,6 +41,7 @@
 import { defineComponent } from 'vue'
 import tinymce from './Tiny.vue'
 import axios from 'axios'
+import { getToken } from '../helpers/token'
 
 export default defineComponent({
     components: {
@@ -102,6 +103,12 @@ export default defineComponent({
       resetForm(formName) {
         this.$refs[formName].resetFields();
       },
+      // 上传时带上头信息以通过服务端验证
+      getHeader() {
+          return {
+            Authorization: `Bearer ${getToken()}`
+          }
+      },
       // const formdata = ref({})
       postArticle(){
         // 父组件通过$refs拿到子组件里的数据
@@ -114,9 +121,17 @@ export default defineComponent({
           content: this.$refs.editor.myValue
         }
         console.log(total)
-        axios.post('/upload/article', {
-            essay: total
-        });
+
+        axios.post(
+          '/upload/article', 
+          {
+              essay: total
+          },
+          {
+              headers: this.getHeader(),
+          }
+                
+        );
       }
       // return {
       //   formdata,

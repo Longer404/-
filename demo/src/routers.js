@@ -6,7 +6,10 @@ import Article from './components/Article.vue'
 // import Account from './components/Account.vue'
 import Test from './components/test.vue'
 import store from './store'
+// import axios from 'axios'
+import { ElMessage } from 'element-plus'
 // import Cardbox from './components/Cardbox.vue'
+import { getToken } from './helpers/token'
 
 // const routes = [
 //     {
@@ -88,9 +91,45 @@ router.afterEach(() => {
     window.scrollTo(0,0);
 });
 
-router.beforeEach(async (next) => {
-    store.dispatch('getUserInfo');
-    next;
+router.beforeEach(async (to, from, next) => {
+
+    // let res = {};
+    if(getToken() !== '') {
+        console.log('本地已登录')
+        // console.log(store.state.userInfo.data)
+        // console.log(1)
+        // store.dispatch('getUserInfo');
+        // store.commit('setUserStatus', false);
+        store.dispatch('getUserInfo');
+        store.commit('setUserStatus', true);
+    } else {
+        // console.log(3)
+        // console.log(!store.state.userInfo.data)
+        console.log('本地不存在登录信息')
+        // store.dispatch('getUserInfo');
+        store.commit('setUserStatus', false);
+    }
+
+    if(to.path === '/form' && store.state.userStatus === false) {
+        // store.dispatch('getUserInfo');
+        
+        ElMessage.error('请先登录账户');
+        next({ path: '/login' });
+        return;
+    } else {
+        next();
+    }
+    
+    if(to.path === '/account' && store.state.userStatus === false) {
+        // store.dispatch('getUserInfo');
+        
+        ElMessage.error('请先登录账户');
+        next({ path: '/login' });
+        return;
+    } else {
+        next();
+    }
+    // next();
 });
 
 export default router;
