@@ -6,9 +6,9 @@
       :disabled="disabled"
       @click="onClick">
     </editor>
-    <button @click="submittest">
+    <!-- <button @click="submittest">
         提交
-    </button>
+    </button> -->
     <!-- <div v-html="myValue"></div> -->
   </div>
 </template>
@@ -38,6 +38,8 @@ import 'tinymce/plugins/code'
 import 'tinymce/plugins/preview'
 import 'tinymce/plugins/fullscreen'
 import 'tinymce/plugins/help'
+import 'tinymce/plugins/autosave'
+// import 'tinymce/plugins/save'
 export default {
   components: {
     Editor
@@ -62,11 +64,11 @@ export default {
     },
     plugins: {
       type: [String, Array],
-      default: 'link lists image code table wordcount media preview fullscreen help'
+      default: 'autosave link lists image code table wordcount media preview fullscreen help'
     },
     toolbar: {
       type: [String, Array],
-      default: 'bold italic underline strikethrough | fontsizeselect | formatselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent blockquote | undo redo | link unlink code lists table image media | removeformat | fullscreen preview'
+      default: 'restoredraft bold italic underline strikethrough | fontsizeselect | formatselect | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent blockquote | undo redo | link unlink code lists table image media | removeformat | fullscreen preview'
     }
   },
   data () {
@@ -78,6 +80,8 @@ export default {
         // skin_url: 'tinymce/skins/ui/oxide-dark', // 暗色系
         convert_urls: false,
         height: 500,
+        selector: '#tinydemo',
+        autosave_retention: "10m",
         // content_css（为编辑区指定css文件）,加上就不显示字数统计了
         // content_css: `${this.baseUrl}tinymce/skins/content/default/content.css`,
         // （指定需加载的插件）
@@ -130,7 +134,11 @@ export default {
     // 添加相关的事件，可用的事件参照文档=> https://github.com/tinymce/tinymce-vue => All available events
     // 需要什么事件可以自己增加
     onClick (e) {
-      this.$emit('onClick', e, tinymce)
+      this.$emit('onClick', e, tinymce);
+      // console.log(this.myValue)
+      console.log(this.myValue);
+      // 有望通过这种方法实现草稿功能
+      // this.myValue = this.myValue + '<p>qwe</p>'
     },
     // 可以添加一些自己的自定义事件，如清空内容
     clear () {

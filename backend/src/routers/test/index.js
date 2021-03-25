@@ -120,8 +120,10 @@ router.post('/article', async (context) => {
     // console.log(context.request.body);
 
     const article = new Article({
+        author: essay.author,
         title: essay.title,
-        createAt: Date(),
+        createAt: essay.createAt,
+        coverUrl: essay.coverUrl,
         about: essay.about,
         content: essay.content,
         partition: essay.partition
@@ -132,7 +134,7 @@ router.post('/article', async (context) => {
 
     context.body = {
         code: 1,
-        msg: '成功',
+        msg: '发布成功',
         // data: context.request.body,
         data: res
     };

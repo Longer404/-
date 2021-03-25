@@ -10,6 +10,8 @@
         <div class="page-container">
             <div class="head-container">
                 <div class="cover-img">
+                    <img :src="detailInfo.coverUrl"/>
+                    <!-- <img src="http://localhost:3000/1616662472411.png" alt> -->
                 </div>
                 <h1>{{detailInfo.title}}</h1>
                 <div class="info">创作日期，阅读量，评论，点赞</div>
@@ -60,9 +62,13 @@ export default defineComponent({
         console.log(id);
 
         const getArticle = async () => {
-            const res = await axios.get(`/article/${id}`)
+            const res = await axios.get(`/article/${id}`);
             // console.log(res.data)
-            detailInfo.value = res.data.data
+            detailInfo.value = res.data.data;
+            console.log(detailInfo.value);
+            if (detailInfo.value.coverUrl === undefined) {
+                detailInfo.value.coverUrl = "http://localhost:3000/1616658254684.jpeg"
+            }
         }
 
         onMounted(() => {
@@ -87,7 +93,7 @@ export default defineComponent({
     为自适应盒子的宽度暂时这样设置文章内图片的显示大小
     先限制最大宽度，然后高度自适应变化避免图片被拉伸
   */
-  img {
+  .page-container img {
       width: 600px;
       /* width: auto; */
       height: auto;
@@ -123,8 +129,9 @@ export default defineComponent({
   }
   .cover-img {
       width: 600px;
-      height: 300px;
+      height: 350px;
       background: rgb(152, 134, 231);
+      overflow: hidden;
   }
   .info {
       font-weight: 100;

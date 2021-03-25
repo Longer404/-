@@ -180,6 +180,7 @@ export default defineComponent ({
           page: curpage.value
         }
       });
+      console.log('getlist')
       // 将请求返回的文章数组赋值给articles
       articles.value = res.data.data.list
       // 将请求返回的文章总数赋值给total
@@ -188,6 +189,7 @@ export default defineComponent ({
 
     // 组件挂载时先调用getList方法请求文章列表
     onMounted(async () => {
+      console.log('onMounted')
       getList();
       console.log(store.state);
       // const res = 

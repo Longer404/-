@@ -10,6 +10,27 @@
             </el-tab-pane> -->
             <el-tab-pane label="用户信息">
                 用户信息
+                <div class="account-avatar">
+                    <span class="avatar-text">
+                      用户头像
+                    </span>
+                    <el-upload
+                        action="http://localhost:3000/upload/test"
+                        list-type="picture-card"
+                        :limit= 1
+                        :headers= "header"
+                        :on-preview="handlePictureCardPreview"
+                        :on-remove="handleRemove"
+                        :on-change="change"
+                        :on-success="handle_success"
+                        :class = "{disabled:isMax}"
+                        :before-upload="beforeAvatarUpload">
+                        <i class="el-icon-plus"></i>
+                    </el-upload>
+                    <el-dialog v-model="dialogVisible">
+                        <img width="100%" :src="dialogImageUrl" alt="">
+                    </el-dialog>
+                </div>
                 <el-form ref="form" :model="form" label-width="80px">
                     <el-form-item label="用户昵称">
                         <el-input v-model="form.name"></el-input>
@@ -72,27 +93,74 @@
 
 <script>
 import { defineComponent } from 'vue'
+import { getToken } from '../helpers/token'
 
 export default defineComponent({
 
     data() {
       return {
+        userAvatarUrl: '',
         form: {
           name: '',
-        //   region: '',
+          //   region: '',
           date1: '',
-        //   date2: '',
-        //   delivery: false,
-        //   type: [],
+          //   date2: '',
+          //   delivery: false,
+          //   type: [],
           resource: '',
           desc: ''
+        },
+        dialogImageUrl: '',
+        dialogVisible: false,
+        isMax : false,
+        header: {
+            Authorization: `Bearer ${getToken()}`
         }
       }
     },
     methods: {
       onSubmit() {
         console.log('submit!');
-      }
+      },
+      handleRemove(file, fileList) {
+        console.log(file, fileList);
+        this.isMax = false;
+      },
+      handlePictureCardPreview(file) {
+        this.dialogImageUrl = file.url;
+        this.dialogVisible = true;
+        // const test = "Bearer " + getToken()
+        // console.log(test)
+      },
+      // 对头像上传的一些限制
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg' || 'image/png';
+        const isLt2M = file.size / 1024 / 1024 < 3;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG或PNG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 3MB!');
+        }
+        return isJPG && isLt2M;
+      },
+      // 上传框改变触发的钩子
+      change(){
+          console.log('change')
+        this.isMax = true
+      },
+      // 上传成功后服务端返回的信息
+      handle_success(res) {
+          console.log(res);
+          this.userAvatarUrl = res.url;
+      },
+      // 上传时携带的请求头
+      getHeader() {
+          return {
+            Authorization: `Bearer ${getToken()}`
+          }
+      },
     },
 
     setup() {
@@ -129,6 +197,24 @@ export default defineComponent({
     min-height: 800px;
     width: 800px;
     background: #555;
+}
+.account-avatar {
+  margin: 0 auto;
+  width: 560px;
+  display: flex;
+  justify-content:flex-start;
+  
+}
+.avatar-text {
+  width: 68px;
+  padding-right: 12px;
+  font-size: 14px;
+  line-height: 40px;
+  color: #606266;
+  text-align: right;
+}
+.disabled .el-upload--picture-card {
+    display: none;
 }
 .card-manage {
     display: flex;

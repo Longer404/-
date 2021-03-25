@@ -83,6 +83,12 @@ const router = createRouter({
             name: 'test',
             component: Test,
             // meta: { redirectAlreadyLogin: true }
+        },
+        {
+            path: '/testpage',
+            name: 'testpage',
+            // component: Register,
+            component: () => import('./components/testpage.vue')
         }
     ]
 })

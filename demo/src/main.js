@@ -6,7 +6,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css'
 import axios from 'axios'
 import router from './routers'
-import TestSlot from './components/test.vue'
+import TestSlot from './components/UploadImg.vue'
 import store from './store'
 // import { getToken } from './helpers/token'
 
