@@ -192,6 +192,7 @@ export default defineComponent ({
       console.log('onMounted')
       getList();
       console.log(store.state);
+      console.log(store.state.userInfo);
       // const res = 
       // await axios.get('/article/list').then(res => {
       //   console.log(res.data.data)

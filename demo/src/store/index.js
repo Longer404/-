@@ -9,6 +9,7 @@ export default createStore({
     },
     mutations: {
         setUserInfo(state, userInfo) {
+            console.log(Date());
             state.userInfo = userInfo;
         },
         setUserStatus(state, userStatus) {
@@ -26,7 +27,11 @@ export default createStore({
                     }
                 }
             );
+            console.log('getUserInfo');
+            console.log(data);
             store.commit('setUserInfo', data);
+            store.commit('setUserStatus', true);
+            return data;
         },
         async getUserStatus(formData, store) {
             const { data } = await axios.post('/user/login', {
