@@ -20,6 +20,6 @@
     "koa-jwt": "^4.0.0",
     "koa-multer": "^1.0.2",
     "koa-static": "^5.0.0",
-    "mongoose": "^5.11.19"
+    "mongoose": "^5.12.2"
   }
 }

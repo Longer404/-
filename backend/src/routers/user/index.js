@@ -87,6 +87,7 @@ router.post('/login', async (context) => {
         nickname: one.nickname,
         email: one.email,
         _id: one._id,
+        userAvatar: one.userAvatar,
     };
 
     if (one.password === password) {
@@ -115,6 +116,57 @@ router.get('/info', async (context) => {
         msg: '获取成功',
     }
     
+});
+
+router.post('/update', async (context) => {
+    // context.body = '登录成功';
+    const {
+        id,
+        nickname,
+        userAvatar,
+    } = context.request.body;
+
+    console.log(nickname + userAvatar)
+    
+    const one = await User.findOne({
+        _id: id
+    }).exec();
+
+    if (!one) {
+        context.body = {
+            code: 0,
+            msg: '未找到用户',
+            data: null,
+        };
+        return;
+    }
+
+    if (nickname) {
+        one.nickname = nickname
+    }
+
+    if (userAvatar) {
+        one.userAvatar = userAvatar  
+    }
+
+    await one.save();
+    const user = {
+        nickname: one.nickname,
+        email: one.email,
+        _id: one._id,
+        userAvatar: one.userAvatar,
+    };
+
+    context.body = {
+        code: 1,
+        msg: '修改成功',
+        data: {
+            user,
+            token: jwt.sign(user, config.JWT_SECRET),
+        },
+    };
+    return;
+
 });
 
 module.exports = router;

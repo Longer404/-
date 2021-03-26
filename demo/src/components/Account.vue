@@ -36,25 +36,25 @@
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
                     
-                    <el-form-item label="出生日期">
+                    <!-- <el-form-item label="出生日期">
                         <el-col :span="11">
                         <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
                         </el-col>
-                        <!-- <el-col class="line" :span="2">-</el-col>
+                        <el-col class="line" :span="2">-</el-col>
                         <el-col :span="11">
                         <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
-                        </el-col> -->
-                    </el-form-item>
+                        </el-col>
+                    </el-form-item> -->
                     
-                    <el-form-item label="性别">
+                    <!-- <el-form-item label="性别">
                         <el-radio-group v-model="form.resource">
                         <el-radio label="男"></el-radio>
                         <el-radio label="女"></el-radio>
                         </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="个性签名">
+                    </el-form-item> -->
+                    <!-- <el-form-item label="个性签名">
                         <el-input type="textarea" resize="none" v-model="form.desc"></el-input>
-                    </el-form-item>
+                    </el-form-item> -->
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">保存</el-button>
                         <!-- <el-button>取消</el-button> -->
@@ -94,6 +94,10 @@
 <script>
 import { defineComponent } from 'vue'
 import { getToken } from '../helpers/token'
+import store from '../store'
+import { setToken } from '../helpers/token'
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
 
 export default defineComponent({
 
@@ -103,12 +107,12 @@ export default defineComponent({
         form: {
           name: '',
           //   region: '',
-          date1: '',
+          // date1: '',
           //   date2: '',
           //   delivery: false,
           //   type: [],
-          resource: '',
-          desc: ''
+          // resource: '',
+          // desc: ''
         },
         dialogImageUrl: '',
         dialogVisible: false,
@@ -119,8 +123,25 @@ export default defineComponent({
       }
     },
     methods: {
-      onSubmit() {
+      async onSubmit() {
+        if (this.form.name === '' && this.userAvatarUrl === '') {
+          ElMessage.warning('请修改后保存');
+          return;
+        }
         console.log('submit!');
+        // console.log(this.form);
+        const { data } = await axios.post('/user/update', {
+            id: store.state.userInfo.data.data._id,
+            nickname: this.form.name,
+            userAvatar: this.userAvatarUrl,
+              
+        });
+        console.log(data);
+        // 设置全局状态
+        store.commit('setUserInfo', data);
+        store.commit('setUserStatus',true);
+        // 将token存在本地
+        setToken(data.data.token);
       },
       handleRemove(file, fileList) {
         console.log(file, fileList);
@@ -164,25 +185,82 @@ export default defineComponent({
     },
 
     setup() {
+        // const userAvatarUrl = ref('');
         // const form = reactive({
-        //     name: '',
-        //     // region: '',
-        //     date1: '',
-        //     // date2: '',
-        //     // delivery: false,
-        //     // type: [],
-        //     resource: '',
-        //     desc: ''
-        // });
+        //   name: '',
+          //   region: '',
+          // date1: '',
+          //   date2: '',
+          //   delivery: false,
+          //   type: [],
+          // resource: '',
+          // desc: ''
+      //   });
+      //   const dialogImageUrl = ref('');
+      //   const dialogVisible = ref(false);
+      //   const isMax = ref(false);
+      //   const header = {
+      //       Authorization: `Bearer ${getToken()}`
+      //   };
 
-        // const onSubmit = () => {
-        //     console.log('submit!');
-        // };
+      //   const onSubmit = () => {
+      //   console.log('submit!');
+      // }
+      // const handleRemove = (file, fileList) =>{
+      //   console.log(file, fileList);
+      //   isMax.value = false;
+      // };
+      // const handlePictureCardPreview = (file) =>{
+      //   dialogImageUrl.value = file.url;
+      //   dialogVisible.value = true;
+        // const test = "Bearer " + getToken()
+        // console.log(test)
+      // };
+      // 对头像上传的一些限制
+      // const beforeAvatarUpload = (file) => {
+      //   const isJPG = file.type === 'image/jpeg' || 'image/png';
+      //   const isLt2M = file.size / 1024 / 1024 < 3;
 
-        // return {
-        //     form,
-        //     onSubmit
-        // }
+      //   if (!isJPG) {
+      //     this.$message.error('上传头像图片只能是 JPG或PNG 格式!');
+      //   }
+      //   if (!isLt2M) {
+      //     this.$message.error('上传头像图片大小不能超过 3MB!');
+      //   }
+      //   return isJPG && isLt2M;
+      // };
+      // 上传框改变触发的钩子
+      // const change = () =>{
+      //     console.log('change')
+      //   isMax.value = true
+      // };
+      // 上传成功后服务端返回的信息
+      // const handle_success = (res) => {
+      //     console.log(res);
+      //     userAvatarUrl.value = res.url;
+      // };
+      // 上传时携带的请求头
+      // const getHeader = () => {
+      //     return {
+      //       Authorization: `Bearer ${getToken()}`
+      //     }
+      // };
+
+      // return {
+      //     userAvatarUrl,
+      //     form,
+      //     dialogImageUrl,
+      //     dialogVisible,
+      //     isMax,
+      //     header,
+      //     onSubmit,
+      //     handleRemove,
+      //     handlePictureCardPreview,
+      //     beforeAvatarUpload,
+      //     change,
+      //     handle_success,
+      //     getHeader,
+      // }
     },
 
 })

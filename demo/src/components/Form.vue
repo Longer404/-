@@ -309,10 +309,10 @@ export default defineComponent({
     object-fit: cover;
     display: block;
   }
-  .el-input {
+  .sonfrombox .el-input {
     width: 500px !important;
   }
-  .el-textarea {
+  .sonfrombox .el-textarea {
     width: 500px !important;
   }
   .middle-box {
