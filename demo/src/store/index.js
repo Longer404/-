@@ -4,6 +4,7 @@ import { getToken } from '../helpers/token'
 
 export default createStore({
     state: {
+        articleDetail: {},
         userInfo: {},
         userStatus: false,
     },
@@ -15,6 +16,9 @@ export default createStore({
         setUserStatus(state, userStatus) {
             state.userStatus = userStatus;
         },
+        setArticleDetail(state, articleDetail) {
+            state.articleDetail = articleDetail;
+        }
     },
     actions: {
         async getUserInfo(store) {
@@ -33,6 +37,7 @@ export default createStore({
             store.commit('setUserStatus', true);
             return data;
         },
+        
         async getUserStatus(formData, store) {
             const { data } = await axios.post('/user/login', {
                 email: formData.email,

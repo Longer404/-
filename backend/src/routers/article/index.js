@@ -122,4 +122,55 @@ router.get('/:id', async (context) => {
     }
 });
 
+router.get('/manager/:id', async (context) => {
+    
+    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
+    const {
+        id,
+    } = context.params;
+
+    const list = await Article.find({
+        authorId: id,
+    }).exec();
+
+    if (!list) {
+        context.body = {
+            code: 1,
+            msg: '还没有任何投稿',
+            data: null,
+        };
+    }
+
+    console.log('list')
+    
+
+    // 最后返回前端所需的数据
+    context.body = {
+        code: 1,
+        msg: '获取成功',
+        data: {
+            // total,
+            // page,
+            // size,
+            list,
+        }
+    };
+});
+
+router.delete('/:id', async (context) => {
+    const {
+        id,
+    } = context.params;
+
+    const delMsg = await Article.deleteOne({
+        _id: id,
+    });
+    console.log('删除成功');
+    context.body = {
+        data: delMsg,
+        msg: '删除成功',
+        code: 1,
+    };
+});
+
 module.exports = router;

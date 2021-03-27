@@ -4,6 +4,7 @@ const { getMeta } = require('../helpers');
 const ArticleSchema = new mongoose.Schema({
     title: String,
     author: String,
+    authorId: String,
     createAt: String,
     coverUrl: String,
     about: String,

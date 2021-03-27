@@ -169,4 +169,24 @@ router.post('/update', async (context) => {
 
 });
 
+router.post('/collection', async (context) => {
+    const {
+        id,
+    } = context.request.body;
+
+    const one = await User.findOne({
+        _id: id
+    }).exec();
+
+    console.log(one);
+    one.collect.push('33','55');
+    console.log(one.collect);
+
+    context.body = {
+        code: 1,
+        msg: '测试成功',
+        data: null,
+    }
+})
+
 module.exports = router;

@@ -33,11 +33,7 @@
               <el-option label="区域二" value="beijing"></el-option>
               </el-select>
           </el-form-item>
-          <!-- <el-form-item label="即时配送" prop="delivery">
-              <el-switch v-model="ruleForm.delivery"></el-switch>
-          </el-form-item> -->
-          
-          
+        
           <el-form-item label="摘要" prop="desc">
               <el-input type="textarea" resize="none" v-model="ruleForm.desc"></el-input>
           </el-form-item>
@@ -64,7 +60,7 @@
 
 <script>
 
-import { defineComponent } from 'vue'
+import { defineComponent, onMounted } from 'vue'
 import tinymce from './Tiny.vue'
 import axios from 'axios'
 import { getToken } from '../helpers/token'
@@ -168,6 +164,7 @@ export default defineComponent({
         const total = {
           // 作者为当前登录的用户
           author: store.state.userInfo.data.data.nickname,
+          authorId: store.state.userInfo.data.data._id,
           // 创作时间为发表时间
           createAt: Date(),
           coverUrl: this.imageUrl,
@@ -233,6 +230,9 @@ export default defineComponent({
           // console.log(this.imageUrl);
           console.log(this.msg);
         };
+        onMounted(() => {
+          console.log('formIsOnMounted');
+        })
         return{
           testpost,
         }
