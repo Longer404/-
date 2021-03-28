@@ -5,6 +5,7 @@ import { getToken } from '../helpers/token'
 export default createStore({
     state: {
         articleDetail: {},
+        articleStatus:'',
         userInfo: {},
         userStatus: false,
     },
@@ -18,6 +19,9 @@ export default createStore({
         },
         setArticleDetail(state, articleDetail) {
             state.articleDetail = articleDetail;
+        },
+        setArticleStatus(state, articleStatus) {
+            state.articleStatus = articleStatus;
         }
     },
     actions: {

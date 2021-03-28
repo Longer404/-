@@ -1,5 +1,5 @@
 require('./schemas/user');
-require('./schemas/test');
+require('./schemas/draft');
 require('./schemas/article');
 
 const mongoose = require('mongoose');

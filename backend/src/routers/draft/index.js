@@ -1,13 +1,13 @@
 const Router = require('@koa/router');
 const mongoose = require('mongoose');
-// const jwt = require('jsonwebtoken');
 
-const Article = mongoose.model('Article');
+const Draft = mongoose.model('Draft');
 
 const router = new Router({
-    prefix: '/article'
+    prefix: '/draft'
 });
 
+// 接收前端传来的新草稿并保存到数据库
 router.post('/post', async (context) => {
     // context.body = '注册成功';
     // 新建两个变量获取前端返回的数据；
@@ -15,9 +15,9 @@ router.post('/post', async (context) => {
         essay
     } = context.request.body;
     // console.log(storage.fileFormat.filename)
-    console.log(essay)
+    console.log(essay);
 
-    const article = new Article({
+    const draft = new Draft({
         author: essay.author,
         authorId: essay.authorId,
         title: essay.title,
@@ -27,32 +27,32 @@ router.post('/post', async (context) => {
         content: essay.content,
         partition: essay.partition
     })
-    const res = await article.save();
+    const res = await draft.save();
 
-    console.log(2)
+    console.log('新草稿');
 
     context.body = {
         code: 1,
-        msg: '发布成功',
+        msg: '保存成功',
         // data: context.request.body,
         data: res
     };
 });
 
-// 接收前端传来的文章并更新数据库中的记录
+// 接收前端传来的草稿并更新数据库中的记录
 router.post('/update', async (context) => {
-    // 接收前端传来的文章
+    // 接收前端传来的草稿
     const {
         essay,
     } = context.request.body;
 
     console.log(essay);
-    // 根据传来的文章的id查找是否已经存在此文章
-    const one = await Article.findOne({
+    // 根据传来的草稿的id查找是否已经存在此草稿
+    const one = await Draft.findOne({
         _id: essay.articleId
     }).exec();
 
-    // 如果不存在则说明前端传上来的是新的文章，需要在数据库中新建
+    // 如果不存在则说明前端传上来的是新的草稿，需要在数据库中新建
     if (!one) {
         // const newDraft = new Draft({
         //     author: essay.author,
@@ -67,14 +67,14 @@ router.post('/update', async (context) => {
         // const res = await newDraft.save();
         context.body = {
             code: 0,
-            msg: '找不到文章',
+            msg: '找不到草稿',
             // data: context.request.body,
             data: null,
         };
         return;
     }
 
-    // 如果存在文章，则用数据库中的数据与前端传来的数据进行对比
+    // 如果存在草稿，则用数据库中的数据与前端传来的数据进行对比
     // 然后更新数据库的记录
     if (essay.coverUrl !== '') {
         one.coverUrl = essay.coverUrl
@@ -97,7 +97,7 @@ router.post('/update', async (context) => {
     }
     // 保存数据库记录
     await one.save();
-    console.log('旧文章')
+    console.log('旧草稿')
     context.body = {
         code: 1,
         msg: '保存成功',
@@ -106,58 +106,14 @@ router.post('/update', async (context) => {
     return;
 });
 
-router.get('/list', async (context) => {
-    
-    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
-    const {
-        page = 1,
-        size = 5,
-    } = context.query;
-
-    console.log(1)
-    // const article = new Article({
-    //     title: '第一篇文章',
-    //     author: 'longer',
-    //     createAt: Date(),
-    //     about: '这是第一篇文章的摘要',
-    //     content: '这是第一篇文章的内容',
-    // })
-    // const res = await article.save();
-
-    // 将数据库中article表的记录的总数传给total
-    const total = await Article.countDocuments();
-    // const list = await Article.find().exec();
-
-    // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
-    const list = await Article
-        .find()
-        .sort({
-            _id: -1,
-        })
-        .skip((page - 1) * size)
-        .limit(size)
-        .exec();
-
-    // 最后返回前端所需的数据
-    context.body = {
-        code: 1,
-        msg: '获取成功',
-        data: {
-            total,
-            page,
-            size,
-            list,
-        }
-    };
-});
-
+// 根据前端传来的草稿id，找出数据库中相应的记录并返回到前端
 router.get('/:id', async (context) => {
 
     const {
         id,
     } = context.params;
 
-    const one = await Article.findOne({
+    const one = await Draft.findOne({
         _id: id,
     }).exec();
 
@@ -177,6 +133,7 @@ router.get('/:id', async (context) => {
     }
 });
 
+// 根据前端传来的用户id，向前端返回该用户的草稿列表
 router.get('/manager/:id', async (context) => {
     
     // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
@@ -184,7 +141,7 @@ router.get('/manager/:id', async (context) => {
         id,
     } = context.params;
 
-    const list = await Article.find({
+    const list = await Draft.find({
         authorId: id,
     }).exec();
 
@@ -198,6 +155,7 @@ router.get('/manager/:id', async (context) => {
 
     console.log('list')
     
+
     // 最后返回前端所需的数据
     context.body = {
         code: 1,
@@ -211,12 +169,13 @@ router.get('/manager/:id', async (context) => {
     };
 });
 
+// 根据前端传来的草稿id删除数据库中对应id的记录
 router.delete('/:id', async (context) => {
     const {
         id,
     } = context.params;
 
-    const delMsg = await Article.deleteOne({
+    const delMsg = await Draft.deleteOne({
         _id: id,
     });
     console.log('删除成功');

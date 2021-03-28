@@ -78,7 +78,7 @@
                       {{article.createAt}}
                     </div>
                     <div class="card-info-handle">
-                      <el-button type="primary" @click="getDraft(article._id)">编辑</el-button>
+                      <el-button type="primary" @click="getArticle(article._id)">编辑</el-button>
                       <el-button type="danger" @click="removeArticle(article._id)">删除</el-button>
                     </div>
                   </div>
@@ -89,25 +89,25 @@
               收藏夹
               <el-button type="primary" @click="testbutton">测试接口</el-button>
             </el-tab-pane>
-            <el-tab-pane label="草稿箱" name="fourth" :disabled="showdraft">
+            <el-tab-pane label="草稿箱" name="fourth">
               草稿箱
-              <div class="draft-card">
-                <span>上传封面</span>
-                <el-upload
-                  class="avatar-uploader"
-                  action="http://localhost:3000/upload/test"
-                  :show-file-list="false"
-                  :on-success="handleAvatarSuccess"
-                  :before-upload="beforeAvatarUpload"
-                  >
-                  <img v-if="imageUrl" :src="imageUrl" class="avatar">
-                  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
-              </div>
-              <div>文章标题</div>
-              <div>文章分区</div>
-              <div>文章摘要</div>
-              <div>正文</div>
+              <div v-for="draft in drafts" :key="draft" class="card-case">
+                  <div class="card-img">
+
+                  </div>
+                  <div class="card-info">
+                    <div class="card-info-title">
+                      {{draft.title}}
+                    </div>
+                    <div class="card-info-date">
+                      {{draft.createAt}}
+                    </div>
+                    <div class="card-info-handle">
+                      <el-button type="primary" @click="getDraft(draft._id)">编辑</el-button>
+                      <el-button type="danger" @click="removeDraft(draft._id)">删除</el-button>
+                    </div>
+                  </div>
+                </div>
               <!-- <el-button type="primary" @click="testbutton">测试接口</el-button> -->
             </el-tab-pane>
             <!-- <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane> -->
@@ -215,12 +215,16 @@ export default defineComponent({
       // 默认显示的标签
       const activeName = ref('first');
       // 草稿箱标签是否可选
-      const showdraft = ref('false');
+      // const showdraft = ref('false');
       // 存储文章信息的响应式数据
       const articles = ref([]);
-      // 用户id
-      const userId = store.state.userInfo.data.data._id;
+      // 存储草稿信息的响应式数据
+      const drafts = ref([]);
+      
+      // 获取用户文章列表
       const getArticleList = async () => {
+        // 用户id
+        const userId = store.state.userInfo.data.data._id;
         let res = await axios.get(`/article/manager/${userId}`);
         console.log('getlist')
         // 将请求返回的文章数组赋值给articles
@@ -229,7 +233,7 @@ export default defineComponent({
         // 将请求返回的文章总数赋值给total
         // total.value = res.data.data.total
       };
-
+      // 删除用户文章
       const removeArticle = async (articleId) => {
         const aid = articleId;
         console.log(typeof articleId);
@@ -239,18 +243,61 @@ export default defineComponent({
         ElMessage.success(resp.data.msg);
         getArticleList();
       };
-
-      const getDraft = async (articleId) => {
+      // 获取用户文章详细信息
+      const getArticle = async (articleId) => {
         // const aid = articleId;
         // console.log(typeof articleId);
         let resp = await axios.get(`/article/${articleId}`);
         // let res = await axios.delete('/article/' + articleId);
         // console.log(resp);
         store.commit('setArticleDetail', resp.data.data);
-        console.log(showdraft.value);
-        if (showdraft.value) {
-          showdraft.value = !showdraft.value;
-        }
+        store.commit('setArticleStatus','article');
+        // console.log(showdraft.value);
+        // if (showdraft.value) {
+        //   showdraft.value = !showdraft.value;
+        // }
+        router.push('/form');
+        // activeName.value = 'fourth';
+        console.log(store.state.articleDetail);
+        // ElMessage.success(resp.msg);
+        // getArticleList();
+      };
+
+      // 获取用户草稿列表
+      const getDraftList = async () => {
+        // 用户id
+        const userId = store.state.userInfo.data.data._id;
+        let res = await axios.get(`/draft/manager/${userId}`);
+        console.log('getdraft')
+        // 将请求返回的文章数组赋值给articles
+        drafts.value = res.data.data.list
+        console.log(drafts);
+        // 将请求返回的文章总数赋值给total
+        // total.value = res.data.data.total
+      };
+      // 删除用户草稿
+      const removeDraft = async (draftId) => {
+        // const aid = articleId;
+        // console.log(typeof articleId);
+        let resp = await axios.delete(`/draft/${draftId}`);
+        // let res = await axios.delete('/article/' + articleId);
+        console.log(resp);
+        ElMessage.success(resp.data.msg);
+        getDraftList();
+      };
+      // 获取用户草稿详细信息
+      const getDraft = async (draftId) => {
+        // const aid = articleId;
+        // console.log(typeof articleId);
+        let resp = await axios.get(`/draft/${draftId}`);
+        // let res = await axios.delete('/article/' + articleId);
+        // console.log(resp);
+        store.commit('setArticleDetail', resp.data.data);
+        store.commit('setArticleStatus','draft');
+        // console.log(showdraft.value);
+        // if (showdraft.value) {
+        //   showdraft.value = !showdraft.value;
+        // }
         router.push('/form');
         // activeName.value = 'fourth';
         console.log(store.state.articleDetail);
@@ -259,15 +306,18 @@ export default defineComponent({
       };
 
       const testbutton = () => {
+        // 用户id
+        const userId = store.state.userInfo.data.data._id;
         axios.post('/user/collection/', {
           id: userId,
         });
-        showdraft.value = !showdraft.value;
+        // showdraft.value = !showdraft.value;
       }
 
       onMounted(async () => {
         console.log('managerOnMounted')
         getArticleList();
+        getDraftList();
         // console.log(store.state);
         // console.log(store.state.userInfo);
       });
@@ -333,12 +383,14 @@ export default defineComponent({
       // };
 
       return {
+        drafts,
         articles,
-        removeArticle,
         testbutton,
         activeName,
-        showdraft,
+        getArticle,
+        removeArticle,
         getDraft,
+        removeDraft,
       //     userAvatarUrl,
       //     form,
       //     dialogImageUrl,

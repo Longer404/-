@@ -81,6 +81,7 @@ const router = createRouter({
         {
             path: '/test',
             name: 'test',
+            redirect: '/',
             component: Test,
             // meta: { redirectAlreadyLogin: true }
         },
@@ -125,16 +126,37 @@ router.beforeEach(async (to, from, next) => {
     } else {
         next();
     }
-    
-    if(to.path === '/account' && store.state.userStatus === false) {
+    // 一个beforeEach只能使用一个next，因此所有的next都只能用在一个判断中
+    // 其实就是因为每次next跳转都会触发一次beforeEach，而触发之后又会重新判断
+    // 造成多层的嵌套判断
+    // if(to.path === '/account' && store.state.userStatus === false) {
         // store.dispatch('getUserInfo');
         
-        ElMessage.error('请先登录账户');
-        next({ path: '/login' });
-        return;
-    } else {
-        next();
-    }
+    //     ElMessage.error('请先登录账户');
+    //     next({ path: '/login' });
+    //     return;
+    // } else {
+    //     next();
+    // }
+    
+    // if(to.path === '/login' || to.path === '/register') {
+    //     if (store.state.userStatus === true) {
+            // store.dispatch('getUserInfo');
+            
+            // console.log('重定向');
+            // console.log(store.state.userStatus);
+            // ElMessage.error('请先登录账户');
+    //         next({ path: '/test' });
+    //         return;
+    //     } else {
+    //         console.log('重定向2');
+    //         next();
+    //     }
+        
+    // } else {
+    //     console.log('重定向3');
+    //     next();
+    // }
     // next();
 });
 

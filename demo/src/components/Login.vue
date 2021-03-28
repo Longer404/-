@@ -137,6 +137,9 @@ export default defineComponent({
             setToken(data.data.token);
             // 跳转到首页
             router.replace('/');
+            window.location.href='/';
+            // location.reload();
+            // router.go(0);
             // console.log(store.state);
 
             // message.success(data.msg);

@@ -1,9 +1,7 @@
 <template>
   <div class="formbox">
-    
     <div class="sonfrombox">
       <div class="text-cover">
-        
         <div >
           <span style="color:#F56C6C"> 
           *
@@ -37,10 +35,6 @@
           <el-form-item label="摘要" prop="desc">
               <el-input type="textarea" resize="none" v-model="ruleForm.desc"></el-input>
           </el-form-item>
-          <!-- <el-form-item>
-              <el-button type="primary" @click="submitForm('ruleForm')">立即创建</el-button>
-              <el-button @click="resetForm('ruleForm')">重置</el-button>
-          </el-form-item> -->
       </el-form>
 
       <tinymce
@@ -48,10 +42,10 @@
           ref="editor"
           v-model="msg"
           :disabled="disabled"
-          @onClick="onClick"
+          @tinytest="test"
       />
       <div class="middle-box">
-        <el-button type="primary" @click="testpost">保存草稿</el-button>
+        <el-button v-show="isDraft" type="primary" @click="saveDraft">保存草稿</el-button>
         <el-button type="danger" @click="postArticle">现在发表!</el-button>
       </div>
     </div>
@@ -74,14 +68,8 @@ export default defineComponent({
     },
     data() {
       return {
+        isDraft: true,
         imageUrl: '',
-        // total: {
-        //   title: '',
-        //   about: '',
-        //   content: '',
-        //   partition: '',
-        // },
-
         ruleForm: {
           name: '',
           region: '',
@@ -96,25 +84,44 @@ export default defineComponent({
           region: [
             { required: true, message: '请选择分区', trigger: 'change' }
           ],
-          //   date1: [
-          //     { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
-          //   ],
-          //   date2: [
-          //     { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
-          //   ],
-          // type: [
-          //   { type: 'array', required: true, message: '请至少选择一个活动性质', trigger: 'change' }
-          // ],
-          //   resource: [
-          //     { required: true, message: '请选择活动资源', trigger: 'change' }
-          //   ],
           desc: [
             { required: true, message: '请填写文章的摘要', trigger: 'blur' }
           ]
         }
       };
     },
+    mounted () {
+      console.log(store.state.articleDetail);
+      if (store.state.articleDetail._id) {
+        console.log('ArticleDetail is full');
+        this.ruleForm = {
+          name: store.state.articleDetail.title,
+          region: store.state.articleDetail.partition,
+          desc: store.state.articleDetail.about,
+        };
+        this.$refs.editor.tinytest();
+        if (store.state.articleStatus === 'article') {
+          this.isDraft = false;
+        }
+      } else {
+        console.log('ArticleDetail is empty');
+        this.ruleForm = {
+          name: '',
+          region: '',
+          desc: '',
+        };
+      }
+    },
+    unmounted () {
+      console.log('formIsUnmounted');
+      store.commit('setArticleDetail', {});
+    },
     methods: {
+      onClick(e, tinymce) {
+        console.log(e);
+        console.log(tinymce);
+      },
+      
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -154,13 +161,128 @@ export default defineComponent({
         }
         return isJPG && isLt2M;
       },
-      // const formdata = ref({})
-      async postArticle(){
-        // 父组件通过$refs拿到子组件里的数据
-        // console.log(this.$refs.editor.myValue)
-        // console.log(this.$refs.ruleForm)
-        // console.log(store.state.userInfo.data.data.nickname)
-        // console.log(Date())
+      
+      // 删除用户草稿
+      async removeDraft (draftId) {
+        // const aid = articleId;
+        // console.log(typeof articleId);
+        let resp = await axios.delete(`/draft/${draftId}`);
+        // let res = await axios.delete('/article/' + articleId);
+        console.log(resp);
+        // ElMessage.success(resp.data.msg);
+        // getDraftList();
+      },
+
+      // 提交一篇数据库中没有的新草稿
+      async postDraft(){
+        const total = {
+          // 作者为当前登录的用户
+          author: store.state.userInfo.data.data.nickname,
+          authorId: store.state.userInfo.data.data._id,
+          // 创作时间为提交时间
+          createAt: Date(),
+          coverUrl: this.imageUrl,
+          title: this.$refs.ruleForm.model.name,
+          partition: this.$refs.ruleForm.model.region,
+          about: this.$refs.ruleForm.model.desc,
+          content: this.$refs.editor.myValue,
+        };
+        
+        if (total.title === '') {
+          ElMessage.error('请填写文章标题');
+          return;
+        }
+        if (total.partition === '') {
+          ElMessage.error('请选择分区');
+          return;
+        }
+        if (total.about === '') {
+          ElMessage.error('请填写摘要');
+          return;
+        }
+        if (total.content === '') {
+          ElMessage.error('请填写文章正文');
+          return;
+        }
+        const { data } = await axios.post(
+          '/draft/post', 
+          {
+              essay: total
+          },
+          {
+              headers: this.getHeader(),
+          }
+                
+        );
+        if (data.code) {
+            ElMessage.success(data.msg);
+            this.$router.push('/');
+            return;
+        } else {
+            ElMessage.error(data.msg);
+            return;
+        }
+      },
+
+      // 更新已经存在的草稿
+      async updateDraft(){
+        const newEssay = {
+          articleId: store.state.articleDetail._id,
+          coverUrl: this.imageUrl,
+          title: this.$refs.ruleForm.model.name,
+          partition: this.$refs.ruleForm.model.region,
+          about: this.$refs.ruleForm.model.desc,
+          content: this.$refs.editor.myValue,
+        };
+        if (newEssay.coverUrl === store.state.articleDetail.coverUrl) {
+          if (newEssay.title === store.state.articleDetail.title) {
+            if (newEssay.partition === store.state.articleDetail.partition) {
+              if (newEssay.about === store.state.articleDetail.about) {  
+                if (newEssay.content === store.state.articleDetail.content) {
+                  console.log('draft is not change');
+                  ElMessage.success('保存成功');
+                  return;
+                }
+              }
+            }
+          }
+        }
+        const { data } = await axios.post(
+          '/draft/update', 
+          {
+              essay: newEssay
+          },
+          {
+              headers: this.getHeader(),
+          }     
+        );
+        if (data.code) {
+            ElMessage.success(data.msg);
+            this.$router.push('/');
+            return;
+        } else {
+            ElMessage.error(data.msg);
+            return;
+        }
+      },
+
+      saveDraft() {
+        // 如果存在全局数据则是需要更新的草稿
+        if (store.state.articleDetail._id) {
+          // if (store.state.articleStatus === 'draft') {
+          //   this.removeDraft(store.state.articleDetail._id);
+          // }
+          console.log('旧草稿')
+          this.updateDraft();
+        } else {
+          // 否则就是以前需要保存的新草稿
+          console.log('新草稿')
+          this.postDraft();
+        }
+      },
+
+      // 发表文章
+      async postNewArticle(){
         const total = {
           // 作者为当前登录的用户
           author: store.state.userInfo.data.data.nickname,
@@ -175,6 +297,14 @@ export default defineComponent({
         };
         console.log(this.imageUrl);
         console.log(total);
+        if (total.coverUrl === '') {
+          if (store.state.articleDetail.coverUrl) {
+            total.coverUrl = store.state.articleDetail.coverUrl;
+          } else {
+            ElMessage.error('请填上传封面');
+            return;
+          }
+        }
         if (total.title === '') {
           ElMessage.error('请填写文章标题');
           return;
@@ -193,7 +323,7 @@ export default defineComponent({
         }
         // const router = useRouter();
         const { data } = await axios.post(
-          '/upload/article', 
+          '/article/post', 
           {
               essay: total
           },
@@ -210,21 +340,76 @@ export default defineComponent({
             ElMessage.error(data.msg);
             return;
         }
-          
-        // setTimeout(function(){
-        //   // alert('脚本3');
-        //   console.log('发布成功')
-        // },3000);
-        // this.$router.push('/');
-        // console.log('跳转成功')
-        // return;
-      }
-      // return {
-      //   formdata,
-      //   getmes
-      // }
+      },
+
+      // 编辑已经存在的文章
+      async updateArticle(){
+        const newEssay = {
+          articleId: store.state.articleDetail._id,
+          coverUrl: this.imageUrl,
+          title: this.$refs.ruleForm.model.name,
+          partition: this.$refs.ruleForm.model.region,
+          about: this.$refs.ruleForm.model.desc,
+          content: this.$refs.editor.myValue,
+        };
+        if (newEssay.coverUrl === store.state.articleDetail.coverUrl) {
+          if (newEssay.title === store.state.articleDetail.title) {
+            if (newEssay.partition === store.state.articleDetail.partition) {
+              if (newEssay.about === store.state.articleDetail.about) {  
+                if (newEssay.content === store.state.articleDetail.content) {
+                  console.log('article is not change');
+                  ElMessage.success('保存成功');
+                  this.$router.push('/');
+                  return;
+                }
+              }
+            }
+          }
+        }
+        const { data } = await axios.post(
+          '/article/update', 
+          {
+              essay: newEssay
+          },
+          {
+              headers: this.getHeader(),
+          }     
+        );
+        if (data.code) {
+            ElMessage.success(data.msg);
+            this.$router.push('/');
+            return;
+        } else {
+            ElMessage.error(data.msg);
+            return;
+        }
+      },
+
+      postArticle() {
+        // 如果存在全局数据则是需要编辑的文章
+        if (store.state.articleDetail._id) {
+          if (store.state.articleStatus === 'draft') {
+            this.removeDraft(store.state.articleDetail._id);
+            console.log('新文章')
+            this.postNewArticle();
+          } else {
+            console.log('旧文章')
+            this.updateArticle();
+          }                    
+        } else {
+          // 否则就是以前需要发表的新文章
+          console.log('新文章')
+          this.postNewArticle();
+        }
+      },
+
     },
     setup() {
+        // 用户id
+        // const userId = store.state.userInfo.data.data._id;
+        const test = (val) => {
+          console.log(val)
+        };
         const testpost = () => {
           // console.log(this.ruleForm);
           // console.log(this.imageUrl);
@@ -232,9 +417,13 @@ export default defineComponent({
         };
         onMounted(() => {
           console.log('formIsOnMounted');
+          // test();
+          // this.$refs.editor.tinytest();
         })
         return{
           testpost,
+          test,
+          // userId,
         }
     },
 })

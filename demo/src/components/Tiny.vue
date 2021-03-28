@@ -18,7 +18,7 @@
 // 引入组件
 import tinymce from 'tinymce/tinymce' // tinymce默认hidden，不引入不显示
 import Editor from '@tinymce/tinymce-vue'
-
+import store from '../store'
 import axios from 'axios'
 
 // 引入富文本编辑器主题的js和css
@@ -129,6 +129,9 @@ export default {
   mounted () {
     console.log(window)
     tinymce.init({})
+    // console.log(myValue)
+    // console.log(this.value)
+    // this.value = '<p>qwe</p>'
   },
   methods: {
     // 添加相关的事件，可用的事件参照文档=> https://github.com/tinymce/tinymce-vue => All available events
@@ -136,9 +139,14 @@ export default {
     onClick (e) {
       this.$emit('onClick', e, tinymce);
       // console.log(this.myValue)
-      console.log(this.myValue);
+      // console.log(this.myValue);
       // 有望通过这种方法实现草稿功能
       // this.myValue = this.myValue + '<p>qwe</p>'
+    },
+    tinytest() {
+      console.log('test');
+      this.myValue = store.state.articleDetail.content;
+      // this.$emit('test', tinymce);
     },
     // 可以添加一些自己的自定义事件，如清空内容
     clear () {

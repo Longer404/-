@@ -6,8 +6,8 @@
             </router-link>
         </div>
         
-        <div v-if="isLogin" class="rightdiv">
         <!-- <div v-if="isLogin" class="rightdiv"> -->
+        <div v-if="$store.state.userStatus" class="rightdiv">
             <el-dropdown>
                 <span class="el-dropdown-link">
                     <!-- <img class="user-avatar" src="../assets/avatar.png"> -->
