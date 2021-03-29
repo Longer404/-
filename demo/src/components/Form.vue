@@ -22,17 +22,21 @@
         </el-upload>
       </div>
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-position="left" label-width="100px"  class="demo-ruleForm">
-          <el-form-item label="标题" prop="name">
+          <el-form-item label="标题" prop="name" >
               <el-input  v-model="ruleForm.name"></el-input>
           </el-form-item>
           <el-form-item label="分区" prop="region">
-              <el-select v-model="ruleForm.region" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
+              <el-select v-model="ruleForm.region" placeholder="请选择文章分区">
+              <el-option label="动画资讯" value="animation"></el-option>
+              <el-option label="漫画资讯" value="Comics"></el-option>
+              <el-option label="游戏相关" value="game"></el-option>
+              <el-option label="动漫周边" value="peripheral"></el-option>
+              <el-option label="同人相关" value="doujin"></el-option>
+              <el-option label="漫展消息" value="exhibition"></el-option>
               </el-select>
           </el-form-item>
         
-          <el-form-item label="摘要" prop="desc">
+          <el-form-item label="摘要" prop="desc" >
               <el-input type="textarea" resize="none" v-model="ruleForm.desc"></el-input>
           </el-form-item>
       </el-form>

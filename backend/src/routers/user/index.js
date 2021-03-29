@@ -35,6 +35,21 @@ router.post('/register', async (context) => {
         return;
     }
 
+    // 使用findOne方法查询User表中是否存在与前端传来的邮箱相同的邮箱
+    const two = await User.findOne({
+        email: email,
+    }).exec();
+
+    // 如果存在则返回以下信息
+    if (two) {
+        context.body = {
+            code: 0,
+            msg: '该邮箱已被绑定',
+            data: null,
+        };
+        return;
+    }
+
     // 将两个变量的值传给user的model以创建数据库信息
     const user = new User({
         email: email,
@@ -43,15 +58,32 @@ router.post('/register', async (context) => {
     });
 
     const res = await user.save();
-    console.log(1)
-    console.log(context.request.body);
-    console.log(2)
+    console.log(res);
+    
+    // 生成token返回给前端
+    const regiuser = {
+        nickname: res.nickname,
+        email: res.email,
+        _id: res._id,
+        userAvatar: res.userAvatar,
+    };
 
     context.body = {
         code: 1,
         msg: '注册成功',
-        data: res,
+        data: {
+            regiuser,
+            token: jwt.sign(regiuser, config.JWT_SECRET),
+        },
     };
+    // return;
+    
+
+    // context.body = {
+    //     code: 1,
+    //     msg: '注册成功',
+    //     data: res,
+    // };
 });
 
 router.post('/login', async (context) => {

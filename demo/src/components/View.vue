@@ -1,5 +1,6 @@
 <template>
   <div>
+    <el-backtop ></el-backtop>
     <div class="top-pic">
     </div>
     <el-menu
@@ -28,8 +29,14 @@
           </el-carousel-item>
         </el-carousel>
       </div>
-      <div class="toplist">
-        排行榜
+      <div  class="toplist">
+        <div class="toplist-head"><h2>热门排行</h2></div>
+        <div v-for="rankessay in rankEssays" :key="rankessay" class="rank-wrap">
+          <span class="rank-wrap-num">{{rankEssays.indexOf(rankessay) + 1}}</span>
+          <div class="rank-wrap-title">{{rankessay.title}}</div>
+        </div>
+        
+        
       </div>
     </div>
 
@@ -37,12 +44,9 @@
       <div class="cardlist-letf">
         <div v-for="article in articles" :key="article" class="cards">
           <div class="cardleft">
-            <div class="cardpic"></div>
-            <div class="undercardpic">
-              <li>点赞</li>
-              <li>收藏</li>
-              <li>不点赞</li>
-            </div>
+            <!-- <div class="cardpic"> -->
+              <img class="cardpic" :src="article.coverUrl">
+            <!-- </div>             -->
           </div>
           <div class="cardright" @click="goToDetail(article)">
             <h2 class="cardtitle">{{article.title}}</h2>
@@ -54,11 +58,18 @@
                 {{article.about}}
               </p>
             </div>
-            <div class="cardtags"> 
-              <el-tag size="mini" effect="dark" type="info">标签1</el-tag>
-              <el-tag size="mini" effect="plain" type="info">超小标签</el-tag>
-              <el-tag size="mini"  type="info">标签3</el-tag>
-            </div>
+            <div class="cardbottom">
+              <div class="cardtags"> 
+                <el-tag size="mini" effect="dark" type="info">标签1</el-tag>
+                <el-tag size="mini" effect="plain" type="info">超小标签</el-tag>
+                <el-tag size="mini"  type="info">标签3</el-tag>
+              </div>
+              <div class="undercardpic">
+                <li>点赞</li>
+                <li>收藏</li>
+                <li>不点赞</li>
+              </div>
+            </div>            
           </div>
         </div>
         <div class="pagebox">
@@ -103,9 +114,15 @@
         
       </div> -->
       <div class="cardlist-right">
-        <div class="cardtitle">
+        <div class="cardlist-right-title">
           <!-- {{resp}} -->
-          cardtitle
+          <h2>推荐阅读</h2>
+        </div>
+        <div v-for="recommendEssay in recommendEssays" :key="recommendEssay" class="recommend">
+          <div class="recommend-pic-box">
+            <img class="recommend-pic" :src="recommendEssay.coverUrl">
+          </div>
+          <div class="recommend-title">{{recommendEssay.title}}</div>
         </div>
       </div>
     </div>
@@ -166,6 +183,10 @@ export default defineComponent ({
 
     // 请求获取数据库中的文章后存放在articles中
     const articles = ref([]);
+    // 排行榜文章
+    const rankEssays = ref([]);
+    // 推荐文章
+    const recommendEssays = ref([]);
     // 请求到的文章总数total，默认为1
     const total = ref(1)
     // 当前页面（页码？）curpage（currentPage）默认为1
@@ -187,12 +208,31 @@ export default defineComponent ({
       total.value = res.data.data.total
     }
 
+    const getOtherList = async (pageSize, essay) => {
+      let res = await axios.get('/article/list', {
+        params: {
+          size: pageSize
+        }
+      });
+      console.log('getotherlist')
+      // 将请求返回的文章数组赋值给articles
+      essay.value = res.data.data.list
+      // 将请求返回的文章总数赋值给total
+      // total.value = res.data.data.total
+    }
+    const handleSelect = (index) => {
+      console.log(index);
+    }
     // 组件挂载时先调用getList方法请求文章列表
     onMounted(async () => {
       console.log('onMounted')
       getList();
+      console.log(articles);
       console.log(store.state);
       console.log(store.state.userInfo);
+      getOtherList(8, rankEssays);
+      getOtherList(3, recommendEssays);
+      console.log(rankEssays);
       // const res = 
       // await axios.get('/article/list').then(res => {
       //   console.log(res.data.data)
@@ -225,6 +265,7 @@ export default defineComponent ({
       curpage.value = page;
       // 然后再调用一次getList方法发送请求获取文章列表
       getList();
+      window.scrollTo(0, 571);
     }
     // const articles = res.data.data
     
@@ -239,7 +280,10 @@ export default defineComponent ({
       total,
       setPage,
       curpage,
-      goToDetail
+      goToDetail,
+      rankEssays,
+      recommendEssays,
+      handleSelect,
       // resp
     }
   }
@@ -265,33 +309,40 @@ export default defineComponent ({
     margin-left: 10%;
   } */
   .el-menu {
-    padding-left: 10% !important;
+    /* padding-left: 10% !important; */
     /* height: 50px; */
-    /* min-width: 1200px; */
+    max-width: 1000px;
+    margin: 0 auto;
+    font-weight: 1000;
+    /* font-size: 16px; */
     /* width: 100%; */
+  }
+  .el-menu-item {
+    font-size: 15px;
   }
   /* .el-menu-item {
     height: 50px !important;
     align-items: center;
   } */
-  .el-carousel {
+  /* .el-carousel {
     height: 360px;
     width: 637.5px;
-  }
+  } */
   .carousel-image {
     height: 360px;
-    width: auto;
+    width: 700px;
+    object-fit: cover;
   }
   .el-carousel-item {
     height: 360px;
   }
   .el-carousel__container {
     height: 360px;
-    width: 637.5px;
+    width: 700px;
   }
   .el-carousel--horizontal {
     height: 360px;
-    width: 637.5px;
+    width: 700px;
   }
   .top-pic {
     height: 100px;
@@ -301,8 +352,30 @@ export default defineComponent ({
   }
   .toplist {
     /* margin-right: 10%; */
-    width: 200px;
-    background: #000;
+    width: 280px;
+    background: #555;
+  }
+  .toplist-head {
+    height: 60px;
+    background: #999;
+  }
+  .rank-wrap {
+    height: 30px;
+    margin-top: 6px;
+    background: #555;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .rank-wrap-num {
+    width: 30px;
+    text-align: center;
+    line-height:30px;
+    /* align-items: center; */
+    background: rgb(106, 83, 238);
+  }
+  .rank-wrap-title {
+    line-height:30px;
+    margin-left: 10px;
   }
   .testcent {
     /* 弹性盒子+左右两端对称 */
@@ -328,7 +401,7 @@ export default defineComponent ({
     justify-content: space-between;
   }
   .cardlist-letf {
-    min-width: 720px;
+    min-width: 700px;
     /* margin-left: 10%; */
     /* background: #B3C0D1;
     height: 500px; */
@@ -338,7 +411,7 @@ export default defineComponent ({
     margin-bottom: 10px;
     /* margin-left: 10%; */
     background: #B3C0D1;
-    height: 200px;
+    height: 175px;
     display: flex;
     /* width: 750px; */
     justify-content: space-between;
@@ -348,11 +421,8 @@ export default defineComponent ({
     /* display: flex; */
   }
   .cardright {
-    width: 460px;
+    width: 450px;
     text-align: left;
-  }
-  .cardtitle {
-    margin-top: 10px;
   }
   /* 标题下方发表日期以及作者信息的样式 */
   .cardauthor {
@@ -362,7 +432,7 @@ export default defineComponent ({
     /* text-align: left; */
   }
   .cardabout-box {
-    height: 79px;
+    height: 58px;
   }
   /* 内容摘要的样式 */
   .cardabout {
@@ -373,6 +443,10 @@ export default defineComponent ({
     text-overflow: ellipsis;
     -webkit-box-orient: vertical;
   }
+  .cardbottom {
+    display: flex;
+    justify-content: space-between;
+  }
   .cardtags {
     padding-top: 8px;
   }
@@ -382,6 +456,7 @@ export default defineComponent ({
   .cardpic {
     width: 240px;
     height: 150px;
+    object-fit: cover;
     background: #475669;
   }
   .undercardpic {
@@ -401,10 +476,30 @@ export default defineComponent ({
     position: sticky;
     top:0;
     background: #555;
-    min-width: 200px;
+    width: 280px;
     margin-top: 20px;
     /* margin-right: 10%; */
     height: 640px;
+  }
+  .cardlist-right-title {
+    /* margin-top: 10px; */
+    height: 50px;
+  }
+  .recommend-pic-box {
+    width: 240px;
+    height: 150px;
+    margin: 0 auto;
+  }
+  .recommend-pic {
+    width: 240px;
+    height: 150px;
+    object-fit: cover;
+    background: rgb(157, 230, 179);
+  }
+  .recommend-title {
+    height: 30px;
+    margin-bottom: 10px;
+    background: #555;
   }
 
   /* .el-carousel {

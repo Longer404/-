@@ -5,11 +5,15 @@ import Login from './components/Login.vue'
 import Article from './components/Article.vue'
 // import Account from './components/Account.vue'
 import Test from './components/test.vue'
+// import Homeview from './components/Homeview.vue'
 import store from './store'
 // import axios from 'axios'
 import { ElMessage } from 'element-plus'
 // import Cardbox from './components/Cardbox.vue'
 import { getToken } from './helpers/token'
+// import Testpage1 from './components/testpage1.vue'
+// import Testpage2 from './components/testpage2.vue'
+
 
 // const routes = [
 //     {
@@ -43,8 +47,24 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
+            // redirect:'/home',
             component: View,
+            
         },
+        // {
+        //     path: '/home',
+        //     component: Homeview,
+        //     children: [
+        //         {
+        //             path: 'testpage1',
+        //             component: Testpage1
+        //         },
+        //         {
+        //             path: 'testpage2',
+        //             component: Testpage2
+        //         }
+        //     ]
+        // },
         {
             path: '/login',
             name: 'login',
@@ -81,7 +101,7 @@ const router = createRouter({
         {
             path: '/test',
             name: 'test',
-            redirect: '/',
+            // redirect: '/',
             component: Test,
             // meta: { redirectAlreadyLogin: true }
         },
@@ -117,13 +137,19 @@ router.beforeEach(async (to, from, next) => {
         store.commit('setUserStatus', false);
     }
 
-    if(to.path === '/form' && store.state.userStatus === false) {
+    if(store.state.userStatus === false) {
         // store.dispatch('getUserInfo');
-        
-        ElMessage.error('请先登录账户');
-        next({ path: '/login' });
-        return;
+        if (to.path === '/form' || to.path === '/account'){
+            ElMessage.error('请先登录账户');
+            next({ path: '/login' });
+            return;
+        }
+        next();
     } else {
+        if(to.path === '/login' || to.path === '/register') {
+            next({ path: '/' });
+            return;
+        }
         next();
     }
     // 一个beforeEach只能使用一个next，因此所有的next都只能用在一个判断中

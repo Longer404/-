@@ -10,8 +10,9 @@
         <div v-if="$store.state.userStatus" class="rightdiv">
             <el-dropdown>
                 <span class="el-dropdown-link">
-                    <!-- <img class="user-avatar" src="../assets/avatar.png"> -->
-                    <img class="user-avatar" :src="avatarUrl">
+                    
+                    <img v-if="avatarUrl" class="user-avatar" :src="avatarUrl">
+                    <img v-else class="user-avatar" src="../assets/avatar.png">
                     <!-- <img class="user-avatar" :src="$store.state.userInfo.data.data.userAvatar"> -->
                     <i class=" el-icon--right"></i>
                 </span>

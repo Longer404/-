@@ -1,51 +1,19 @@
-<template v-slot:testslot>
-    <!-- <div class="father" @click="fatherbutton">
-        <div class="firstson" @mouseleave="afterchange" @mouseover="sthchange" @click="firstbutton" :style="changeColor(flag)">
-        </div>
-        <div class="secondson" @click="secondbutton" >
-        </div>
-        <div class="thirdson" @click="thirdbutton">
-        </div>
-    </div> -->
-    <!-- <div>
-    <el-carousel :interval="3000" height="450px" arrow="always">
-        <el-carousel-item  v-for="(item,index) in imgArr" :key="index">
-
-        <img class="image" :src="item.url" >
-        </el-carousel-item>
-    </el-carousel>
-
-    <div class="father" @click="onclick"></div>
-    <div v-for="(item,index) in imgArr" :key="index">
-        <img :src="item.url" >
-    </div>
-    </div> -->
-    <div class="index">
-        <!-- <input type="file">
-        <a href="javascript:;" class="file">选择文件
-            <input type="file" name="" id="" @click="testclick">
-        </a> -->
-        <el-upload
-            action="http://localhost:3000/upload/test"
-            list-type="picture-card"
-            :limit= 1
-            :headers= "header"
-            :on-preview="handlePictureCardPreview"
-            :on-remove="handleRemove"
-            :on-change="change"
-            :on-success="handle_success"
-            :class = "{disabled:isMax}"
-            :before-upload="beforeAvatarUpload">
-            <i class="el-icon-plus"></i>
-        </el-upload>
-        <el-dialog v-model="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="">
-        </el-dialog>
+<template >
+    <div class="index" >
+        <!-- <ul> -->
+            测试
+            <div v-show="seen1"  style="position: absolute;z-index: 200;width: 50px;height: 50px;padding-top:25px;background-color:#555;">测试4</div>
+            <div v-show="seen2"  style="position: absolute;z-index: 200;width: 50px;height: 50px;padding-top:25px;background-color:#555;">测试5</div>
+            <div v-show="seen3"  style="position: absolute;z-index: 200;width: 50px;height: 50px;padding-top:25px;background-color:#555;">测试6</div>
+            <div @mouseover="onMouseOver1" @mouseleave="onMouseOut1" style="margin-top:20px;margin-bottom:10px;width:50px;">测试1</div>
+            <div @mouseover="onMouseOver2" @mouseleave="onMouseOut2" style="margin-top:20px;margin-bottom:10px;width:50px;">测试2</div>
+            <div @mouseover="onMouseOver3" @mouseleave="onMouseOut3" style="margin-top:20px;margin-bottom:10px;width:50px;">测试3</div>
+        <!-- </ul> -->
     </div>
 </template>
 
 <script>
-// import { ref } from 'vue'
+import { ref } from 'vue'
 // import img1 from '../../public/img/01.png'
 // import img2 from '../../public/img/02.png'
 // import img3 from '../../public/img/03.png'
@@ -138,9 +106,31 @@ export default {
     //   },
     // },
     setup() {
+        
         const testclick = () => {
             console.log(1)
-        }
+        };
+        const seen1 = ref(false);
+        const onMouseOver1 = () => {
+            seen1.value=true
+        };
+        const onMouseOut1 = () => {
+            seen1.value=false
+        };
+        const seen2 = ref(false);
+        const onMouseOver2 = () => {
+            seen2.value=true
+        };
+        const onMouseOut2 = () => {
+            seen2.value=false
+        };
+        const seen3 = ref(false);
+        const onMouseOver3 = () => {
+            seen3.value=true
+        };
+        const onMouseOut3 = () => {
+            seen3.value=false
+        };
         // const flag = ref(false)
         // const fatherbutton = () => {
         //     console.log(0)
@@ -176,7 +166,16 @@ export default {
         //     }
         // }
         return {
-            testclick
+            testclick,
+            seen1,
+            onMouseOver1,
+            onMouseOut1,
+            seen2,
+            onMouseOver2,
+            onMouseOut2,
+            seen3,
+            onMouseOver3,
+            onMouseOut3,
             // flag,
             // sthchange,
             // afterchange,

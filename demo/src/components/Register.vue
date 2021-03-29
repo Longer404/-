@@ -40,6 +40,9 @@
 import { defineComponent, reactive } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import store from '../store'
+// import { useRouter } from 'vue-router'
+import { setToken } from '../helpers/token'
 
 export default defineComponent({
     data() {
@@ -128,6 +131,7 @@ export default defineComponent({
 
         // }
         // user.register(formData.nickName, formData.password);
+        // const router = useRouter();
         const { data } = await axios.post('/user/register', {
           email: ruleForm.email,
           nickName: ruleForm.name,
@@ -140,6 +144,14 @@ export default defineComponent({
                 message: data.msg,
                 type: 'success'
             });
+            // 设置全局状态
+            store.commit('setUserInfo', data);
+            store.commit('setUserStatus',true);
+            // 将token存在本地
+            setToken(data.data.token);
+            // 跳转到首页
+            this.$router.replace('/');
+            window.location.href='/';
             // message.success(data.msg);
             return;
           }

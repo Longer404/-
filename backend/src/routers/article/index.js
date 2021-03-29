@@ -111,9 +111,15 @@ router.get('/list', async (context) => {
     // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
     const {
         page = 1,
-        size = 5,
+        
     } = context.query;
 
+    let {
+        size = 5,
+    } =context.query;
+
+    size = Number(size);
+    
     console.log(1)
     // const article = new Article({
     //     title: '第一篇文章',
@@ -148,6 +154,35 @@ router.get('/list', async (context) => {
             size,
             list,
         }
+    };
+});
+
+router.get('/list/:partition', async (context) => {
+    
+    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
+    const {
+        partition,
+    } = context.params;
+    
+    const list = await Article.find({
+        partition: partition,
+    }).exec();
+
+    console.log('list partition');
+    
+    if (!list) {
+        context.body = {
+            code: 0,
+            msg: '没有相关投稿',
+            data: null,
+        };
+    }
+
+    // 最后返回前端所需的数据
+    context.body = {
+        code: 1,
+        msg: '获取成功',
+        data: list,
     };
 });
 
