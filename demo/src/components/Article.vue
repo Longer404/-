@@ -1,12 +1,12 @@
 <template>
     <div class="main-box">
-        <div class="nav-bar">
+        <!-- <div class="nav-bar">
             <el-button class="firstbut" type="text" icon="el-icon-edit">分区1</el-button>
             <el-button  class="firstbut" type="text" icon="el-icon-edit">分区2</el-button>
             <el-button  class="firstbut" type="text" icon="el-icon-edit">分区3</el-button>
             <el-button  class="firstbut" type="text" icon="el-icon-edit">分区4</el-button>
             <el-button  class="firstbut" type="text" icon="el-icon-edit">分区5</el-button>
-        </div>
+        </div> -->
         <div class="page-container">
             <div class="head-container">
                 <div class="cover-img">
@@ -26,7 +26,7 @@
                 <div class="author-info">
                     <h4>{{detailInfo.author}}</h4>
                     <div class="article-info">阅读量</div>
-                    <el-button>点赞</el-button>
+                    <el-button type="primary">点赞</el-button>
                 </div>
             </div>
             <div class="recommend-box">
@@ -94,14 +94,14 @@ export default defineComponent({
     先限制最大宽度，然后高度自适应变化避免图片被拉伸
   */
   .page-container img {
-      width: 600px;
+      width: 700px;
       /* width: auto; */
       height: auto;
   }
   .main-box {
       min-width: 1000px;
       /* min-height: 1500px; */
-      background: #999;
+      /* background: #999; */
       margin: 20px auto;
       display: flex;
       justify-content: space-between;
@@ -109,7 +109,7 @@ export default defineComponent({
   .nav-bar {
       height: 300px;
       width: 100px;
-      background: #000;
+      /* background: #000; */
       /* color: #000; */
   }
   .firstbut {
@@ -121,16 +121,16 @@ export default defineComponent({
   } */
   .page-container {
       height: 1500px;
-      width: 600px;
-      background: #555;
+      width: 700px;
+      background: #e3e3e3;
   }
   .head-container {
       padding-bottom: 30px;
   }
   .cover-img {
-      width: 600px;
+      width: 700px;
       height: 350px;
-      background: rgb(152, 134, 231);
+      /* background: rgb(152, 134, 231); */
       overflow: hidden;
   }
   .info {
@@ -142,8 +142,8 @@ export default defineComponent({
       position: sticky;
       top: 20px;
       height: 500px;
-      width: 240px;
-      background: #668;
+      width: 280px;
+      /* background: #668; */
       /* display: flex; */
     /* align-items: center; */
       /* justify-content: space-between; */
@@ -152,6 +152,9 @@ export default defineComponent({
       display: flex;
     /* align-items: center; */
       justify-content: space-between;
+      border-bottom-style: solid;
+      border-bottom-width: 0.5px;
+      border-bottom-color: #e3e3e3;
   }
   .author-info {
       width: 148px;
@@ -163,8 +166,11 @@ export default defineComponent({
   }
   .read-recommend {
       height: 50px;
-      width: 240px;
-      background: #555;
+      /* width: 240px; */
+      /* background: #555; */
+      border-bottom-style: solid;
+      border-bottom-width: 0.5px;
+      border-bottom-color: #e3e3e3;
       margin-top: 10px;
   }
   .other-box {

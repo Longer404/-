@@ -14,6 +14,9 @@ export default defineComponent({
 
 <style>
   .footerstyle {
+    bottom: 0;
+    height: 60px;
+    /* background: #555; */
     background-color: #B3C0D1;
     color: #333;
     text-align: center;

@@ -164,12 +164,35 @@ router.get('/list/:partition', async (context) => {
         partition,
     } = context.params;
     
-    const list = await Article.find({
-        partition: partition,
-    }).exec();
+    const {
+        page = 1,
+        
+    } = context.query;
+
+    let {
+        size = 5,
+    } =context.query;
+
+    size = Number(size);
+
+    const list = await Article
+        .find({
+            partition: partition,
+        })
+        .sort({
+            _id: -1,
+        })
+        .skip((page - 1) * size)
+        .limit(size)
+        .exec();
 
     console.log('list partition');
-    
+    // const total = await Article.countDocuments();
+    const total = await Article.find({
+        partition: partition,
+    }).count();
+    console.log(total);
+
     if (!list) {
         context.body = {
             code: 0,
@@ -182,7 +205,10 @@ router.get('/list/:partition', async (context) => {
     context.body = {
         code: 1,
         msg: '获取成功',
-        data: list,
+        data: {
+            list,
+            total
+        }
     };
 });
 

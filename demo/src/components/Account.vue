@@ -418,10 +418,15 @@ export default defineComponent({
     margin: 20px auto;
     min-height: 800px;
     width: 800px;
-    background: #555;
+    /* background: #555; */
+}
+.el-tabs {
+  min-height: 780px;
 }
 .account-avatar {
-  margin: 0 auto;
+  /* margin: 0 auto; */
+  padding-top: 20px;
+  padding-bottom: 20px;
   width: 560px;
   display: flex;
   justify-content:flex-start;

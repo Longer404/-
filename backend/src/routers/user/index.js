@@ -221,4 +221,77 @@ router.post('/collection', async (context) => {
     }
 })
 
+router.get('/list/:type', async (context) => {
+    
+    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
+    const {
+        type,
+    } = context.params;
+
+    const {
+        page = 1,
+        
+    } = context.query;
+
+    let {
+        size = 10,
+    } =context.query;
+
+    size = Number(size);
+    
+    console.log('get user list')
+
+    // 将数据库中article表的记录的总数传给total
+    const total = await User.countDocuments();
+    // const list = await Article.find().exec();
+
+    // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
+    if (type === 'id') {
+        console.log('byID');
+        var list = await User
+            .find()
+            .sort({
+                _id: -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+    }
+    if (type === 'nickname') {
+        console.log('byNickname');
+        var list = await User
+            .find()
+            .sort({
+                nickname: -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+    }
+    if (type === 'createAt') {
+        console.log('byCAt');
+        var list = await User
+            .find()
+            .sort({
+                "meta.createdAt": -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+    }
+    
+
+    // 最后返回前端所需的数据
+    context.body = {
+        code: 1,
+        msg: '获取成功',
+        data: {
+            total,
+            page,
+            size,
+            list,
+        }
+    };
+});
+
 module.exports = router;

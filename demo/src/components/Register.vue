@@ -11,7 +11,7 @@
         </div>
     </div> -->
   <div class="registerbox">
-    <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+    <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="register-ruleForm">
       <el-form-item prop="email" label="邮箱">
         <el-input v-model="ruleForm.email"></el-input>
       </el-form-item>
@@ -24,10 +24,12 @@
       <el-form-item label="确认密码" prop="checkPass">
         <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item>
+      <div class="register-botton-area">
+      <!-- <el-form-item> -->
         <el-button type="primary" @click="register(ruleForm)">提交</el-button>
         <el-button @click="resetForm('ruleForm')">重置</el-button>
-      </el-form-item>
+      <!-- </el-form-item> -->
+      </div>
       <!-- <test-slot></test-slot> -->
     </el-form>
     <!-- <div class="footerbox">
@@ -181,30 +183,45 @@ export default defineComponent({
     /* text-align: center; */
   }
   .registerbox {
-    /* display: flex; */
-    /* flex-flow: column; */
-    /* justify-content: space-between; */
+    background-image: url(../../public/img/background-img06.jpg);
+    background-size: 110%;
+    background-repeat: no-repeat; 
+    width: 100%;
     min-width: 1000px;
     /* height: 360px; */
     height: 100%;
-    /* margin-top: 20px; */
-    /* margin-right: 10%; */
-    /* margin-left: 10%; */
     margin: 0 auto;
-    /* padding-bottom: 100px; */
-    /* border-style:solid; */
-    /* border-width:1px; */
-    /* border-color: rgb(170, 170, 170); */
-    /* height: 100%; */
+  }
+  .register-botton-area {
+    display: flex;
+    justify-content:center;
   }
   .el-input {
     width: 360px !important;
   }
-  .el-form {
+  /* .el-form {
     margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 200px;
     padding-top: 20px;
     width: 560px;
+    height: 300px;
     margin-top: 0;
+    box-shadow: gray 1.5px 1.5px 3px;
+    border-radius: 4px ;
+  } */
+  .register-ruleForm {
+    background: white;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 200px !important;
+    padding-top: 20px;
+    width: 560px;
+    height: 300px;
+    margin-top: 0;
+    box-shadow: gray 1.5px 1.5px 3px;
+    border-radius: 4px ;
   }
   /* .el-form-item__label {
       margin-left: 20px;

@@ -2,7 +2,7 @@
   <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
   <!-- <HelloWorld msg="Welcome to Your Vue.js App"/>  -->
   <!-- <Home/> -->
-
+    <div class="app-home">
       <Header/>
       <!-- <View/> -->
       <router-view></router-view>
@@ -12,6 +12,7 @@
 
         <!-- <register/> -->
       <Footer/>
+    </div>
         <!-- <footer class="footerstyle">Footer</footer> -->
       <!-- </div> -->
       
@@ -94,16 +95,19 @@ export default {
   color: #2c3e50;
   margin-top: 64px;
 } */
+
   #app {
+    height: 100%;
+    /* display: flex; */
+    /* flex-flow: column; */
+    /* align-content: flex-end; */
+    /* justify-content: space-between; */
+  }
+  .app-home {
     height: 100%;
     display: flex;
     flex-flow: column;
     /* align-content: flex-end; */
     justify-content: space-between;
-  }
-  .footerstyle {
-      bottom: 0;
-      height: 60px;
-      background: #555;
   }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <div class="loginbox">
-        <el-form  status-icon label-width="100px" class="demo-ruleForm">
+        <el-form  status-icon label-width="100px" class="login-ruleForm">
             <el-form-item prop="email" label="邮箱">
                 <el-input v-model="formData.email" placeholder="请输入邮箱地址"></el-input>
             </el-form-item>
@@ -8,11 +8,12 @@
             <el-form-item label="密码" prop="pass">
                 <el-input type="password" v-model="formData.password" autocomplete="off" placeholder="请输入密码"></el-input>
             </el-form-item>
-            
-            <el-form-item>
+            <div class="botton-area">
+            <!-- <el-form-item class="botton-area"> -->
                 <el-button type="primary" @click="login">提交</el-button>
                 <el-button @click="resetForm('ruleForm')">重置</el-button>
-            </el-form-item>
+            <!-- </el-form-item> -->
+            </div>
         </el-form>
   </div>
     <!-- <div class="fatherbox"> -->
@@ -163,6 +164,10 @@ export default defineComponent({
     margin: 0 auto;
   }
   .loginbox {
+    background-image: url(../../public/img/background-img04.jpg);
+    background-size: 110%;
+    background-repeat: no-repeat; 
+    width: 100%;
     min-width: 1000px;
     height: 100%;
     margin: 0 auto;
@@ -170,11 +175,33 @@ export default defineComponent({
   .el-input {
     width: 360px !important;
   }
-  .el-form {
-    margin: 0 auto;
+  /* .el-form {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 200px;
     padding-top: 20px;
     width: 560px;
+    height: 300px;
     margin-top: 0;
+    background: white;
+    box-shadow: gray 1.5px 1.5px 3px;
+    border-radius: 4px ;
+  } */
+  .login-ruleForm {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 200px  !important;
+    padding-top: 20px;
+    width: 560px;
+    height: 200px;
+    margin-top: 0;
+    background: white;
+    box-shadow: gray 1.5px 1.5px 3px;
+    border-radius: 4px ;
+  }
+  .botton-area {
+    display: flex;
+    justify-content:center;
   }
   .fatherbox {
       height: 100%;

@@ -463,7 +463,8 @@ export default defineComponent({
   }
   .text-cover {
     padding-top: 20px;
-    margin: 0 auto;
+    padding-bottom: 20px;
+    /* margin: 0 auto; */
     width: 560px;
     display: flex;
     justify-content:flex-start;

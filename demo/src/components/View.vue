@@ -16,9 +16,10 @@
       <el-menu-item index="1">首页</el-menu-item>
       <el-menu-item index="2">动画资讯</el-menu-item>
       <el-menu-item index="3">漫画资讯</el-menu-item>
-      <el-menu-item index="4">动漫周边</el-menu-item>
-      <el-menu-item index="5">同人创作</el-menu-item>
-      <el-menu-item index="6">漫展消息</el-menu-item>
+      <el-menu-item index="4">游戏相关</el-menu-item>
+      <el-menu-item index="5">动漫周边</el-menu-item>
+      <el-menu-item index="6">同人创作</el-menu-item>
+      <el-menu-item index="7">漫展消息</el-menu-item>
     </el-menu>
     <div class="testcent">
       <div class="paomadeng">
@@ -30,10 +31,18 @@
         </el-carousel>
       </div>
       <div  class="toplist">
-        <div class="toplist-head"><h2>热门排行</h2></div>
+        <div class="toplist-head">
+          <!-- <i class="el-icon-trophy"></i> -->
+          <div class="hot-rank-title">
+            <i class="el-icon-trophy"></i>
+            热门排行
+          </div>
+        </div>
         <div v-for="rankessay in rankEssays" :key="rankessay" class="rank-wrap">
+          
           <span class="rank-wrap-num">{{rankEssays.indexOf(rankessay) + 1}}</span>
-          <div class="rank-wrap-title">{{rankessay.title}}</div>
+          <div class="rank-wrap-title" @click="goToDetail(rankessay)">{{rankessay.title}}</div>
+          <div class="rank-wrap-date">{{rankessay.createAt.split(/[\s\n]/)[1] + '-' + rankessay.createAt.split(/[\s\n]/)[2]}}</div>
         </div>
         
         
@@ -41,15 +50,15 @@
     </div>
 
     <div class="cardlist">
-      <div class="cardlist-letf">
+      <div class="cardlist-left">
         <div v-for="article in articles" :key="article" class="cards">
           <div class="cardleft">
             <!-- <div class="cardpic"> -->
-              <img class="cardpic" :src="article.coverUrl">
+              <img class="cardpic" @click="goToDetail(article)" :src="article.coverUrl" >
             <!-- </div>             -->
           </div>
-          <div class="cardright" @click="goToDetail(article)">
-            <h2 class="cardtitle">{{article.title}}</h2>
+          <div class="cardright" >
+            <h2 class="cardtitle" @click="goToDetail(article)">{{article.title}}</h2>
             <div class="cardauthor">
               {{article.createAt}}
             </div>
@@ -84,45 +93,21 @@
           </el-pagination>
         </div>
       </div>
-      <!-- <div v-else class="cardlist-letf">
-        <div v-for="n in numbers" :key="n" class="cards">
-          <div class="cardleft">
-            <div class="cardpic"></div>
-            <div class="undercardpic">
-              <li>点赞</li>
-              <li>收藏</li>
-              <li>不点赞</li>
-            </div>
-          </div>
-          <div class="cardright">
-            <h2 class="cardtitle">这是第{{n}}个标题</h2>
-            <div class="cardauthor">
-              这是第{{n}}个文章的日期
-            </div>
-            <div class="cardabout-box">
-              <p class="cardabout"> 
-                这是第{{n}}个文章的摘要
-              </p>
-            </div>
-            <div class="cardtags"> 
-              <el-tag size="mini" effect="dark" type="info">标签1</el-tag>
-              <el-tag size="mini" effect="plain" type="info">超小标签</el-tag>
-              <el-tag size="mini"  type="info">标签3</el-tag>
-            </div>
-          </div>
-        </div>
-        
-      </div> -->
+      
       <div class="cardlist-right">
         <div class="cardlist-right-title">
           <!-- {{resp}} -->
-          <h2>推荐阅读</h2>
+          <div class="recommend-head">
+            <i class="el-icon-lollipop"></i>
+            推荐阅读
+
+          </div>
         </div>
         <div v-for="recommendEssay in recommendEssays" :key="recommendEssay" class="recommend">
           <div class="recommend-pic-box">
-            <img class="recommend-pic" :src="recommendEssay.coverUrl">
+            <img class="recommend-pic" @click="goToDetail(recommendEssay)" :src="recommendEssay.coverUrl">
           </div>
-          <div class="recommend-title">{{recommendEssay.title}}</div>
+          <div class="recommend-title" @click="goToDetail(recommendEssay)" >{{recommendEssay.title}}</div>
         </div>
       </div>
     </div>
@@ -151,33 +136,6 @@ export default defineComponent ({
     }
   },
   setup() {
-    // const articles = [
-    //   {
-    //     title: '这是第一个标题',
-    //     createAt: Date(),
-    //     about: '这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要,这是第一篇文章的内容摘要'
-    //   },
-    //   {
-    //     title: '这是第二个标题',
-    //     createAt: Date(),
-    //     about: '这是第二篇文章的内容摘要'
-    //   },
-    //   {
-    //     title: '这是第三个标题',
-    //     createAt: Date(),
-    //     about: '这是第三篇文章的内容摘要'
-    //   },
-    //   {
-    //     title: '这是第四个标题',
-    //     createAt: Date(),
-    //     about: '这是第四篇文章的内容摘要'
-    //   },
-    //   {
-    //     title: '这是第五个标题',
-    //     createAt: Date(),
-    //     about: '这是第五篇文章的内容摘要'
-    //   },
-    // ];
 
     const router = useRouter()
 
@@ -188,9 +146,11 @@ export default defineComponent ({
     // 推荐文章
     const recommendEssays = ref([]);
     // 请求到的文章总数total，默认为1
-    const total = ref(1)
+    const total = ref(1);
     // 当前页面（页码？）curpage（currentPage）默认为1
-    const curpage = ref(1)
+    const curpage = ref(1);
+    // 当前标签页
+    const curindex = ref('1');
     // const cardseen = ref(true)
     // var articles = []
 
@@ -201,11 +161,16 @@ export default defineComponent ({
           page: curpage.value
         }
       });
-      console.log('getlist')
+      console.log('getlist');
       // 将请求返回的文章数组赋值给articles
-      articles.value = res.data.data.list
+      articles.value = res.data.data.list;
       // 将请求返回的文章总数赋值给total
-      total.value = res.data.data.total
+      total.value = res.data.data.total;
+      // const arr = articles.value[0].createAt.split(/[\s\n]/)[1];
+      // console.log(articles.value);
+      // console.log('--------------------');
+      // console.log(arr);
+      // console.log('--------------------');
     }
 
     const getOtherList = async (pageSize, essay) => {
@@ -214,14 +179,53 @@ export default defineComponent ({
           size: pageSize
         }
       });
-      console.log('getotherlist')
+      console.log('getotherlist');
       // 将请求返回的文章数组赋值给articles
-      essay.value = res.data.data.list
+      essay.value = res.data.data.list;
       // 将请求返回的文章总数赋值给total
       // total.value = res.data.data.total
     }
+
+    const getPartitionList = async (partition) => {
+      let res = await axios.get(`/article/list/${partition}`, {
+        params: {
+          page: curpage.value
+        }
+      });
+      console.log('getpartitionlist');
+      console.log(res);
+      // 将请求返回的文章数组赋值给articles
+      articles.value = res.data.data.list;
+      // 将请求返回的文章总数赋值给total
+      total.value = res.data.data.total;
+    }
+
     const handleSelect = (index) => {
       console.log(index);
+      curindex.value = index;
+      console.log(curindex);
+      if (index === '1') {
+        getList();
+      }
+      if (index === '2') {
+        getPartitionList('animation');
+      }
+      if (index === '3') {
+        getPartitionList('Comics');
+      }
+      if (index === '4') {
+        getPartitionList('game');
+      }
+      if (index === '5') {
+        getPartitionList('peripheral');
+      }
+      if (index === '6') {
+        getPartitionList('doujin');
+      }
+      if (index === '7') {
+        getPartitionList('exhibition');
+      }
+      
     }
     // 组件挂载时先调用getList方法请求文章列表
     onMounted(async () => {
@@ -230,33 +234,10 @@ export default defineComponent ({
       console.log(articles);
       console.log(store.state);
       console.log(store.state.userInfo);
-      getOtherList(8, rankEssays);
+      getOtherList(9, rankEssays);
       getOtherList(3, recommendEssays);
       console.log(rankEssays);
-      // const res = 
-      // await axios.get('/article/list').then(res => {
-      //   console.log(res.data.data)
-      //   this.articles = res.data.data
-      // });
-      // console.log(res.data.data)
-      // return res
       
-      // .catch((error) => {
-      //   if (error.request) {
-      //     console.log(3)
-      //     cardseen.value = false
-      //   }
-      // }) ;
-      // console.log(res.data)
-      // return res
-      
-      // articles = res.data.data
-      // console.log(articles)
-      // if (articles.value) {
-      //   console.log(1)
-      // } else {
-      //   console.log(2)
-      // }
     });
 
     // 当页码改变时执行setPage函数，将改变后的页码赋值给curpage
@@ -264,7 +245,28 @@ export default defineComponent ({
       // 将改变后的页码赋值给curpage
       curpage.value = page;
       // 然后再调用一次getList方法发送请求获取文章列表
-      getList();
+      // getList();
+      if (curindex.value === '1') {
+        getList();
+      }
+      if (curindex.value === '2') {
+        getPartitionList('animation');
+      }
+      if (curindex.value === '3') {
+        getPartitionList('Comics');
+      }
+      if (curindex.value === '4') {
+        getPartitionList('game');
+      }
+      if (curindex.value === '5') {
+        getPartitionList('peripheral');
+      }
+      if (curindex.value === '6') {
+        getPartitionList('doujin');
+      }
+      if (curindex.value === '7') {
+        getPartitionList('exhibition');
+      }
       window.scrollTo(0, 571);
     }
     // const articles = res.data.data
@@ -280,6 +282,7 @@ export default defineComponent ({
       total,
       setPage,
       curpage,
+      curindex,
       goToDetail,
       rankEssays,
       recommendEssays,
@@ -345,37 +348,67 @@ export default defineComponent ({
     width: 700px;
   }
   .top-pic {
-    height: 100px;
-    background: #B3C0D1;
+    height: 120px;
+    /* background: #B3C0D1; */
+    background-image: url(../../public/img/background-img01.jpg);
+    background-size: 100%;
+    background-repeat: no-repeat; 
+    /* background-position: 0 200px; */
     min-width: 1000px;
     width: 100%;
   }
   .toplist {
     /* margin-right: 10%; */
     width: 280px;
-    background: #555;
+    /* background: #555; */
   }
   .toplist-head {
-    height: 60px;
-    background: #999;
+    height: 38px;
+    /* background: #999; */
+    border-bottom-style:solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #409EFF;
+    margin-bottom: 15px;
+    /* display: flex;
+    flex-flow: row;
+    align-content:flex-end; */
+  }
+  .hot-rank-title {
+    height: 35px;
+    width: 140px;
+    font-size: 24px;
+    border-bottom-style:solid;
+    border-bottom-width: 5px;
+    border-bottom-color: #409EFF;
   }
   .rank-wrap {
-    height: 30px;
+    height: 28px;
     margin-top: 6px;
-    background: #555;
+    /* background: #555; */
     display: flex;
-    justify-content: flex-start;
+   
+    justify-content: space-between;
   }
   .rank-wrap-num {
-    width: 30px;
+    width: 28px;
     text-align: center;
-    line-height:30px;
+    line-height:28px;
+     color: white;
     /* align-items: center; */
-    background: rgb(106, 83, 238);
+    background: #409EFF;
   }
   .rank-wrap-title {
-    line-height:30px;
+    line-height:28px;
     margin-left: 10px;
+    width: 200px;
+    cursor: pointer;
+  }
+  .rank-wrap-date {
+    font-size: 13px;
+    font-weight: 200;
+    line-height:28px;
+    width: 45px;
+    /* margin-left: 10px; */
   }
   .testcent {
     /* 弹性盒子+左右两端对称 */
@@ -389,7 +422,7 @@ export default defineComponent ({
     width: 1000px;
     /* width: 100%; */
     height: 360px;
-    background: rgb(166, 209, 235);
+    /* background: rgb(166, 209, 235); */
   }
   .cardlist {
     width: 1000px;
@@ -400,7 +433,8 @@ export default defineComponent ({
     display: flex;
     justify-content: space-between;
   }
-  .cardlist-letf {
+  .cardlist-left {
+    margin-top: 20px;
     min-width: 700px;
     /* margin-left: 10%; */
     /* background: #B3C0D1;
@@ -410,8 +444,11 @@ export default defineComponent ({
     margin-top: 20px;
     margin-bottom: 10px;
     /* margin-left: 10%; */
-    background: #B3C0D1;
-    height: 175px;
+    /* background: #B3C0D1; */
+    border-bottom-style: solid;
+    border-bottom-width: 0.5px;
+    border-bottom-color: #e3e3e3;
+    height: 165px;
     display: flex;
     /* width: 750px; */
     justify-content: space-between;
@@ -423,6 +460,9 @@ export default defineComponent ({
   .cardright {
     width: 450px;
     text-align: left;
+  }
+  .cardtitle {
+    cursor: pointer;
   }
   /* 标题下方发表日期以及作者信息的样式 */
   .cardauthor {
@@ -457,7 +497,8 @@ export default defineComponent ({
     width: 240px;
     height: 150px;
     object-fit: cover;
-    background: #475669;
+    cursor: pointer;
+    /* background: #475669; */
   }
   .undercardpic {
     margin-top: 10px;
@@ -475,15 +516,30 @@ export default defineComponent ({
     position: -webkit-sticky;
     position: sticky;
     top:0;
-    background: #555;
+    /* background: #555; */
     width: 280px;
-    margin-top: 20px;
+    margin-top: 40px;
     /* margin-right: 10%; */
     height: 640px;
   }
   .cardlist-right-title {
     /* margin-top: 10px; */
-    height: 50px;
+    height: 35px;
+    font-size: 24px;
+    margin-bottom: 20px;
+    border-bottom-style:solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #409EFF;
+  }
+  
+  .recommend-head {
+    width: 140px;
+    border-bottom-style:solid;
+    border-bottom-width: 5px;
+    border-bottom-color: #409EFF;
+  }
+  .recommend {
+    /* padding-top: 20px; */
   }
   .recommend-pic-box {
     width: 240px;
@@ -495,11 +551,16 @@ export default defineComponent ({
     height: 150px;
     object-fit: cover;
     background: rgb(157, 230, 179);
+    cursor: pointer;
   }
   .recommend-title {
     height: 30px;
-    margin-bottom: 10px;
-    background: #555;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    /* margin: 0 auto; */
+    /* background: #555; */
+    cursor: pointer;
+    /* align-content: center; */
   }
 
   /* .el-carousel {
