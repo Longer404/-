@@ -100,6 +100,13 @@ export default defineComponent({
         //   repeatPassword: ''
         });
         // axios.get('/article');
+
+        // const reflash = async () => {
+        //   await (window.location.href='/');
+        //   setTimeout("", 500);
+        //   return 1;
+        // }
+
         const login = async () => {
           //   console.log(formData);
           if (formData.email === '') {
@@ -127,10 +134,7 @@ export default defineComponent({
           });
           console.log(data);
           if (data.code) {
-            ElMessage.success({
-                message: data.msg,
-                type: 'success'
-            });
+            
             // 设置全局状态
             store.commit('setUserInfo', data);
             store.commit('setUserStatus',true);
@@ -138,7 +142,16 @@ export default defineComponent({
             setToken(data.data.token);
             // 跳转到首页
             router.replace('/');
+
             window.location.href='/';
+            // const temp = await reflash();
+            // if(temp) {
+            ElMessage.success({
+                message: data.msg,
+                type: 'success'
+            });
+            // }
+            
             // location.reload();
             // router.go(0);
             // console.log(store.state);

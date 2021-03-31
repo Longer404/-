@@ -221,7 +221,7 @@ router.post('/collection', async (context) => {
     }
 })
 
-router.get('/list/:type', async (context) => {
+router.get('/table/:type', async (context) => {
     
     // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
     const {

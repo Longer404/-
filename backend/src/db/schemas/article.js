@@ -10,6 +10,10 @@ const ArticleSchema = new mongoose.Schema({
     about: String,
     content: String,
     partition: String,
+    examined:{
+        type: String,
+        default: 'examining',
+    },
     meta: getMeta(),
 });
 

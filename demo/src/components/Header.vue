@@ -6,11 +6,11 @@
             </router-link>
         </div>
         
-        <!-- <div v-if="isLogin" class="rightdiv"> -->
-        <div v-if="$store.state.userStatus" class="rightdiv">
+        <div v-if="isLogin" class="rightdiv">
+        <!-- <div v-if="$store.state.userStatus" class="rightdiv"> -->
             <el-dropdown>
                 <span class="el-dropdown-link">
-                    
+                    <!-- <img v-if="$store.state.userStatus" class="user-avatar" :src="$store.state.userInfo.data.data.userAvatar"> -->
                     <img v-if="avatarUrl" class="user-avatar" :src="avatarUrl">
                     <img v-else class="user-avatar" src="../assets/avatar.png">
                     <!-- <img class="user-avatar" :src="$store.state.userInfo.data.data.userAvatar"> -->
@@ -119,7 +119,7 @@ export default defineComponent({
                 // store.commit('setUserStatus', true);
                 
                 console.log(store.state.userInfo);
-                isLogin.value = true;
+                // isLogin.value = true;
             }
             console.log('设置完毕');
             console.log(store.state);
@@ -140,24 +140,13 @@ export default defineComponent({
       color: inherit;
   }
   .testheader {
-    background-color: #8CC5FF;
-    /* color: #333;
-    text-align: center;
-    line-height: 60px; */
+    background-color: #79BBFF;
     min-height: 50px !important;
-    /* position: fixed; */
-    /* top: 0; */
-    /* left: 0; */
-    /* box-shadow: 0 2px 8px #fff; */
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /* padding: 0 16px; */
-    /* padding-left: 16px; */
     min-width: 1000px;
     width: 100%;
-    /* z-index: 1; */
-    /* overflow: hidden; */
   }
   .leftdiv {
       padding-left: 16px;

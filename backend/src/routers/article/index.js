@@ -25,7 +25,8 @@ router.post('/post', async (context) => {
         coverUrl: essay.coverUrl,
         about: essay.about,
         content: essay.content,
-        partition: essay.partition
+        partition: essay.partition,
+        "meta.createdAt": (new Date()).getTime(),
     })
     const res = await article.save();
 
@@ -95,6 +96,7 @@ router.post('/update', async (context) => {
     if (essay.content !== one.content) {
         one.content = essay.content
     }
+    one.examined = "examining";
     // 保存数据库记录
     await one.save();
     console.log('旧文章')
@@ -111,16 +113,21 @@ router.get('/list', async (context) => {
     // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
     const {
         page = 1,
-        
+        examined = 'pass',
     } = context.query;
+
+    // console.log(typeof examined);
 
     let {
         size = 5,
+        
     } =context.query;
 
     size = Number(size);
+    // examined = Boolean(examined);
+    // console.log(typeof examined);
+    // console.log(examined);
     
-    console.log(1)
     // const article = new Article({
     //     title: '第一篇文章',
     //     author: 'longer',
@@ -133,10 +140,12 @@ router.get('/list', async (context) => {
     // 将数据库中article表的记录的总数传给total
     const total = await Article.countDocuments();
     // const list = await Article.find().exec();
-
-    // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
-    const list = await Article
-        .find()
+    if (examined === 'examining') {
+        console.log('find by examined')
+        const list = await Article
+        .find({
+            examined: 'examining',
+        })
         .sort({
             _id: -1,
         })
@@ -144,17 +153,43 @@ router.get('/list', async (context) => {
         .limit(size)
         .exec();
 
-    // 最后返回前端所需的数据
-    context.body = {
-        code: 1,
-        msg: '获取成功',
-        data: {
-            total,
-            page,
-            size,
-            list,
-        }
-    };
+        context.body = {
+            code: 1,
+            msg: '获取成功',
+            data: {
+                total,
+                page,
+                size,
+                list,
+            }
+        };
+        
+    } else if (examined === 'pass') {
+        console.log('normal get article list')
+        // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
+        const list = await Article
+            .find()
+            .sort({
+                _id: -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+
+        // 最后返回前端所需的数据
+        context.body = {
+            code: 1,
+            msg: '获取成功',
+            data: {
+                total,
+                page,
+                size,
+                list,
+            }
+        };
+    }
+
+    
 });
 
 router.get('/list/:partition', async (context) => {
@@ -212,6 +247,79 @@ router.get('/list/:partition', async (context) => {
     };
 });
 
+router.get('/table/:type', async (context) => {
+    
+    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
+    const {
+        type,
+    } = context.params;
+
+    const {
+        page = 1,
+        
+    } = context.query;
+
+    let {
+        size = 10,
+    } =context.query;
+
+    size = Number(size);
+    
+    console.log('get all article list')
+
+    // 将数据库中article表的记录的总数传给total
+    const total = await Article.countDocuments();
+    // const list = await Article.find().exec();
+
+    // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
+    if (type === 'id') {
+        console.log('byID');
+        var list = await Article
+            .find()
+            .sort({
+                _id: -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+    }
+    if (type === 'title') {
+        console.log('byTitle');
+        var list = await Article
+            .find()
+            .sort({
+                title: -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+    }
+    if (type === 'createAt') {
+        console.log('byCAt');
+        var list = await Article
+            .find()
+            .sort({
+                "meta.createdAt": -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+    }
+    
+
+    // 最后返回前端所需的数据
+    context.body = {
+        code: 1,
+        msg: '获取成功',
+        data: {
+            total,
+            page,
+            size,
+            list,
+        }
+    };
+});
+
 router.get('/:id', async (context) => {
 
     const {
@@ -251,7 +359,7 @@ router.get('/manager/:id', async (context) => {
 
     if (!list) {
         context.body = {
-            code: 1,
+            code: 0,
             msg: '还没有任何投稿',
             data: null,
         };
@@ -268,6 +376,46 @@ router.get('/manager/:id', async (context) => {
             // page,
             // size,
             list,
+        }
+    };
+});
+
+router.get('/examination/:id', async (context) => {
+    
+    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
+    const {
+        id,
+    } = context.params;
+
+    const {
+        examined = 'pass',
+    } = context.query;
+    
+    const one = await Article.findOne({
+        _id: id,
+    }).exec();
+
+    if (!one) {
+        context.body = {
+            code: 0,
+            msg: '找不到文章',
+            data: null,
+        };
+    }
+
+    console.log('examination article')
+    
+    one.examined = examined;
+    await one.save();
+    // 最后返回前端所需的数据
+    context.body = {
+        code: 1,
+        msg: '操作成功',
+        data: {
+            // total,
+            // page,
+            // size,
+            one,
         }
     };
 });

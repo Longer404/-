@@ -28,7 +28,7 @@
           <el-form-item label="分区" prop="region">
               <el-select v-model="ruleForm.region" placeholder="请选择文章分区">
               <el-option label="动画资讯" value="animation"></el-option>
-              <el-option label="漫画资讯" value="Comics"></el-option>
+              <el-option label="漫画资讯" value="comics"></el-option>
               <el-option label="游戏相关" value="game"></el-option>
               <el-option label="动漫周边" value="peripheral"></el-option>
               <el-option label="同人相关" value="doujin"></el-option>

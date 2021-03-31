@@ -35,26 +35,6 @@
                     <el-form-item label="用户昵称">
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
-                    
-                    <!-- <el-form-item label="出生日期">
-                        <el-col :span="11">
-                        <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
-                        </el-col>
-                        <el-col class="line" :span="2">-</el-col>
-                        <el-col :span="11">
-                        <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
-                        </el-col>
-                    </el-form-item> -->
-                    
-                    <!-- <el-form-item label="性别">
-                        <el-radio-group v-model="form.resource">
-                        <el-radio label="男"></el-radio>
-                        <el-radio label="女"></el-radio>
-                        </el-radio-group>
-                    </el-form-item> -->
-                    <!-- <el-form-item label="个性签名">
-                        <el-input type="textarea" resize="none" v-model="form.desc"></el-input>
-                    </el-form-item> -->
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">保存</el-button>
                         <!-- <el-button>取消</el-button> -->
@@ -67,9 +47,8 @@
               <!-- <div class="card-manage"> -->
                 <!-- <div class="card-case"> -->
                 <div v-for="article in articles" :key="article" class="card-case">
-                  <div class="card-img">
-
-                  </div>
+                  <img v-if="article.coverUrl !== ''" class="card-img" :src="article.coverUrl" >
+                  <img v-else class="card-img" src="../../public/img/img-false.jpg">
                   <div class="card-info">
                     <div class="card-info-title">
                       {{article.title}}
@@ -85,16 +64,36 @@
                 </div>
               <!-- </div> -->
             </el-tab-pane>
-            <el-tab-pane label="收藏夹" name="third">
-              收藏夹
-              <el-button type="primary" @click="testbutton">测试接口</el-button>
+            <el-tab-pane label="审核中" name="third">
+              审核中
+              <div v-for="semifinishedArticle in semifinishedArticles" :key="semifinishedArticle" class="card-case">
+                  <img v-if="semifinishedArticle.coverUrl !== ''" class="card-img" :src="semifinishedArticle.coverUrl" >
+                  <img v-else class="card-img" src="../../public/img/img-false.jpg">
+                  <div class="card-info">
+                    <div class="card-info-title">
+                      {{semifinishedArticle.title}}
+                    </div>
+                    <div class="card-info-date">
+                      {{semifinishedArticle.createAt}}
+                    </div>
+                    <div class="card-info-handle">
+                      <div v-if="semifinishedArticle.examined ==='examining'" class="progress-box" style="color:#409EFF">
+                        审核中...
+                      </div>
+                      <div v-else class="progress-box" style="color:red">
+                        被驳回！
+                      </div>
+                      <el-button type="primary" @click="getArticle(semifinishedArticle._id)">编辑</el-button>
+                      <el-button type="danger" @click="removeArticle(semifinishedArticle._id)">删除</el-button>
+                    </div>
+                  </div>
+                </div>
+              <!-- <el-button type="primary" @click="testbutton">测试接口</el-button> -->
             </el-tab-pane>
             <el-tab-pane label="草稿箱" name="fourth">
               草稿箱
               <div v-for="draft in drafts" :key="draft" class="card-case">
-                  <div class="card-img">
-
-                  </div>
+                  <img class="card-img" :src="draft.coverUrl">
                   <div class="card-info">
                     <div class="card-info-title">
                       {{draft.title}}
@@ -220,7 +219,9 @@ export default defineComponent({
       const articles = ref([]);
       // 存储草稿信息的响应式数据
       const drafts = ref([]);
-      
+      // 存储审核信息
+      const semifinishedArticles = ref([]);
+
       // 获取用户文章列表
       const getArticleList = async () => {
         // 用户id
@@ -228,11 +229,31 @@ export default defineComponent({
         let res = await axios.get(`/article/manager/${userId}`);
         console.log('getlist')
         // 将请求返回的文章数组赋值给articles
-        articles.value = res.data.data.list
+        articles.value = res.data.data.list;
         console.log(articles);
+        return res.data.data.list;
         // 将请求返回的文章总数赋值给total
         // total.value = res.data.data.total
       };
+
+      // 获取用户审核中的文章列表
+      const getSemifinishedArticleList = async () => {
+        var lenth = 0;
+        // console.log(articles.value.length);
+        const templist = await getArticleList();
+        console.log(templist.length);
+            // console.log(lenth);
+        for(;lenth < templist.length;lenth++) {
+          if (templist[lenth].examined === 'examining' || templist[lenth].examined === 'reject'){
+            semifinishedArticles.value.push(templist[lenth]);
+          } else {
+            continue;
+          }
+            // data[lenth].meta.createdAt = format(data[lenth].meta.createdAt);
+        }
+        console.log(semifinishedArticles);
+      };
+
       // 删除用户文章
       const removeArticle = async (articleId) => {
         const aid = articleId;
@@ -318,6 +339,7 @@ export default defineComponent({
         console.log('managerOnMounted')
         getArticleList();
         getDraftList();
+        getSemifinishedArticleList();
         // console.log(store.state);
         // console.log(store.state.userInfo);
       });
@@ -385,6 +407,7 @@ export default defineComponent({
       return {
         drafts,
         articles,
+        semifinishedArticles,
         testbutton,
         activeName,
         getArticle,
@@ -454,29 +477,44 @@ export default defineComponent({
     padding: 20px;
     box-shadow: gray 1.5px 1.5px 3px;
     border-radius: 4px ;
-    background: #555;
+    background: #e3e3e3;
     display: flex;
     justify-content: space-between;
 }
 .card-img {
     width: 180px;
-    background: rgb(149, 240, 184);
+    background: gray;
+    object-fit: cover;
+    /* width: 100%; */
 }
 .card-info {
-    width: 280px;
-    background: rgb(140, 117, 241);
+    width: 300px;
+    /* background: rgb(140, 117, 241); */
+    border-left-style:solid;
+    border-left-width: 1px;
+    border-left-color: #99a9bf;
     display: flex;
     flex-flow: column wrap;
     justify-content: space-between;
 }
 .card-info-title {
     font-size: 24px;
+    margin-left: 20px;
 }
 .card-info-date {
     font-size: 14px;
     font-weight: 200;
+    margin-left: 20px;
 }
 .card-info-handle {
-    text-align: right;
+    /* text-align: right; */
+    display: flex;
+    justify-content: flex-end;
+}
+.progress-box {
+    width: 130px;
+    font-size: 20px;
+    /* text-align: center; */
+    line-height: 40px;
 }
 </style>
