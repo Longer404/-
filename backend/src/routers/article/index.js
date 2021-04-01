@@ -138,7 +138,8 @@ router.get('/list', async (context) => {
     // const res = await article.save();
 
     // 将数据库中article表的记录的总数传给total
-    const total = await Article.countDocuments();
+    // const total = await Article.countDocuments();
+
     // const list = await Article.find().exec();
     if (examined === 'examining') {
         console.log('find by examined')
@@ -152,6 +153,8 @@ router.get('/list', async (context) => {
         .skip((page - 1) * size)
         .limit(size)
         .exec();
+
+        const total = list.length;
 
         context.body = {
             code: 1,
@@ -168,13 +171,21 @@ router.get('/list', async (context) => {
         console.log('normal get article list')
         // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
         const list = await Article
-            .find()
+            .find({
+                examined: 'pass',
+            })
             .sort({
                 _id: -1,
             })
             .skip((page - 1) * size)
             .limit(size)
             .exec();
+        
+        const compliantList = await Article.find(
+            {
+                examined: 'pass',
+            }).exec();
+        const total = compliantList.length;
 
         // 最后返回前端所需的数据
         context.body = {

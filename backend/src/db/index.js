@@ -1,6 +1,7 @@
 require('./schemas/user');
 require('./schemas/draft');
 require('./schemas/article');
+require('./schemas/character')
 
 const mongoose = require('mongoose');
 

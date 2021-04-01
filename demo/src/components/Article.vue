@@ -94,7 +94,7 @@ export default defineComponent({
     先限制最大宽度，然后高度自适应变化避免图片被拉伸
   */
   .page-container img {
-      width: 700px;
+      max-width: 700px;
       /* width: auto; */
       height: auto;
   }

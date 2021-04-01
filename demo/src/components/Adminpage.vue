@@ -1,10 +1,10 @@
 <template>
     <el-tabs v-model="activeName" @tab-click="handleClickinTab" tab-position="left" style="height: 200px;" class="admin-main-box">
         <el-tab-pane label="用户管理" name="first">
-            <div>
+            <div style="margin-bottom:20px;margin-top:20px">
                 用户管理
             </div>
-            <el-button type="primary" @click="getUserList">测试接口</el-button>
+            <!-- <el-button type="primary" @click="getUserList">测试接口</el-button>
             <el-input
                 placeholder="请输入内容"
                 v-model="input3"
@@ -13,7 +13,7 @@
             <template #append>
                 <el-button icon="el-icon-search"></el-button>
             </template>
-            </el-input>
+            </el-input> -->
             <el-table 
                 :data="tableDataOfUser"
                 :default-sort = "{prop: 'meta.createdAt', order: 'descending'}" 
@@ -32,11 +32,11 @@
                 </el-table-column> -->
                 <!-- <el-table-column prop="zip" label="邮编" width="120">
                 </el-table-column> -->
-                <el-table-column fixed="right" label="操作" width="120">
+                <el-table-column fixed="right" label="操作" width="60">
                     <template #default="scope">
-                        <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
-                        <el-button type="text" size="small">编辑</el-button>
-                        <el-button type="text" size="small">提权</el-button>
+                        <!-- <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button> -->
+                        <!-- <el-button type="text" size="small">编辑</el-button> -->
+                        <el-button type="text" size="small" style="color:red;" @click="handleClick(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -77,18 +77,29 @@
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="120">
                     <template #default="scope">
-                        <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                        <el-button @click="getArticleDetail(scope.row)" type="text" size="small">查看</el-button>
                         <el-button @click="setPass(scope.row)" type="text" size="small">通过</el-button>
                         <el-button @click="setReject(scope.row)" type="text" size="small" style="color: red;">驳回</el-button>
                     </template>
                 </el-table-column>
             </el-table>
+            <div class="page-box">
+                <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    @current-change="setPage"
+                    :total="total"
+                    :current-page="curPageOfSemifinishedArticles"
+                    :page-size="10"
+                    >
+                </el-pagination>
+            </div>
         </el-tab-pane>
         <el-tab-pane label="投稿管理" name="third">
-            <div>
+            <div style="margin-bottom:20px;margin-top:20px">
                 投稿管理
             </div>
-            <el-button type="primary" @click="getAllArtList">测试接口</el-button>
+            <!-- <el-button type="primary" @click="getAllArtList">测试接口</el-button>
             <el-input
                 placeholder="请输入内容"
                 v-model="input3"
@@ -97,7 +108,7 @@
             <template #append>
                 <el-button icon="el-icon-search"></el-button>
             </template>
-            </el-input>
+            </el-input> -->
             <el-table 
                 :data="tableDataOfArticle"
                 :default-sort = "{prop: 'meta.createdAt', order: 'descending'}"  
@@ -116,9 +127,11 @@
                 </el-table-column>
                 <el-table-column prop="meta.createdAt" label="创建日期" width="180" sortable>
                 </el-table-column>
+                <el-table-column prop="about" label="摘要" width="240">
+                </el-table-column>
                 <el-table-column fixed="right" label="操作" width="120">
                     <template #default="scope">
-                        <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                        <el-button @click="getArticleDetail(scope.row)" type="text" size="small">查看</el-button>
                         <el-button type="text" size="small">驳回</el-button>
                         <el-button type="text" size="small" style="color:red;">删除</el-button>
                     </template>
@@ -147,6 +160,7 @@
 import { defineComponent, onMounted, ref } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { ElMessageBox } from 'element-plus';
 
 export default defineComponent({
     
@@ -189,19 +203,19 @@ export default defineComponent({
                 data[lenth].meta.createdAt = format(data[lenth].meta.createdAt);
             }
         }
-
+        
         const getSemifinishedArticles = async () => {
             let res = await axios.get('/article/list/', {
                 params: {
                     examined: 'examining',
-                    page: curPageOfArticle.value,
+                    page: curPageOfSemifinishedArticles.value,
                     size: 10
                 }
             });
             console.log(res);
             semifinishedArticles.value = res.data.data.list;
             getLocalTime(semifinishedArticles.value);
-            total.value = res.data.data.total;
+            total.value = res.data.data.list.length;
         }
 
         const getAllArtList = async () => {
@@ -285,6 +299,19 @@ export default defineComponent({
                 
         }
         
+        const getArticleDetail = async (row) => {
+            console.log(row._id);
+            const res = await axios.get(`/article/${row._id}`);
+            console.log(res);
+            // console.log(MessageBox);
+            ElMessageBox.alert(res.data.data.content, 'HTML 片段', {
+                dangerouslyUseHTMLString: true
+            });
+            // console.log(articles)
+            
+            // router.push(`/article/${id}`)
+        }
+
         const setPass = async (row) => {
             
             console.log(row._id);
@@ -333,6 +360,7 @@ export default defineComponent({
             curTab,
             curPageOfUser,
             curPageOfArticle,
+            curPageOfSemifinishedArticles,
             semifinishedArticles,
             total,
             setPage,
@@ -343,6 +371,7 @@ export default defineComponent({
             handleClick,
             setPass,
             setReject,
+            getArticleDetail,
             getUserList,
             getAllArtList,
             getSemifinishedArticles,
@@ -370,5 +399,12 @@ export default defineComponent({
     margin-top: 30px;
     margin-bottom: 30px;
     text-align: right;
+}
+.el-message-box {
+    width: 800px;
+}
+.el-message-box img {
+    max-width: 700px;
+    height: auto;
 }
 </style>

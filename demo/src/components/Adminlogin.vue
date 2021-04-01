@@ -1,8 +1,12 @@
 <template>
-    <div class="loginbox">
+    <div class="admin-loginbox">
+        
         <el-form  status-icon label-width="100px" class="login-ruleForm">
-            <el-form-item prop="email" label="邮箱">
-                <el-input v-model="formData.email" placeholder="请输入邮箱地址"></el-input>
+            <div class="admin-login-head">
+                登录管理员账号
+            </div>
+            <el-form-item prop="email" label="代号">
+                <el-input v-model="formData.email" placeholder="请输入代号"></el-input>
             </el-form-item>
             
             <el-form-item label="密码" prop="pass">
@@ -35,7 +39,7 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import store from '../store'
 import { useRouter } from 'vue-router'
-import { setToken } from '../helpers/token'
+import { setAdminToken } from '../helpers/token'
 
 export default defineComponent({
     data() {
@@ -99,19 +103,12 @@ export default defineComponent({
           password: '',
         //   repeatPassword: ''
         });
-        // axios.get('/article');
-
-        // const reflash = async () => {
-        //   await (window.location.href='/');
-        //   setTimeout("", 500);
-        //   return 1;
-        // }
 
         const login = async () => {
           //   console.log(formData);
           if (formData.email === '') {
             ElMessage.warning({
-                message: '请输入邮箱地址',
+                message: '请输入代号',
                 type: 'warning'
             });
             // message.info('请输入邮箱地址');
@@ -136,30 +133,25 @@ export default defineComponent({
           if (data.code) {
             
             // 设置全局状态
-            store.commit('setUserInfo', data);
+            store.commit('setAdminInfo', data);
             store.commit('setUserStatus',true);
             // 将token存在本地
-            setToken(data.data.token);
+            setAdminToken(data.data.token);
             // 跳转到首页
-            router.replace('/');
+            router.replace('/adminpage');
 
-            window.location.href='/';
+            window.location.href='/adminpage';
             // const temp = await reflash();
             // if(temp) {
             ElMessage.success({
                 message: data.msg,
                 type: 'success'
             });
-            // }
             
-            // location.reload();
-            // router.go(0);
-            // console.log(store.state);
-
-            // message.success(data.msg);
             return;
           }
           ElMessage.error(data.msg);
+          return;
           //   message.error(data.msg)
         };
 
@@ -176,31 +168,23 @@ export default defineComponent({
     height: 100%;
     margin: 0 auto;
   }
-  .loginbox {
-    background-image: url(../../public/img/background-img04.jpg);
+  .admin-loginbox {
+    /* background-image: url(../../public/img/background-img04.jpg);
     background-size: 110%;
     background-repeat: no-repeat; 
-    width: 100%;
+    width: 100%; */
     min-width: 1000px;
     height: 100%;
     /* min-height: 800px; */
     margin: 0 auto;
   }
+  .admin-login-head {
+      text-align: center;
+      height: 50px;
+  }
   .el-input {
     width: 360px !important;
   }
-  /* .el-form {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 200px;
-    padding-top: 20px;
-    width: 560px;
-    height: 300px;
-    margin-top: 0;
-    background: white;
-    box-shadow: gray 1.5px 1.5px 3px;
-    border-radius: 4px ;
-  } */
   .login-ruleForm {
     margin-left: auto;
     margin-right: auto;
@@ -208,9 +192,9 @@ export default defineComponent({
     margin-bottom: 200px  !important;
     padding-top: 20px;
     width: 560px;
-    height: 200px;
+    height: 280px;
     margin-top: 0;
-    background: white;
+    background: #eeecec;
     box-shadow: gray 1.5px 1.5px 3px;
     border-radius: 4px ;
   }

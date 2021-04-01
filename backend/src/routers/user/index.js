@@ -5,6 +5,7 @@ const config = require('../../project.config')
 const { verify, getToken } =require('../../helpers/token')
 
 const User = mongoose.model('User');
+const Character = mongoose.model('Character');
 
 const router = new Router({
     prefix: '/user'
@@ -49,12 +50,16 @@ router.post('/register', async (context) => {
         };
         return;
     }
+    const member = await Character.findOne({
+        title: '普通用户',
+    });
 
     // 将两个变量的值传给user的model以创建数据库信息
     const user = new User({
         email: email,
         nickname: nickName,
         password: password,
+        character: member._id,
     });
 
     const res = await user.save();
@@ -66,6 +71,7 @@ router.post('/register', async (context) => {
         email: res.email,
         _id: res._id,
         userAvatar: res.userAvatar,
+        character: res.character,
     };
 
     context.body = {
@@ -120,6 +126,7 @@ router.post('/login', async (context) => {
         email: one.email,
         _id: one._id,
         userAvatar: one.userAvatar,
+        character: one.character,
     };
 
     if (one.password === password) {

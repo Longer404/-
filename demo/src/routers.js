@@ -10,7 +10,7 @@ import store from './store'
 // import axios from 'axios'
 import { ElMessage } from 'element-plus'
 // import Cardbox from './components/Cardbox.vue'
-import { getToken } from './helpers/token'
+import { getToken, getAdminToken } from './helpers/token'
 // import Testpage1 from './components/testpage1.vue'
 // import Testpage2 from './components/testpage2.vue'
 
@@ -116,6 +116,12 @@ const router = createRouter({
             name: 'adminpage',
             // component: Register,
             component: () => import('./components/Adminpage.vue')
+        },
+        {
+            path: '/adminlogin',
+            name: 'adminlogin',
+            // component: Register,
+            component: () => import('./components/Adminlogin.vue')
         }
     ]
 })
@@ -126,19 +132,26 @@ router.afterEach(() => {
 
 router.beforeEach(async (to, from, next) => {
 
+    // console.log(store.state.userInfo.data);
     // let res = {};
-    if(getToken() !== '') {
+    if (getToken() !== '') {
         console.log('本地已登录')
         // console.log(store.state.userInfo.data)
         // console.log(1)
         // store.dispatch('getUserInfo');
         // store.commit('setUserStatus', false);
+
         store.dispatch('getUserInfo');
         store.commit('setUserStatus', true);
-    } else {
+    } 
+    if (getAdminToken() !== '') {
+        console.log('本地管理员已登录')
+        store.dispatch('getAdminStatus');
+    } 
+    if (getAdminToken() === '' && getToken() === '') {
         // console.log(3)
         // console.log(!store.state.userInfo.data)
-        console.log('本地不存在登录信息')
+        console.log('本地不存在登录信息');
         // store.dispatch('getUserInfo');
         store.commit('setUserStatus', false);
     }
@@ -151,7 +164,7 @@ router.beforeEach(async (to, from, next) => {
             return;
         }
         next();
-    } else {
+    } else if (store.state.userStatus === true){
         if(to.path === '/login' || to.path === '/register') {
             next({ path: '/' });
             return;

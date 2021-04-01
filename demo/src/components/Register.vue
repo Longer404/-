@@ -216,6 +216,7 @@ export default defineComponent({
     margin-left: auto;
     margin-right: auto;
     margin-top: 200px !important;
+    margin-bottom: 200px !important;
     padding-top: 20px;
     width: 560px;
     height: 300px;
