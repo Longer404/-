@@ -68,15 +68,29 @@
               </p>
             </div>
             <div class="cardbottom">
-              <div class="cardtags"> 
-                <el-tag size="mini" effect="dark" type="info">标签1</el-tag>
-                <el-tag size="mini" effect="plain" type="info">超小标签</el-tag>
-                <el-tag size="mini"  type="info">标签3</el-tag>
+              <div class="cardtags">
+                <el-tag v-if="article.partition === 'animation'" size="mini" effect="dark" type='danger' >动画</el-tag>
+                <el-tag v-if="article.partition === 'comics'" size="mini" effect="dark" >漫画</el-tag>
+                <el-tag v-if="article.partition === 'game'" size="mini" effect="dark" type='success'>游戏</el-tag>
+                <el-tag v-if="article.partition === 'doujin'" size="mini" effect="dark" type='warning'>同人</el-tag>
+                <el-tag v-if="article.partition === 'exhibition'" size="mini" effect="plain" type="info">漫展</el-tag>
+                <el-tag v-if="article.partition === 'peripheral'" size="mini" effect="dark" type="info">模玩</el-tag>
+                <!-- <el-tag size="mini" effect="plain" type="info">超小标签</el-tag> -->
+                <el-tag v-if="article.likes > 10" size="mini" type="danger">多人点赞</el-tag>
+                <el-tag v-if="article.read > 10" size="mini" >多人阅读</el-tag>
               </div>
               <div class="undercardpic">
-                <li>点赞</li>
-                <li>收藏</li>
-                <li>不点赞</li>
+                <!-- <span class="iconfont icon-dianzan1">点赞</span> -->
+                <svg class="icon" aria-hidden="true">                 
+                  <use xlink:href="#icon-dianzan1"></use>                  
+                </svg>
+                <span style="padding-right:8px;cursor: pointer;" @click="clickLike">点赞</span>
+                <svg class="icon" aria-hidden="true">                 
+                  <use xlink:href="#icon-ziyuan173"></use>                  
+                </svg>
+                <span style="padding-right:5px;cursor: pointer;" @click="clickDislike">不喜欢</span>
+                <!-- <span><i class="el-icon-share"></i></span> -->
+                <span style="cursor: pointer;" @click="clickShare"><i class="el-icon-share"  ></i>分享</span>
               </div>
             </div>            
           </div>
@@ -114,12 +128,13 @@
   </div>
 </template>
 
-<script>
+<script >
 import axios from 'axios';
 import { defineComponent, onMounted, ref} from 'vue'
 // import { defineComponent, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import store from '../store'
+import { ElMessage } from 'element-plus'
 
 export default defineComponent ({
   data() {
@@ -273,8 +288,19 @@ export default defineComponent ({
     
     const goToDetail = async (articles) => {
       console.log(articles)
-      axios.get(`/article/${articles._id}`)
+      // axios.get(`/article/${articles._id}`)
       router.push(`/article/${articles._id}`)
+    }
+
+    const clickLike = () =>{
+      ElMessage.success('点赞成功');
+
+    }
+    const clickDislike = () =>{
+      ElMessage.info('不喜欢ヽ(ー_ー)ノ');
+    }
+    const clickShare = () =>{
+      ElMessage.success('分享成功');
     }
 
     return {
@@ -287,6 +313,9 @@ export default defineComponent ({
       rankEssays,
       recommendEssays,
       handleSelect,
+      clickLike,
+      clickDislike,
+      clickShare
       // resp
     }
   }
@@ -295,7 +324,7 @@ export default defineComponent ({
   
 </script>
 
-<style>
+<style >
   html,body {
     margin: 0 auto;
     /* text-align: center; */
@@ -307,6 +336,14 @@ export default defineComponent ({
     margin: 0;
     font-weight: normal;
   }
+  .icon {
+  width: 21px;
+  height: 21px;
+  
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
   /* .paomadeng {
     width: 500px;
     margin-left: 10%;
@@ -360,7 +397,7 @@ export default defineComponent ({
   .toplist {
     /* margin-right: 10%; */
     width: 280px;
-    /* background: #555; */
+    background: #f8f8f8;
   }
   .toplist-head {
     height: 38px;
@@ -444,7 +481,7 @@ export default defineComponent ({
     margin-top: 20px;
     margin-bottom: 10px;
     /* margin-left: 10%; */
-    /* background: #B3C0D1; */
+    background: #f8f8f8;
     border-bottom-style: solid;
     border-bottom-width: 0.5px;
     border-bottom-color: #e3e3e3;
@@ -502,7 +539,9 @@ export default defineComponent ({
   }
   .undercardpic {
     margin-top: 10px;
+    /* line-height: 21px; */
     display: flex;
+    /* align-content: center; */
     /* width: 750px; */
     justify-content: space-between;
   }
@@ -516,7 +555,7 @@ export default defineComponent ({
     position: -webkit-sticky;
     position: sticky;
     top:0;
-    /* background: #555; */
+    background: #ecebeb;
     width: 280px;
     margin-top: 40px;
     /* margin-right: 10%; */

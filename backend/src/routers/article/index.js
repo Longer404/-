@@ -349,7 +349,10 @@ router.get('/:id', async (context) => {
         }
         return;
     }
-
+    
+    one.read++;
+    await one.save();
+    
     context.body = {
         msg: '查询成功',
         data: one,
