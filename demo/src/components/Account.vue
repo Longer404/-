@@ -438,7 +438,7 @@ export default defineComponent({
   min-width: 1000px;
 }
 .user-center {
-    margin: 20px auto;
+    margin: 40px auto;
     min-height: 800px;
     width: 800px;
     /* background: #555; */

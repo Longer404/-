@@ -19,6 +19,56 @@
             
             <!-- <div>{{detailInfo.content}}</div> -->
             <div class="detail-container" v-html="detailInfo.content"></div>
+            <div class="comment-area">
+                <div class="comment-area-title">评论</div>
+                <div class="user-comment-area">
+                    <div class="comment-user-avatar"></div>
+                    <el-input
+                        style="margin-bottom: 10px;width:70%;"
+                        type="textarea"
+                        :rows="3"
+                        placeholder="请输入内容"
+                        v-model="commentText"
+                        resize="none"
+                    >
+                    </el-input>
+                    <el-button type="primary" style="height:73px" @click="submitComment">发表评论</el-button>
+                </div>
+                <div class="comment-box">
+                    <div class="comment-user-avatar"></div>
+                    <div class="comment-detail">                        
+                        <div class="comment-user-nickname">评论员</div>
+                        <div class="comment-text">测试评论</div>
+                        <span class="comment-info">2021-4-4</span>
+                        <el-collapse accordion>
+                            <el-collapse-item >
+                                <template #title>
+                                加载更多
+                                </template>                              
+                                <div class="comment-box-mini">
+                                    <div class="comment-user-avatar"></div>
+                                    <div class="comment-detail-mini">                                        
+                                        <div class="comment-user-nickname">评论员2</div>
+                                        <div class="comment-text">测试评论2</div>
+                                        <span class="comment-info">2021-4-4</span>                                        
+                                    </div>
+                                </div>
+                            </el-collapse-item>
+                        </el-collapse>
+                        <!-- <div class="comment-more">加载更多</div> -->
+                    </div>
+                </div>
+                <div class="comment-box">
+                    <div class="comment-user-avatar"></div>
+                    <div class="comment-detail">
+                        
+                        <div class="comment-user-nickname">评论员2</div>
+                        <div class="comment-text">测试评论2</div>
+                        <span class="comment-info">2021-4-4</span>
+                        <div class="comment-more">加载更多</div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="fix-box">
             <div class="author-box">
@@ -44,8 +94,11 @@
                 
             </div>
             <div class="other-box">
-                <div class="link-box" ><i class="el-icon-edit"></i>投稿</div>
-                <div class="help-box"><i class="el-icon-question"></i>帮助</div>
+                <div class="other-box-title">更多</div>
+                <div class="other-box-link">
+                    <div class="link-box" ><i class="el-icon-edit"></i>投稿</div>
+                    <div class="help-box"><i class="el-icon-question"></i>帮助</div>
+                </div>
             </div>
         </div>
     </div>
@@ -55,19 +108,29 @@
 import { defineComponent, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from 'axios'
+import store from '../store'
+import { getToken } from '../helpers/token'
+import { ElMessage } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const route = useRoute();
-
-        const id =route.params.id;
+        // 获取页面跳转时文章的id
+        const id = route.params.id;
 
         const detailInfo = ref({});
 
         const authorArticleList = ref({});
         // const testInfo = '<h1>测试</h1>'
+        const commentText = ref('');
 
         console.log(id);
+
+        const getHeader = () => {
+          return {
+            Authorization: `Bearer ${getToken()}`
+          }
+        }
 
         const getAuthorArticleList = async (authorId) => {
             const res = await axios.get(`/article/manager/${authorId}`);
@@ -87,17 +150,70 @@ export default defineComponent({
             getAuthorArticleList(detailInfo.value.authorId);
         }
         
-        
+        const getComments = async () => {
+            const res = await axios.get('/comment/list', {
+                params: {
+                    commentFrom: id,
+                }
+            });
+            console.log(res);
+            // console.log(res.data)
+            // detailInfo.value = res.data.data;
+            // console.log(detailInfo.value);
+            // if (detailInfo.value.coverUrl === undefined) {
+                // detailInfo.value.coverUrl = "http://localhost:3000/1616658254684.jpeg"
+            // }
+            // getAuthorArticleList(detailInfo.value.authorId);
+        }
+
+        const submitComment = async () => {
+            const commentDetail = {
+                // 评论者id
+                commentatorId: store.state.userInfo.data.data._id,
+                nickname: store.state.userInfo.data.data.nickname,
+                userAvatar: store.state.userInfo.data.data.userAvatar,
+                // 评论对象
+                commentTo: id,
+                commentFrom: id,
+                // createAt: (new Date()).getTime(),
+                // 评论内容
+                content: commentText.value,
+            };
+            if (commentText.value === '') {
+                ElMessage.warning('请填写评论');
+                return;
+            }
+            const { data } = await axios.post(
+                '/comment/post', 
+                {
+                    essay: commentDetail
+                },
+                {
+                    headers: getHeader(),
+                }
+            );
+            if (data.code) {
+                ElMessage.success(data.msg);
+                commentText.value = '';
+            } else {
+                ElMessage.error('评论失败');
+            }
+            console.log(data);
+            return
+        }
 
         onMounted(() => {
             // axios.get(`/article/${articles._id}`)
             getArticle();
+            getComments();
 
         })
 
         return {
             detailInfo,
-            authorArticleList
+            authorArticleList,
+            commentText,
+            submitComment
             // testInfo
         }
     },
@@ -127,7 +243,7 @@ export default defineComponent({
       min-width: 1000px;
       /* min-height: 1500px; */
       /* background: #999; */
-      margin: 20px auto;
+      margin: 40px auto;
       display: flex;
       justify-content: space-between;
   }
@@ -145,7 +261,7 @@ export default defineComponent({
       margin-top: 15px;
   } */
   .page-container {
-      height: 1500px;
+      min-height: 800px;
       width: 700px;
       background: #e3e3e3;
   }
@@ -162,11 +278,83 @@ export default defineComponent({
       font-weight: 100;
       font-size: 12px;
   }
+  .comment-area {
+      margin-top: 40px;
+  }
+  .comment-area-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+  }
+  .user-comment-area {
+      height: 100px;
+      display: flex;
+      justify-content: space-between;
+  }
+  .comment-box {
+      min-height: 90px;
+      padding-bottom: 20px;
+      background: white;
+      border-bottom-style: solid;
+      border-bottom-width: 0.5px;
+      border-bottom-color: #e3e3e3;
+      display: flex;
+      justify-content: space-between;
+  }
+  .comment-box-mini {
+      min-height: 0px;
+      /* padding-bottom: 20px; */
+      background: white;
+      display: flex;
+      justify-content: space-between;
+  }
+  .comment-user-avatar {
+      width: 80px;
+      height: 80px;
+      background: #555;
+  }
+  .comment-detail {
+      background: #a1a1a1;
+      width: 600px;
+      
+      min-height: 100px;
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: space-between;
+  }
+  .comment-detail-mini {
+      background: #a1a1a1;
+      width: 500px;
+      
+      min-height: 81px;
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: space-between;
+  }
+  .comment-user-nickname {
+      height: 20px;
+      margin-bottom: 5px;
+  }
+  .comment-text {
+      min-height: 20px;
+      margin-bottom: 10px;
+  }
+  .comment-info {
+      font-size: 13px;
+      color: gray;
+  }
+  .el-collapse-item__header {
+      height:28px;
+      line-height:28px;
+  }
+  .comment-more {
+      font-size: 14px;
+      color: blue;
+  }
   .fix-box {
       position: -webkit-sticky;
       position: sticky;
       top: 20px;
-      height: 500px;
+      height: 510px;
       width: 280px;
       background: #f8f8f8;
       /* display: flex; */
@@ -215,28 +403,45 @@ export default defineComponent({
       text-align: right;
   }
   .other-box {
-      display: flex;
-      justify-content: space-between;
+      
       margin-top: 20px;
+  }
+  .other-box-title {
+      font-size: 20px;
+      border-bottom-style: solid;
+      border-bottom-width: 0.5px;
+      border-bottom-color: #e3e3e3;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+  }
+  .other-box-link {
+        display: flex;
+      justify-content: space-between;
   }
   .link-box{
       text-align: center;
       line-height: 50px;
       width: 120px;
       height: 50px;
-      background: #C6E2FF;
+      /* background: #C6E2FF; */
       cursor: pointer;
-      box-shadow: grey 1.5px 1.5px 3px;
-    border-radius: 4px;
+      /* box-shadow: grey 1.5px 1.5px 3px; */
+      border-radius: 4px;
+      border-bottom-style: solid;
+      border-bottom-width: 0.5px;
+      border-bottom-color: #e3e3e3;
   }
   .help-box {
       text-align: center;
       line-height: 50px;
       width: 120px;
       height: 50px;
-      background: #E9E9EB;
+      /* background: #E9E9EB; */
       cursor: pointer;
-      box-shadow: grey 1.5px 1.5px 3px;
+      /* box-shadow: grey 1.5px 1.5px 3px; */
     border-radius: 4px;
+    border-bottom-style: solid;
+      border-bottom-width: 0.5px;
+      border-bottom-color: #e3e3e3;
   }
 </style>

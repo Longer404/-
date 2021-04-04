@@ -24,9 +24,18 @@
     <div class="testcent">
       <div class="paomadeng">
         <el-carousel :interval="3000" arrow="always">
-          <el-carousel-item v-for="(item,index) in imgArr" :key="index">
+          <el-carousel-item v-for="(item,index) in carouselArticles" :key="index">
+          <!-- <el-carousel-item v-for="(item,index) in imgArr" :key="index"> -->
           <!-- <h3>{{ item }}</h3> -->
-            <img class="carousel-image" :src="item.imgUrl">
+            <!-- <img class="carousel-image" :src="item.imgUrl"> -->
+            <!-- <template #placeholder>
+              <div class="image-slot">
+                加载中<span class="dot">...</span>
+              </div>
+            </template> -->
+            <div v-if="carouselArticles.length === 0">加载中...</div>
+            <img v-else class="carousel-image" :src="item.coverUrl" @click="goToDetail(item)">
+            
           </el-carousel-item>
         </el-carousel>
       </div>
@@ -140,10 +149,10 @@ export default defineComponent ({
   data() {
     return {
       imgArr:[
-        {imgUrl: require('../assets/01.png')},
-        {imgUrl: require('../assets/02.png')},
-        {imgUrl: require('../assets/03.png')},
-        {imgUrl: require('../assets/04.png')},
+        {coverUrl: require('../assets/01.png')},
+        {coverUrl: require('../assets/02.png')},
+        {coverUrl: require('../assets/03.png')},
+        {coverUrl: require('../assets/04.png')},
       ],
       numbers: [ 1, 2, 3, 4, 5 ],
       // articles:[]
@@ -153,7 +162,8 @@ export default defineComponent ({
   setup() {
 
     const router = useRouter()
-
+    // 轮播图文章
+    const carouselArticles = ref([{coverUrl: require('../../public/img/loading.png')},]);
     // 请求获取数据库中的文章后存放在articles中
     const articles = ref([]);
     // 排行榜文章
@@ -168,6 +178,7 @@ export default defineComponent ({
     const curindex = ref('1');
     // const cardseen = ref(true)
     // var articles = []
+
 
     // 将请求封装成一个方法getList,在请求的过程中会发送当前页码
     const getList = async () => {
@@ -188,10 +199,11 @@ export default defineComponent ({
       // console.log('--------------------');
     }
 
-    const getOtherList = async (pageSize, essay) => {
+    const getOtherList = async (pageSize, essay, type) => {
       let res = await axios.get('/article/list', {
         params: {
-          size: pageSize
+          size: pageSize,
+          type: type,
         }
       });
       console.log('getotherlist');
@@ -245,14 +257,16 @@ export default defineComponent ({
     // 组件挂载时先调用getList方法请求文章列表
     onMounted(async () => {
       console.log('onMounted')
+      getOtherList(4, carouselArticles, 'carousel');
       getList();
       console.log(articles);
       console.log(store.state);
       console.log(store.state.userInfo);
-      getOtherList(9, rankEssays);
-      getOtherList(3, recommendEssays);
-      console.log(rankEssays);
       
+      getOtherList(9, rankEssays, 'rank');
+      getOtherList(3, recommendEssays, 'recommend');
+      console.log(rankEssays);
+      console.log(carouselArticles);
     });
 
     // 当页码改变时执行setPage函数，将改变后的页码赋值给curpage
@@ -303,6 +317,9 @@ export default defineComponent ({
       ElMessage.success('分享成功');
     }
 
+    const testClick = () => {
+      ElMessage.success('testing');
+    }
     return {
       articles,
       total,
@@ -310,12 +327,14 @@ export default defineComponent ({
       curpage,
       curindex,
       goToDetail,
+      carouselArticles,
       rankEssays,
       recommendEssays,
       handleSelect,
       clickLike,
       clickDislike,
-      clickShare
+      clickShare,
+      testClick
       // resp
     }
   }
@@ -339,7 +358,6 @@ export default defineComponent ({
   .icon {
   width: 21px;
   height: 21px;
-  
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
@@ -349,29 +367,19 @@ export default defineComponent ({
     margin-left: 10%;
   } */
   .el-menu {
-    /* padding-left: 10% !important; */
-    /* height: 50px; */
     max-width: 1000px;
     margin: 0 auto;
     font-weight: 1000;
-    /* font-size: 16px; */
-    /* width: 100%; */
   }
   .el-menu-item {
     font-size: 15px;
   }
-  /* .el-menu-item {
-    height: 50px !important;
-    align-items: center;
-  } */
-  /* .el-carousel {
-    height: 360px;
-    width: 637.5px;
-  } */
+
   .carousel-image {
     height: 360px;
     width: 700px;
     object-fit: cover;
+    cursor: pointer;
   }
   .el-carousel-item {
     height: 360px;
@@ -406,9 +414,6 @@ export default defineComponent ({
     border-bottom-width: 3px;
     border-bottom-color: #409EFF;
     margin-bottom: 15px;
-    /* display: flex;
-    flex-flow: row;
-    align-content:flex-end; */
   }
   .hot-rank-title {
     height: 35px;
@@ -451,21 +456,12 @@ export default defineComponent ({
     /* 弹性盒子+左右两端对称 */
     display: flex;
     justify-content: space-between;
-    /* padding-left: 10%;
-    padding-right: 10%; */
-    /* width: 100%; */
-    /* margin-top: 10px; */
     margin: 0 auto;
     width: 1000px;
-    /* width: 100%; */
     height: 360px;
-    /* background: rgb(166, 209, 235); */
   }
   .cardlist {
     width: 1000px;
-    /* height: 500px; */
-    /* padding: 0 10% 0 10%; */
-    /* margin-top: 20px; */
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -473,9 +469,6 @@ export default defineComponent ({
   .cardlist-left {
     margin-top: 20px;
     min-width: 700px;
-    /* margin-left: 10%; */
-    /* background: #B3C0D1;
-    height: 500px; */
   }
   .cards {
     margin-top: 20px;
@@ -539,10 +532,7 @@ export default defineComponent ({
   }
   .undercardpic {
     margin-top: 10px;
-    /* line-height: 21px; */
     display: flex;
-    /* align-content: center; */
-    /* width: 750px; */
     justify-content: space-between;
   }
   .pagebox {
@@ -601,17 +591,6 @@ export default defineComponent ({
     cursor: pointer;
     /* align-content: center; */
   }
-
-  /* .el-carousel {
-      width: 500px;
-  }
-  .el-carousel__item h3 {
-    color: #475669;
-    font-size: 18px;
-    opacity: 0.75;
-    line-height: 300px;
-    margin: 0;
-  } */
 
   .el-carousel__item:nth-child(2n) {
     background-color: #99a9bf;

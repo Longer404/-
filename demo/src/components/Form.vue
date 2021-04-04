@@ -1,6 +1,11 @@
 <template>
   <div class="formbox">
-    <div class="sonfrombox">
+    <div class="sonformbox">
+      <div class="form-title-box">
+        <div class="form-title">
+          动漫信息投稿
+        </div>
+      </div>
       <div class="text-cover">
         <div >
           <span style="color:#F56C6C"> 
@@ -443,23 +448,26 @@ export default defineComponent({
   .formbox {
     /* display: flex; */
     min-width: 1000px;
-    margin: 0 auto;
-    /* margin-top: 20px; */
-    /* margin-right: 10%; */
-    /* margin-left: 10%; */
-    /* padding-bottom: 100px; */
-    /* height: 100%; */
-    /* height: 100%; */
-    /* min-height: 850px; */
-    /* display: flex; */
-    /* flex-flow: column; */
-    /* justify-content: flex-start; */
+    margin: 35px auto;
+    
   }
   
-  .sonfrombox {
+  .sonformbox {
     margin: 0 auto;
     width: 720px;
     /* height: 100%; */
+  }
+  .form-title-box {
+    border-bottom-style:solid;
+    border-bottom-width: 2px;
+    border-bottom-color: #e3e3e3;
+  }
+  .form-title {
+    padding-bottom: 10px;
+    width: 100px;
+    border-bottom-style:solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #409EFF;
   }
   .text-cover {
     padding-top: 20px;
@@ -503,10 +511,10 @@ export default defineComponent({
     object-fit: cover;
     display: block;
   }
-  .sonfrombox .el-input {
+  .sonformbox .el-input {
     width: 500px !important;
   }
-  .sonfrombox .el-textarea {
+  .sonformbox .el-textarea {
     width: 500px !important;
   }
   .middle-box {

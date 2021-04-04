@@ -92,7 +92,7 @@ export default defineComponent({
             { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
           ],
           name: [
-            { required: true, message: '请输入活动名称', trigger: 'blur' },
+            { required: true, message: '请输入用户昵称', trigger: 'blur' },
             { min: 1, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
           ],
           pass: [

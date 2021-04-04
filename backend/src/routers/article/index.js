@@ -114,6 +114,7 @@ router.get('/list', async (context) => {
     const {
         page = 1,
         examined = 'pass',
+        type = '',
     } = context.query;
 
     // console.log(typeof examined);
@@ -170,7 +171,41 @@ router.get('/list', async (context) => {
     } else if (examined === 'pass') {
         console.log('normal get article list')
         // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
-        const list = await Article
+        if (type === 'rank') {
+            var list = await Article
+            .find({
+                examined: 'pass',
+            })
+            .sort({
+                read: -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+        } else if (type === 'recommend') {
+            var list = await Article
+            .find({
+                examined: 'pass',
+            })
+            .sort({
+                likes: -1,
+            })
+            .skip((page - 1) * size)
+            .limit(size)
+            .exec();
+        } else if (type === 'carousel') {
+            var list = await Article
+            .find({
+                examined: 'pass',
+            })
+            .sort({
+                _id: -1,
+            })
+            .skip(5)
+            .limit(size)
+            .exec();
+        } else {
+            var list = await Article
             .find({
                 examined: 'pass',
             })
@@ -180,6 +215,7 @@ router.get('/list', async (context) => {
             .skip((page - 1) * size)
             .limit(size)
             .exec();
+        }
         
         const compliantList = await Article.find(
             {
