@@ -188,6 +188,7 @@ export default defineComponent({
           // 作者为当前登录的用户
           author: store.state.userInfo.data.data.nickname,
           authorId: store.state.userInfo.data.data._id,
+          authorAvatar: store.state.userInfo.data.data.userAvatar,
           // 创作时间为提交时间
           createAt: Date(),
           coverUrl: this.imageUrl,

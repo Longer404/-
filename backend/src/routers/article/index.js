@@ -20,6 +20,7 @@ router.post('/post', async (context) => {
     const article = new Article({
         author: essay.author,
         authorId: essay.authorId,
+        authorAvatar: essay.authorAvatar,
         title: essay.title,
         createAt: essay.createAt,
         coverUrl: essay.coverUrl,

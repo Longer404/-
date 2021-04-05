@@ -5,6 +5,7 @@ const ArticleSchema = new mongoose.Schema({
     title: String,
     author: String,
     authorId: String,
+    authorAvatar: String,
     createAt: String,
     coverUrl: String,
     about: String,

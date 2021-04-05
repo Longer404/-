@@ -55,18 +55,18 @@ router.post('/register', async (context) => {
     });
 
     // 将两个变量的值传给user的model以创建数据库信息
-    const user = new User({
+    const regiuser = new User({
         email: email,
         nickname: nickName,
         password: password,
         character: member._id,
     });
 
-    const res = await user.save();
+    const res = await regiuser.save();
     console.log(res);
     
     // 生成token返回给前端
-    const regiuser = {
+    const data = {
         nickname: res.nickname,
         email: res.email,
         _id: res._id,
@@ -78,8 +78,8 @@ router.post('/register', async (context) => {
         code: 1,
         msg: '注册成功',
         data: {
-            regiuser,
-            token: jwt.sign(regiuser, config.JWT_SECRET),
+            data,
+            token: jwt.sign(data, config.JWT_SECRET),
         },
     };
     // return;
@@ -121,7 +121,7 @@ router.post('/login', async (context) => {
         return;
     }
 
-    const user = {
+    const data = {
         nickname: one.nickname,
         email: one.email,
         _id: one._id,
@@ -134,8 +134,8 @@ router.post('/login', async (context) => {
             code: 1,
             msg: '登录成功',
             data: {
-                user,
-                token: jwt.sign(user, config.JWT_SECRET),
+                data,
+                token: jwt.sign(data, config.JWT_SECRET),
             },
         };
         return;

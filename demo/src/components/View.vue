@@ -60,6 +60,12 @@
 
     <div class="cardlist">
       <div class="cardlist-left">
+        <div class="over-cards-box">
+          <div class="over-cards" >
+            <i class="el-icon-s-flag"></i>
+            {{curindexTitle}}
+            </div>
+        </div>
         <div v-for="article in articles" :key="article" class="cards">
           <div class="cardleft">
             <!-- <div class="cardpic"> -->
@@ -176,6 +182,8 @@ export default defineComponent ({
     const curpage = ref(1);
     // 当前标签页
     const curindex = ref('1');
+    // 当前标签页标题
+    const curindexTitle = ref('首页');
     // const cardseen = ref(true)
     // var articles = []
 
@@ -233,24 +241,31 @@ export default defineComponent ({
       console.log(curindex);
       if (index === '1') {
         getList();
+        curindexTitle.value = '首页';
       }
       if (index === '2') {
         getPartitionList('animation');
+        curindexTitle.value = '动画资讯';
       }
       if (index === '3') {
-        getPartitionList('Comics');
+        getPartitionList('comics');
+        curindexTitle.value = '漫画资讯';
       }
       if (index === '4') {
         getPartitionList('game');
+        curindexTitle.value = '游戏相关';
       }
       if (index === '5') {
         getPartitionList('peripheral');
+        curindexTitle.value = '动漫周边';
       }
       if (index === '6') {
         getPartitionList('doujin');
+        curindexTitle.value = '同人创作';
       }
       if (index === '7') {
         getPartitionList('exhibition');
+        curindexTitle.value = '漫展消息';
       }
       
     }
@@ -282,7 +297,7 @@ export default defineComponent ({
         getPartitionList('animation');
       }
       if (curindex.value === '3') {
-        getPartitionList('Comics');
+        getPartitionList('comics');
       }
       if (curindex.value === '4') {
         getPartitionList('game');
@@ -326,6 +341,7 @@ export default defineComponent ({
       setPage,
       curpage,
       curindex,
+      curindexTitle,
       goToDetail,
       carouselArticles,
       rankEssays,
@@ -467,8 +483,21 @@ export default defineComponent ({
     justify-content: space-between;
   }
   .cardlist-left {
-    margin-top: 20px;
+    background: #fcfcfc;
+    margin-top: 40px;
     min-width: 700px;
+  }
+  .over-cards-box {
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #409EFF;
+  }
+  .over-cards {
+    width: 160px;
+    font-size: 24px;
+    border-bottom-style: solid;
+    border-bottom-width: 4px;
+    border-bottom-color: #409EFF;
   }
   .cards {
     margin-top: 20px;

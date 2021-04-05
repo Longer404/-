@@ -187,6 +187,7 @@ export default defineComponent({
         const format = (timeStamp) => {
             //shijianchuo是整数，否则要parseInt转换
             var time = new Date(timeStamp);
+            console.log(typeof(time));
             var y = time.getFullYear();
             var m = time.getMonth()+1;
             var d = time.getDate();

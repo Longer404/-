@@ -52,7 +52,7 @@
                     登录
                 <!-- </router-link> -->
             </el-button>
-            <el-dialog title="登录账号" v-model="dialogFormVisible">
+            <el-dialog title="登录账号" :lock-scroll="false" v-model="dialogFormVisible">
                 <el-form :model="form">
                     <el-form-item 
                         prop="email"
@@ -92,7 +92,7 @@
                     注册
                 <!-- </router-link> -->
             </el-button>
-            <el-dialog title="注册账号" v-model="dialogRegFormVisible">
+            <el-dialog title="注册账号" :lock-scroll="false" v-model="dialogRegFormVisible">
                 <el-form :model="regForm">
                     <el-form-item 
                         prop="email"
@@ -209,15 +209,18 @@ export default defineComponent({
                 password: form.password,   
             });
             console.log(data);
+            // dialogFormVisible.value = false;
             if (data.code) {
+                // console.log('hello?');
                 // 设置全局状态
                 store.commit('setUserInfo', data);
                 store.commit('setUserStatus',true);
                 // 将token存在本地
                 setToken(data.data.token);
+                // isLogin.value = true;
+                avatarUrl.value = store.state.userInfo.data.data.userAvatar;
+                userNickname.value = store.state.userInfo.data.data.nickname;
                 isLogin.value = true;
-                avatarUrl.value = store.state.userInfo.data.user.userAvatar;
-                userNickname.value = store.state.userInfo.data.user.nickname;
                 // console.log(store.state.userInfo); 
                 dialogFormVisible.value = false;
                 ElMessage.success({
@@ -226,7 +229,9 @@ export default defineComponent({
                 });
                 return;
             }
+            dialogFormVisible.value = false;
             ElMessage.error(data.msg);
+            return;
           //   message.error(data.msg)
         }
 
@@ -264,12 +269,14 @@ export default defineComponent({
             console.log(data);
             if (data.code) {
                 // 设置全局状态
+                console.log(data);
                 store.commit('setUserInfo', data);
                 store.commit('setUserStatus',true);
+                // console.log(store.state.userInfo.data.user.nickname);
                 // 将token存在本地
                 setToken(data.data.token);
                 isLogin.value = true;
-                userNickname.value = store.state.userInfo.data.user.nickname;
+                userNickname.value = store.state.userInfo.data.data.nickname;
                 // avatarUrl.value = store.state.userInfo.data.user.userAvatar || '';
                 dialogFormVisible.value = false;
                 ElMessage.success({
@@ -279,6 +286,8 @@ export default defineComponent({
                 return;
             }
             ElMessage.error(data.msg);
+            dialogFormVisible.value = false;
+            return;
         }
 
         onMounted(async () => {

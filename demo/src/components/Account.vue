@@ -161,6 +161,7 @@ export default defineComponent({
             userAvatar: this.userAvatarUrl,
               
         });
+        ElMessage.success(data.msg);
         console.log(data);
         // 设置全局状态
         store.commit('setUserInfo', data);
