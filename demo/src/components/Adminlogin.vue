@@ -5,8 +5,8 @@
             <div class="admin-login-head">
                 登录管理员账号
             </div>
-            <el-form-item prop="email" label="代号">
-                <el-input v-model="formData.email" placeholder="请输入代号"></el-input>
+            <el-form-item prop="phone" label="代号">
+                <el-input v-model="formData.phone" placeholder="请输入代号"></el-input>
             </el-form-item>
             
             <el-form-item label="密码" prop="pass">
@@ -98,7 +98,7 @@ export default defineComponent({
         const router = useRouter();
 
         const formData = reactive({
-          email: '',
+          phone: '',
         //   nickName: '',
           password: '',
         //   repeatPassword: ''
@@ -106,7 +106,7 @@ export default defineComponent({
 
         const login = async () => {
           //   console.log(formData);
-          if (formData.email === '') {
+          if (formData.phone === '') {
             ElMessage.warning({
                 message: '请输入代号',
                 type: 'warning'
@@ -124,14 +124,13 @@ export default defineComponent({
 
           }
           const { data } = await axios.post('/user/login', {
-            email: formData.email,
+            phone: formData.phone,
             // nickName: formData.nickName,
             password: formData.password,
               
           });
           console.log(data);
           if (data.code) {
-            
             // 设置全局状态
             store.commit('setAdminInfo', data);
             store.commit('setUserStatus',true);

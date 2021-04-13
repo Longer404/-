@@ -4,9 +4,11 @@
             <!-- <router-link to="/"> -->
                 
             <!-- </router-link> -->
+            <img class="leftdiv-img" src="../../public/img/title00.jpeg">
+            <img class="leftdiv-img" src="../../public/img/title04.png">
         </div>
-        
-        <div v-if="isLogin" class="rightdiv">
+        <div v-show="isLogin && this.$router.currentRoute.value.name !== 'adminpage'" class="rightdiv">
+        <!-- <div v-if="isLogin" class="rightdiv"> -->
         <!-- <div v-if="$store.state.userStatus" class="rightdiv"> -->
             <span class="header-nickname">欢迎，{{userNickname}}</span>
             <el-dropdown>
@@ -19,16 +21,23 @@
                 </span>
                 <!-- <h1>{{isLogin}}</h1> -->
                 <template #dropdown>
-                    <el-dropdown-menu>
-                    <el-dropdown-item>
+                    <el-dropdown-menu >
+                    <el-dropdown-item >
                         <router-link to="/account">
                             个人中心
                         </router-link>
                     </el-dropdown-item>
+                    <el-dropdown-item divided>
+                        
+                        <router-link to="/message">
+                            消息中心
+                        </router-link>
+                        <el-badge v-show="messageLength" class="mark" :value="messageLength" />
+                    </el-dropdown-item>
                     <!-- <el-dropdown-item>欢迎，{{userNickname}}</el-dropdown-item> -->
                     <!-- <el-dropdown-item>螺蛳粉</el-dropdown-item> -->
                     <!-- <el-dropdown-item >双皮奶</el-dropdown-item> -->
-                    <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
+                    <el-dropdown-item divided @click="logout" style="color:red">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
@@ -38,8 +47,8 @@
                 </router-link>
             </el-button>
         </div>
-        <div v-else class="rightdiv">
-        <!-- <div v-show="isLogin" class="rightdiv"> -->
+        <!-- <div v-else class="rightdiv"> -->
+        <div v-show="isLogin === false && this.$router.currentRoute.value.name !== 'adminpage'" class="rightdiv">
             <el-button size="small"  type="danger">
                 <router-link to="/form">
                     发表文章
@@ -55,15 +64,14 @@
             <el-dialog title="登录账号" :lock-scroll="false" v-model="dialogFormVisible">
                 <el-form :model="form">
                     <el-form-item 
-                        prop="email"
-                        label="用户邮箱" 
+                        prop="phone"
+                        label="手机号码" 
                         label-width="100px"
                         :rules="[
-                            { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-                            { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                            { required: true, message: '请输入绑定的手机号', trigger: 'blur' },
                         ]"
                     >
-                    <el-input v-model="form.email" autocomplete="off" placeholder="请输入用户邮箱"></el-input>
+                    <el-input style="width: 360px !important;" v-model="form.phone" autocomplete="off" placeholder="请输入绑定的手机号" maxlength="13"></el-input>
                     </el-form-item>
                     <el-form-item 
                         prop="password"
@@ -73,13 +81,14 @@
                             { required: true, message: '请输入用户密码', trigger: 'blur' },
                         ]"
                     >
-                    <el-input v-model="form.password" type="password" placeholder="请输入用户密码"></el-input>
+                    <el-input style="width: 360px !important;" v-model="form.password" type="password" placeholder="请输入用户密码"></el-input>
                     </el-form-item>
                 </el-form>
                 <template #footer>
                     <span class="dialog-footer">
                     <el-button @click="dialogFormVisible = false">取 消</el-button>
                     <el-button type="primary" @click="submitForm">登 录</el-button>
+                    <el-button @click="dialogFormVisible = false , dialogRegFormVisible = true" type="text" size="mini" style="margin-right:60px">未有账号，前去注册</el-button>
                     </span>
                 </template>
             </el-dialog>
@@ -95,15 +104,27 @@
             <el-dialog title="注册账号" :lock-scroll="false" v-model="dialogRegFormVisible">
                 <el-form :model="regForm">
                     <el-form-item 
-                        prop="email"
-                        label="绑定用户邮箱" 
+                        prop="phone"
+                        label="绑定手机 +86" 
                         label-width="120px"
                         :rules="[
-                            { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-                            { type: 'email', message: '请输入正确的邮箱地址', trigger: ['blur', 'change'] }
+                            { required: true, message: '请输入手机号', trigger: 'blur' },
                         ]"
                     >
-                        <el-input v-model="regForm.email" autocomplete="off" placeholder="请输入用户邮箱"></el-input>
+                        <el-input v-model="regForm.phone" autocomplete="off" placeholder="请输入13位手机号" maxlength="13" style="width:360px"></el-input>
+                        
+                    </el-form-item>
+                    <el-form-item 
+                        prop="code"
+                        label="输入验证码" 
+                        label-width="120px"
+                        :rules="[
+                            { required: true, message: '请输入4位验证码', trigger: 'blur' },
+                        ]"
+                    >
+                        <el-input v-model="regForm.code" autocomplete="off" placeholder="请输入4位验证码" maxlength="4" style="width:228px"></el-input>
+                        <el-button v-show="showCode" @click="getPhoneCode">获 取 验 证 码</el-button>
+                        <el-button v-show="!showCode" disabled style="margin-left:0">{{count}}秒后重新发送</el-button>
                     </el-form-item>
                     <el-form-item 
                         prop="nickname"
@@ -113,7 +134,7 @@
                             { required: true, message: '请输入用户昵称', trigger: 'blur' },
                         ]"
                     >
-                        <el-input v-model="regForm.nickname" autocomplete="off" placeholder="请输入用户邮箱"></el-input>
+                        <el-input style="width: 360px !important;" v-model="regForm.nickname" autocomplete="off" placeholder="请输入用户昵称" ></el-input>
                     </el-form-item>
                     <el-form-item 
                         prop="password"
@@ -123,7 +144,7 @@
                             { required: true, message: '请输入用户密码', trigger: 'blur' },
                         ]"
                     >
-                        <el-input v-model="regForm.password" type="password" placeholder="请输入用户密码"></el-input>
+                        <el-input style="width: 360px !important;" v-model="regForm.password" type="password" placeholder="请输入用户密码"></el-input>
                     </el-form-item>
                     <el-form-item 
                         prop="checkpass"
@@ -133,16 +154,25 @@
                             { required: true, message: '请再次输入用户密码', trigger: 'blur' },
                         ]"
                     >
-                        <el-input v-model="regForm.checkpass" type="password" placeholder="请输入用户密码"></el-input>
+                        <el-input style="width: 360px !important;" v-model="regForm.checkpass" type="password" placeholder="请输入用户密码"></el-input>
                     </el-form-item>
                 </el-form>
                 <template #footer>
                     <span class="dialog-footer">
                     <el-button @click="dialogRegFormVisible = false">取 消</el-button>
                     <el-button type="primary" @click="registerForm">注 册</el-button>
+                    <el-button @click="dialogRegFormVisible = false , dialogFormVisible = true" type="text" size="mini" style="margin-right:60px">已有账号，前去登录</el-button>
                     </span>
                 </template>
             </el-dialog>
+        </div>
+        <div v-show="this.$router.currentRoute.value.name === 'adminpage'" class="rightdiv">
+            管理员，{{adminName}}
+            <el-button size="small"  type="danger" @click="logoutAdmin" style="margin-left:10px">
+                <!-- <router-link to="/form"> -->
+                    退出管理员
+                <!-- </router-link> -->
+            </el-button>
         </div>
     </div>
 </template>
@@ -151,9 +181,9 @@
 import { defineComponent, ref, onMounted, reactive } from 'vue'
 // import { defineComponent, onMounted } from 'vue'
 // import store from '../store'
-import { setToken } from '../helpers/token'
+import { setToken, getToken, setAdminToken, getAdminToken } from '../helpers/token'
 import store from '../store'
-import { getToken } from '../helpers/token'
+// import {  } from '../helpers/token'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
@@ -168,16 +198,22 @@ export default defineComponent({
         const isLogin = ref(false);
         const avatarUrl = ref('');
         const userNickname = ref('');
+        const adminName = ref('');
+        const messageLength = ref(0);
+        const showCode = ref(true);
+        const count = ref(0);
         const form = reactive({
-            email: '',
+            phone: '',
             password: ''
         });
         const regForm = reactive({
             nickname: '',
-            email: '',
+            phone: '',
+            code: '',
             password: '',
             checkpass: '',
         });
+        const verificationCode = ref('');
         const router = useRouter();
 
         const goToHome = () => {
@@ -187,13 +223,16 @@ export default defineComponent({
             setToken('');
             window.location.href = '/';
         };
-
+        const logoutAdmin = () => {
+            setAdminToken('');
+            window.location.href = '/';
+        }
         const submitForm = async () => {
             
             console.log(form);
-            if (form.email === '') {
+            if (form.phone === '') {
                 ElMessage.warning({
-                    message: '请输入邮箱地址',
+                    message: '请输入绑定的手机号',
                     type: 'warning'
                 });
                 return;
@@ -205,7 +244,7 @@ export default defineComponent({
                 return;
             }
             const { data } = await axios.post('/user/login', {
-                email: form.email,
+                phone: form.phone,
                 password: form.password,   
             });
             console.log(data);
@@ -235,10 +274,41 @@ export default defineComponent({
           //   message.error(data.msg)
         }
 
+        const getPhoneCode = async () => {
+            
+            const { data } = await axios.post('/message/getcode', {
+                phoneNum: regForm.phone
+            });
+            console.log(data);
+            verificationCode.value = data.data;
+            const TIME_COUNT = 60;
+            let timer = null;
+            if (!timer) {
+                count.value = TIME_COUNT;
+                showCode.value = false;
+                timer = setInterval(() => {
+                    if (count.value > 0 && count.value <= TIME_COUNT) {
+                        count.value--;
+                        // console.log(count.value);
+                    } else {
+                    showCode.value = true;
+                    clearInterval(timer);
+                        timer = null;
+                    }
+                }, 1000)
+            }
+        }
+
         const registerForm = async () => {
-            if (regForm.email === '') {
+            if (regForm.phone === '') {
                 ElMessage.warning({
-                    message: '请输入邮箱地址',
+                    message: '请输入手机号',
+                    type: 'warning'
+                });
+                return;
+            } else if (regForm.code === '') {
+                ElMessage.warning({
+                    message: '请输入验证码',
                     type: 'warning'
                 });
                 return;
@@ -248,9 +318,21 @@ export default defineComponent({
                     type: 'warning'
                 });
                 return;
+            }else if (regForm.checkpass === '') {
+                ElMessage.warning({
+                    message: '请再次输入密码',
+                    type: 'warning'
+                });
+                return;
             } else if (regForm.password !== regForm.checkpass) {
                 ElMessage.warning({
                     message: '两次输入密码不一致!',
+                    type: 'warning'
+                });
+                return;
+            } else if (regForm.code !== verificationCode.value) {
+                ElMessage.warning({
+                    message: '验证码不正确!',
                     type: 'warning'
                 });
                 return;
@@ -262,7 +344,7 @@ export default defineComponent({
                 return;
             }
             const { data } = await axios.post('/user/register', {
-                email: regForm.email,
+                phone: regForm.phone,
                 nickName: regForm.nickname,
                 password: regForm.password,
             });
@@ -290,6 +372,22 @@ export default defineComponent({
             return;
         }
 
+        const getMessageList = async () => {
+            // 用户id
+            const userId = store.state.userInfo.data.data._id;
+            let { data } = await axios.get(`/message/${userId}`);
+            console.log('getmessageList');
+            console.log(data.data.length);
+            messageLength.value = data.data.length;
+            // 将请求返回的文章数组赋值给articles
+            // messageList.value = data.data;
+            // console.log(messageList);
+            // getLocalTime(messageList.value);
+            // return res.data.data.list;
+            // 将请求返回的文章总数赋值给total
+            // total.value = res.data.data.total
+        };
+
         onMounted(async () => {
             console.log('挂载头部');
             console.log(store.state);
@@ -313,24 +411,51 @@ export default defineComponent({
                 // store.commit('setUserStatus', true);
                 
                 console.log(store.state.userInfo);
+                getMessageList();
+                // isLogin.value = true;
+            }
+            if(getAdminToken() !== '') {
+                
+                // console.log(store.state.userInfo);
+                console.log('设置管理员状态');
+                
+                const adminInfo = await store.dispatch('getAdminStatus');
+
+                if (adminInfo) {
+                    // isLogin.value = true;
+                    console.log(adminInfo);
+                    // avatarUrl.value = userInfo.data.data.userAvatar;
+                    adminName.value = adminInfo.data.nickname;
+                    console.log(adminName);
+                }
+                // store.commit('setUserStatus', true);
+                
+                console.log(store.state.adminInfo);
                 // isLogin.value = true;
             }
             console.log('设置完毕');
             console.log(store.state);
             console.log(store.state.userInfo);
+            
         })
         return {
             goToHome,
             logout,
+            logoutAdmin,
             isLogin,
             avatarUrl,
             userNickname,
+            adminName,
             dialogFormVisible,
             dialogRegFormVisible,
             form,
             regForm,
             submitForm,
-            registerForm
+            registerForm,
+            messageLength,
+            getPhoneCode,
+            showCode,
+            count
         }
     },
 })
@@ -355,10 +480,15 @@ export default defineComponent({
       width: 200px;
       height: 35px;
       margin-left: 10px;
-      background-image: url(../../public/img/title04.png);
-      background-size: 100%;
-      background-repeat: no-repeat;
+      display: flex;
+      /* background-image: url(../../public/img/title04.png); */
+      /* background-size: 100%; */
+      /* background-repeat: no-repeat; */
       cursor: pointer;
+  }
+  .leftdiv-img {
+      /* width: 200px; */
+      height: 35px;
   }
   .rightdiv {
       padding-right: 16px;
@@ -384,4 +514,14 @@ export default defineComponent({
   .el-icon-arrow-down {
     font-size: 12px;
   }
+  .el-dialog {
+      min-width: 550px;
+      max-width: 550px;
+  }
+  /* .el-dialog__footer {
+      text-align: left !important;
+  } */
+  /* .el-input {
+    width: 360px ;
+  } */
 </style>

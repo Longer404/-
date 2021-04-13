@@ -341,6 +341,7 @@ export default defineComponent({
         getArticleList();
         getDraftList();
         getSemifinishedArticleList();
+        console.log(router.currentRoute.value.name);
         // console.log(store.state);
         // console.log(store.state.userInfo);
       });
@@ -474,8 +475,8 @@ export default defineComponent({
 .card-case {
     margin: 15px auto;
     height: 120px;
-    width: 500px;
-    padding: 20px;
+    width: 600px;
+    padding: 15px;
     box-shadow: gray 1.5px 1.5px 3px;
     border-radius: 4px ;
     background: #e3e3e3;
@@ -501,6 +502,11 @@ export default defineComponent({
 .card-info-title {
     font-size: 24px;
     margin-left: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
 }
 .card-info-date {
     font-size: 14px;

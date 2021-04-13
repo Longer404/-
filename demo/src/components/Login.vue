@@ -186,9 +186,9 @@ export default defineComponent({
     /* min-height: 800px; */
     margin: 0 auto;
   }
-  .el-input {
+  /* .el-input {
     width: 360px !important;
-  }
+  } */
   /* .el-form {
     margin-left: auto;
     margin-right: auto;

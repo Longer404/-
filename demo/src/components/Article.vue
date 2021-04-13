@@ -115,7 +115,7 @@
             <div class="recommend-box">
                 <!-- <div v-for="article in articles" :key="article" class="cards"> -->
                 <div v-for="authorArticle in authorArticleList" :key="authorArticle" class="read-recommend">
-                    {{authorArticle.title}}
+                    <div class="recommend-title-inarticle">{{authorArticle.title}}</div>
                     <div class="recommend-info">{{authorArticle.createAt.split(/[\s\n]/)[1] + '-' + authorArticle.createAt.split(/[\s\n]/)[2] + '-' + authorArticle.createAt.split(/[\s\n]/)[3]}}</div>
                     <!-- rankessay.createAt.split(/[\s\n]/)[1] + '-' + rankessay.createAt.split(/[\s\n]/)[2] -->
                 </div>
@@ -124,7 +124,12 @@
             <div class="other-box">
                 <div class="other-box-title">更多</div>
                 <div class="other-box-link">
-                    <div class="link-box" ><i class="el-icon-edit"></i>投稿</div>
+                    <div class="link-box" >
+                        <i class="el-icon-edit"></i>
+                        <router-link to="/form">
+                            投稿
+                        </router-link>
+                    </div>
                     <div class="help-box"><i class="el-icon-question"></i>帮助</div>
                 </div>
             </div>
@@ -544,6 +549,14 @@ export default defineComponent({
       border-bottom-width: 0.5px;
       border-bottom-color: #e3e3e3;
       margin-top: 10px;
+      
+  }
+  .recommend-title-inarticle {
+      display: -webkit-box;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
   }
   .recommend-info {
       font-weight: 100;

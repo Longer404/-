@@ -2,7 +2,8 @@ require('./schemas/user');
 require('./schemas/draft');
 require('./schemas/article');
 require('./schemas/character');
-require('./schemas/comment')
+require('./schemas/comment');
+require('./schemas/message')
 
 const mongoose = require('mongoose');
 

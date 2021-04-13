@@ -15,7 +15,7 @@ router.post('/register', async (context) => {
     // context.body = '注册成功';
     // 新建两个变量获取前端返回的数据；
     const {
-        email,
+        phone,
         nickName,
         password,
     } = context.request.body;
@@ -38,14 +38,14 @@ router.post('/register', async (context) => {
 
     // 使用findOne方法查询User表中是否存在与前端传来的邮箱相同的邮箱
     const two = await User.findOne({
-        email: email,
+        phone: phone,
     }).exec();
 
     // 如果存在则返回以下信息
     if (two) {
         context.body = {
             code: 0,
-            msg: '该邮箱已被绑定',
+            msg: '该号码已被绑定',
             data: null,
         };
         return;
@@ -56,7 +56,7 @@ router.post('/register', async (context) => {
 
     // 将两个变量的值传给user的model以创建数据库信息
     const regiuser = new User({
-        email: email,
+        phone: phone,
         nickname: nickName,
         password: password,
         character: member._id,
@@ -68,7 +68,7 @@ router.post('/register', async (context) => {
     // 生成token返回给前端
     const data = {
         nickname: res.nickname,
-        email: res.email,
+        phone: res.phone,
         _id: res._id,
         userAvatar: res.userAvatar,
         character: res.character,

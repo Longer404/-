@@ -24,11 +24,11 @@
                 </el-table-column>
                 <el-table-column prop="_id" label="用户ID" width="240" sortable>
                 </el-table-column>
-                <el-table-column prop="nickname" label="用户昵称" width="120" sortable>
+                <el-table-column prop="nickname" label="用户昵称" width="160" sortable>
                 </el-table-column>
-                <el-table-column prop="character" label="用户角色" width="120">
+                <el-table-column prop="character" label="用户角色" width="220">
                 </el-table-column>
-                <el-table-column prop="email" label="绑定邮箱" width="250">
+                <el-table-column prop="phone" label="绑定手机号" width="240">
                 </el-table-column> -->
                 <!-- <el-table-column prop="zip" label="邮编" width="120">
                 </el-table-column> -->
@@ -80,6 +80,27 @@
                         <el-button @click="getArticleDetail(scope.row)" type="text" size="small">查看</el-button>
                         <el-button @click="setPass(scope.row)" type="text" size="small">通过</el-button>
                         <el-button @click="setReject(scope.row)" type="text" size="small" style="color: red;">驳回</el-button>
+                        <el-dialog title="驳回原因" :lock-scroll="false" v-model="dialogFormVisible">
+                            <el-form :model="form">
+                                <el-form-item prop="message" >
+                                    <el-input 
+                                        v-model="form.message" 
+                                        resize="none"
+                                        :rows="5"
+                                        type="textarea" 
+                                        autocomplete="off" 
+                                        placeholder="请输入驳回原因">
+                                    </el-input>
+                                </el-form-item>
+                            </el-form>
+                            <template #footer>
+                                <span class="dialog-footer">
+                                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                                <el-button type="primary" @click="sendRejectMessage">发 送</el-button>
+                                <!-- <el-button @click="dialogFormVisible = false , dialogRegFormVisible = true" type="text" size="mini" style="margin-right:60px">未有账号，前去注册</el-button> -->
+                                </span>
+                            </template>
+                        </el-dialog>
                     </template>
                 </el-table-column>
             </el-table>
@@ -157,10 +178,11 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onMounted, ref, reactive } from 'vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { ElMessageBox } from 'element-plus';
+// import store from '../store'
 
 export default defineComponent({
     
@@ -170,6 +192,12 @@ export default defineComponent({
         const tableDataOfUser = ref([]);
         const tableDataOfArticle = ref([]);
         const semifinishedArticles = ref([]);
+        const dialogFormVisible = ref(false);
+        const currentId = ref('');
+        const currentAuthorId = ref('');
+        const form = reactive({
+            message: '',
+        });
         // 当前标签页
         const curTab = ref('0');
         // 用户页当前页码
@@ -333,7 +361,40 @@ export default defineComponent({
         const setReject = async (row) => {
             
             console.log(row._id);
-            let res = await axios.get(`/article/examination/${row._id}`, {
+            currentId.value = row._id;
+            currentAuthorId.value = row.authorId;
+            dialogFormVisible.value = true;
+            // let res = await axios.get(`/article/examination/${row._id}`, {
+            //     params: {
+            //         examined: 'reject',
+            //     }
+            // });
+            // console.log(res.data.code);
+            // if (res.data.code) {
+            //     ElMessage.success(res.data.msg);
+            // } else {
+            //     ElMessage.error(res.data.msg);
+            // }
+            // getSemifinishedArticles();
+        }
+        const sendRejectMessage = async () => {
+            const messageDetail = {
+                messageTo: currentAuthorId.value,
+                messageFrom: currentId.value,
+                content: form.message,
+            };
+            if (form.message === '') {
+                ElMessage.warning('请填写内容');
+                return;
+            }
+            const { data } = await axios.post(
+                '/message/post', 
+                {
+                    essay: messageDetail
+                }
+            );
+            console.log(data);
+            let res = await axios.get(`/article/examination/${currentId.value}`, {
                 params: {
                     examined: 'reject',
                 }
@@ -345,6 +406,7 @@ export default defineComponent({
                 ElMessage.error(res.data.msg);
             }
             getSemifinishedArticles();
+            dialogFormVisible.value = false;
         }
 
         const handleClick = (row) => {
@@ -376,7 +438,10 @@ export default defineComponent({
             getUserList,
             getAllArtList,
             getSemifinishedArticles,
-            format
+            format,
+            dialogFormVisible,
+            form,
+            sendRejectMessage
         }
     },
 })
@@ -386,7 +451,7 @@ export default defineComponent({
 .admin-main-box {
     height: 100% !important;
     min-width: 1000px;
-    max-width: 1256px;
+    /* max-width: 1256px; */
     min-height: 780px;
 }
 /* .el-table__content {

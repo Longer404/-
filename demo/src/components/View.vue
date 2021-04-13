@@ -99,13 +99,13 @@
                 <svg class="icon" aria-hidden="true">                 
                   <use xlink:href="#icon-dianzan1"></use>                  
                 </svg>
-                <span style="padding-right:8px;cursor: pointer;" @click="clickLike">点赞</span>
+                <span class="undercardpic-span" @click="clickLike">点赞</span>
                 <svg class="icon" aria-hidden="true">                 
                   <use xlink:href="#icon-ziyuan173"></use>                  
                 </svg>
-                <span style="padding-right:5px;cursor: pointer;" @click="clickDislike">不喜欢</span>
+                <span class="undercardpic-span" @click="clickDislike">不喜欢</span>
                 <!-- <span><i class="el-icon-share"></i></span> -->
-                <span style="cursor: pointer;" @click="clickShare"><i class="el-icon-share"  ></i>分享</span>
+                <span class="undercardpic-span" @click="clickShare"><i class="el-icon-share"  ></i>分享</span>
               </div>
             </div>            
           </div>
@@ -372,8 +372,8 @@ export default defineComponent ({
     font-weight: normal;
   }
   .icon {
-  width: 21px;
-  height: 21px;
+  width: 18px;
+  height: 18px;
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
@@ -460,6 +460,11 @@ export default defineComponent ({
     margin-left: 10px;
     width: 200px;
     cursor: pointer;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
   }
   .rank-wrap-date {
     font-size: 13px;
@@ -522,6 +527,11 @@ export default defineComponent ({
   }
   .cardtitle {
     cursor: pointer;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
   }
   /* 标题下方发表日期以及作者信息的样式 */
   .cardauthor {
@@ -535,7 +545,9 @@ export default defineComponent ({
   }
   /* 内容摘要的样式 */
   .cardabout {
+    width: 440px;
     margin-top: 10px;
+    font-size: 14px;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     overflow: hidden;
@@ -543,6 +555,7 @@ export default defineComponent ({
     -webkit-box-orient: vertical;
   }
   .cardbottom {
+    width: 440px;
     display: flex;
     justify-content: space-between;
   }
@@ -563,6 +576,11 @@ export default defineComponent ({
     margin-top: 10px;
     display: flex;
     justify-content: space-between;
+  }
+  .undercardpic-span {
+    padding-right:8px;
+    cursor: pointer;
+    font-size: 14px;
   }
   .pagebox {
     margin-top: 30px;

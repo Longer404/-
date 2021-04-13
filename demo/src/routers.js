@@ -106,10 +106,10 @@ const router = createRouter({
             // meta: { redirectAlreadyLogin: true }
         },
         {
-            path: '/testpage',
-            name: 'testpage',
+            path: '/message',
+            name: 'message',
             // component: Register,
-            component: () => import('./components/testpage.vue')
+            component: () => import('./components/Message.vue')
         },
         {
             path: '/adminpage',
@@ -148,12 +148,16 @@ router.beforeEach(async (to, from, next) => {
         console.log('本地管理员已登录')
         store.dispatch('getAdminStatus');
     } 
-    if (getAdminToken() === '' && getToken() === '') {
+    if (getToken() === '' && to.path !== '/adminpage') {
         // console.log(3)
         // console.log(!store.state.userInfo.data)
         console.log('本地不存在登录信息');
         // store.dispatch('getUserInfo');
         store.commit('setUserStatus', false);
+    }
+    if (getAdminToken() === '' && to.path === '/adminpage') {
+        console.log('本地不存在登录信息');
+        next({ path: '/adminlogin' });
     }
 
     if(store.state.userStatus === false) {
