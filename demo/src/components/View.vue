@@ -457,7 +457,8 @@ export default defineComponent ({
   }
   .rank-wrap-title {
     line-height:28px;
-    margin-left: 10px;
+    font-size: 15px;
+    margin-left: 5px;
     width: 200px;
     cursor: pointer;
     display: -webkit-box;
@@ -467,7 +468,7 @@ export default defineComponent ({
     -webkit-box-orient: vertical;
   }
   .rank-wrap-date {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 200;
     line-height:28px;
     width: 45px;
@@ -526,6 +527,7 @@ export default defineComponent ({
     text-align: left;
   }
   .cardtitle {
+    font-size: 22px;
     cursor: pointer;
     display: -webkit-box;
     -webkit-line-clamp: 1;
@@ -631,11 +633,17 @@ export default defineComponent ({
   }
   .recommend-title {
     height: 30px;
+    line-height: 30px;
     margin-bottom: 5px;
     margin-left: 20px;
     /* margin: 0 auto; */
     /* background: #555; */
     cursor: pointer;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
     /* align-content: center; */
   }
 

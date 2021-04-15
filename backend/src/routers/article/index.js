@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 // const jwt = require('jsonwebtoken');
 
 const Article = mongoose.model('Article');
+const User = mongoose.model('User');
 
 const router = new Router({
     prefix: '/article'
@@ -16,6 +17,20 @@ router.post('/post', async (context) => {
     } = context.request.body;
     // console.log(storage.fileFormat.filename)
     console.log(essay)
+
+    const one = await User.findOne({
+        _id: essay.authorId
+    }).exec();
+
+    if(one.power === '4' || one.power === '3') {
+        context.body = {
+            code: 0,
+            msg: '发布失败，你的账号已被禁止发布资讯',
+            // data: context.request.body,
+            data: null
+        };
+        return;
+    }
 
     const article = new Article({
         author: essay.author,
@@ -316,14 +331,18 @@ router.get('/table/:type', async (context) => {
     console.log('get all article list')
 
     // 将数据库中article表的记录的总数传给total
-    const total = await Article.countDocuments();
+    const total = await Article.find({
+        examined: 'pass',
+    });
     // const list = await Article.find().exec();
 
     // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
     if (type === 'id') {
         console.log('byID');
         var list = await Article
-            .find()
+            .find({
+                examined: 'pass',
+            })
             .sort({
                 _id: -1,
             })
@@ -334,7 +353,9 @@ router.get('/table/:type', async (context) => {
     if (type === 'title') {
         console.log('byTitle');
         var list = await Article
-            .find()
+            .find({
+                examined: 'pass',
+            })
             .sort({
                 title: -1,
             })
@@ -345,7 +366,9 @@ router.get('/table/:type', async (context) => {
     if (type === 'createAt') {
         console.log('byCAt');
         var list = await Article
-            .find()
+            .find({
+                examined: 'pass',
+            })
             .sort({
                 "meta.createdAt": -1,
             })
@@ -354,13 +377,13 @@ router.get('/table/:type', async (context) => {
             .exec();
     }
     
-
+    // const total = list.length;
     // 最后返回前端所需的数据
     context.body = {
         code: 1,
         msg: '获取成功',
         data: {
-            total,
+            total: total.length,
             page,
             size,
             list,

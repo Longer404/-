@@ -147,6 +147,8 @@ router.beforeEach(async (to, from, next) => {
     if (getAdminToken() !== '') {
         console.log('本地管理员已登录')
         store.dispatch('getAdminStatus');
+        store.dispatch('getTotalData');
+        store.dispatch('getTotalPartition');
     } 
     if (getToken() === '' && to.path !== '/adminpage') {
         // console.log(3)

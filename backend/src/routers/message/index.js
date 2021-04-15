@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 
 const Message = mongoose.model('Message');
 // const User = mongoose.model('User');
+const Article = mongoose.model('Article');
+const User = mongoose.model('User');
+const Comment = mongoose.model('Comment');
 
 const router = new Router({
     prefix: '/message'
@@ -35,14 +38,14 @@ router.post('/post', async (context) => {
     };
 });
 
-router.get('/:id', async (context) => {
+router.get('/detail/:id', async (context) => {
     
     // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
     const {
         id,
     } = context.params;
 
-    // console.log(typeof examined);
+    console.log("testing");
 
     const messageList = await Message.find({
         messageTo: id,
@@ -130,5 +133,75 @@ router.post('/getcode', async (context) => {
 //         data: commentList,
 //     };
 // });
+
+router.get('/systemdata', async (context) => {
+    console.log('total1');
+    const totalUser = await User.countDocuments();
+    
+    console.log(totalUser);
+    const totalArticle = await Article.countDocuments();
+    const totalComment = await Comment.countDocuments();
+    const SemifinishedArticle = await Article.find({
+        examined: 'examining'
+    }).exec();
+    const totalSemifinishedArticle = SemifinishedArticle.length;
+    context.body = {
+        code: 1,
+        msg: '统计完毕',
+        data: {
+            totalUser,
+            totalArticle,
+            totalComment,
+            totalSemifinishedArticle
+        }
+        // data:'total'
+    };
+});
+
+router.get('/totalpartition', async (context) => {
+    console.log('total2');
+    // const totalUser = await User.countDocuments();
+    
+    // console.log(totalUser);
+    // const totalArticle = await Article.countDocuments();
+    // const totalComment = await Comment.countDocuments();
+    const anime = await Article.find({
+        partition: 'animation'
+    }).exec();
+    const comics = await Article.find({
+        partition: 'comics'
+    }).exec();
+    const game = await Article.find({
+        partition: 'game'
+    }).exec();
+    const peripheral = await Article.find({
+        partition: 'peripheral'
+    }).exec();
+    const doujin = await Article.find({
+        partition: 'doujin'
+    }).exec();
+    const exhibition = await Article.find({
+        partition: 'exhibition'
+    }).exec();
+    const totalAnime = anime.length;
+    const totalComics = comics.length;
+    const totalGame = game.length;
+    const totalPeripheral = peripheral.length;
+    const totalDoujin = doujin.length;
+    const totalExhibition = exhibition.length;
+    context.body = {
+        code: 1,
+        msg: '统计完毕',
+        data: {
+            totalAnime,
+            totalComics,
+            totalGame,
+            totalPeripheral,
+            totalDoujin,
+            totalExhibition
+        }
+        // data:'total'
+    };
+});
 
 module.exports = router;

@@ -15,7 +15,7 @@ const CommentSchema = new mongoose.Schema({
     // 如果是评论id，则是评论的回复
     commentTo: String,
     // 评论日期
-    createAt: String,
+    createAt: Number,
     // 评论内容
     content: String,
     // meta: getMeta(),

@@ -85,10 +85,10 @@ export default defineComponent({
   }
   .left-footer {
     width: 200px;
-    height: 150px;
+    height: 100px;
     /* border-right: 1px solid #B3C0D1; */
     margin-right: 100px;
-    margin-top: 20px;
+    margin-top: 10px;
     font-size: 20px;
   }
   /* .left-footer-links {
@@ -97,18 +97,18 @@ export default defineComponent({
   } */
   .middle-footer {
     width: 200px;
-    height: 150px;
+    height: 100px;
     /* border-right: 1px solid #B3C0D1; */
     margin-right: 100px;
-    margin-top: 20px;
+    margin-top: 10px;
     font-size: 20px;
   }
   .right-footer {
     width: 200px;
-    height: 150px;
+    height: 100px;
     /* border-right: 1px solid #B3C0D1; */
     margin-right: 100px;
-    margin-top: 20px;
+    margin-top: 10px;
     font-size: 20px;
   }
   .footer-link {

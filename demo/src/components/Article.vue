@@ -23,7 +23,7 @@
                 <div class="comment-area-title">评论</div>
                 <div class="user-comment-area">
                     <!-- <div class="comment-user-avatar"></div> -->
-                    <img v-if="$store.state.userInfo.data.data.userAvatar" class="comment-user-avatar" :src="$store.state.userInfo.data.data.userAvatar">
+                    <img v-if="$store.state.userInfo.data !== undefined" class="comment-user-avatar" :src="$store.state.userInfo.data.data.userAvatar">
                     <img v-else class="comment-user-avatar" src="../assets/avatar.png">
                     <el-input
                         style="margin-bottom: 10px;width:70%;"
@@ -174,7 +174,7 @@ export default defineComponent({
         }
         const format = (timeStamp) => {
             //shijianchuo是整数，否则要parseInt转换
-            parseInt(timeStamp);
+            // parseInt(timeStamp);
             // console.log(timeStamp);
             var time = new Date(parseInt(timeStamp));
             // console.log(time);
@@ -224,7 +224,7 @@ export default defineComponent({
         const getComments = async () => {
             const res = await axios.get('/comment/list', {
                 params: {
-                    commentFrom: id,
+                    commentTo: id,
                 }
             });
             console.log(res);
@@ -290,6 +290,14 @@ export default defineComponent({
         // }
 
         const submitComment = async () => {
+            if (store.state.userInfo.data === undefined) {
+                ElMessage.warning('请登录账号后评论');
+                return;
+            }
+            if (store.state.userInfo.data.data.power === '2' || store.state.userInfo.data.data.power === '4'){
+                ElMessage.error('你的账号已被禁止评论');
+                return;
+            }
             const commentDetail = {
                 // 评论者id
                 commentatorId: store.state.userInfo.data.data._id,
@@ -297,7 +305,7 @@ export default defineComponent({
                 userAvatar: store.state.userInfo.data.data.userAvatar,
                 // 评论对象
                 commentTo: id,
-                commentFrom: id,
+                commentFrom: detailInfo.value.title,
                 // createAt: (new Date()).getTime(),
                 // 评论内容
                 content: commentText.value,
@@ -319,7 +327,7 @@ export default defineComponent({
                 ElMessage.success(data.msg);
                 commentText.value = '';
             } else {
-                ElMessage.error('评论失败');
+                ElMessage.error(data.msg);
             }
             getComments();
             console.log(data);

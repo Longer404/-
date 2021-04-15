@@ -41,17 +41,17 @@
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
-            <el-button size="small"  type="danger">
-                <router-link to="/form">
-                    发表文章
-                </router-link>
+            <el-button size="small"  type="danger" @click="goToFormpage">
+                <!-- <router-link to="/form"> -->
+                    发布资讯
+                <!-- </router-link> -->
             </el-button>
         </div>
         <!-- <div v-else class="rightdiv"> -->
         <div v-show="isLogin === false && this.$router.currentRoute.value.name !== 'adminpage'" class="rightdiv">
             <el-button size="small"  type="danger">
                 <router-link to="/form">
-                    发表文章
+                    发布资讯
                 </router-link>
             </el-button>
             <!-- <h1>{{isLogin}}</h1> -->
@@ -219,6 +219,15 @@ export default defineComponent({
         const goToHome = () => {
             router.push('/');
         }
+        const goToFormpage = () => {
+            if(store.state.userInfo.data.data.power === '4' || store.state.userInfo.data.data.power === '3'){
+                ElMessage.error('你的账号已被禁止发布资讯');
+                return;
+            } else {
+                router.push('/form');
+            }
+            // alert("test");
+        }
         const logout = () => {
             setToken('');
             window.location.href = '/';
@@ -375,7 +384,7 @@ export default defineComponent({
         const getMessageList = async () => {
             // 用户id
             const userId = store.state.userInfo.data.data._id;
-            let { data } = await axios.get(`/message/${userId}`);
+            let { data } = await axios.get(`/message/detail/${userId}`);
             console.log('getmessageList');
             console.log(data.data.length);
             messageLength.value = data.data.length;
@@ -442,6 +451,7 @@ export default defineComponent({
             goToHome,
             logout,
             logoutAdmin,
+            goToFormpage,
             isLogin,
             avatarUrl,
             userNickname,

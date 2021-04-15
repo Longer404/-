@@ -60,6 +60,7 @@ router.post('/register', async (context) => {
         nickname: nickName,
         password: password,
         character: member._id,
+        characterTitle: member.title,
     });
 
     const res = await regiuser.save();
@@ -95,11 +96,11 @@ router.post('/register', async (context) => {
 router.post('/login', async (context) => {
     // context.body = '登录成功';
     const {
-        email,
+        phone,
         password,
     } = context.request.body;
 
-    if (email === '' || password === '') {
+    if (phone === '' || password === '') {
         context.body = {
             code: 0,
             msg: '字段不能为空',
@@ -109,13 +110,13 @@ router.post('/login', async (context) => {
     // console.log(email,password)
     
     const one = await User.findOne({
-        email,
+        phone,
     }).exec();
 
     if (!one) {
         context.body = {
             code: 0,
-            msg: '用户名或密码错误',
+            msg: '手机号或密码错误',
             data: null,
         };
         return;
@@ -123,10 +124,11 @@ router.post('/login', async (context) => {
 
     const data = {
         nickname: one.nickname,
-        email: one.email,
+        phone: one.phone,
         _id: one._id,
         userAvatar: one.userAvatar,
         character: one.character,
+        power: one.power,
     };
 
     if (one.password === password) {
@@ -149,6 +151,34 @@ router.post('/login', async (context) => {
 });
 
 router.get('/info', async (context) => {
+    const data = await (verify(getToken(context)));
+    const one = await User.findOne({
+        _id: data._id
+    }).exec();
+    // console.log(one);
+    let isChange = false;
+    if (data.phone !== one.phone) {
+        isChange = true;
+        console.log(11);
+    } 
+    if (data.power !== one.power){
+        isChange = true;
+        console.log(22);
+    } 
+    if (data.nickname !== one.nickname) {
+        isChange = true;
+        console.log(33);
+    } 
+    
+
+    if (isChange) {
+        context.body = {
+            data: null,
+            code: 0,
+            msg: 'token过期',
+        }
+        return;
+    }    
     context.body = {
         data: await verify(getToken(context)),
         code: 1,
@@ -157,12 +187,69 @@ router.get('/info', async (context) => {
     
 });
 
+router.get('/detail/:id', async (context) => {
+    const {
+        id,
+    } = context.params;
+
+    const one = await User.findOne({
+        _id: id
+    }).exec();
+
+    if(!one) {
+        context.body = {
+            data: null,
+            code: 0,
+            msg: '获取失败',
+        }
+    }
+    context.body = {
+        data: {
+            nickname: one.nickname,
+            phone: one.phone,
+            power: one.power,
+        },
+        code: 1,
+        msg: '获取成功',
+    }
+});
+
+router.post('/resetpass', async (context) => {
+    const {
+        id,
+    } = context.request.body;
+
+    const one = await User.findOne({
+        _id: id
+    }).exec();
+
+    if (!one) {
+        context.body = {
+            code: 0,
+            msg: '未找到用户',
+            data: null,
+        };
+        return;
+    }
+
+    one.password = '123456';
+    await one.save();
+    context.body = {
+        code: 1,
+        msg: '重置成功',
+        data: null
+    };
+    return;
+});
+
 router.post('/update', async (context) => {
     // context.body = '登录成功';
     const {
         id,
         nickname,
         userAvatar,
+        phone,
+        power,
     } = context.request.body;
 
     console.log(nickname + userAvatar)
@@ -188,10 +275,17 @@ router.post('/update', async (context) => {
         one.userAvatar = userAvatar  
     }
 
+    if (phone) {
+        one.phone = phone  
+    }
+    if (power) {
+        one.power = power  
+    }
+
     await one.save();
     const user = {
         nickname: one.nickname,
-        email: one.email,
+        phone: one.phone,
         _id: one._id,
         userAvatar: one.userAvatar,
     };
@@ -299,6 +393,30 @@ router.get('/table/:type', async (context) => {
             list,
         }
     };
+});
+
+router.get('/search', async (context) => {
+    const {
+        keyword
+    } = context.query;
+
+    var userList = await User.find({
+        nickname: {$regex: keyword}
+    }).exec();
+
+    if(!userList) {
+        context.body = {
+            code: 0,
+            msg: '没有搜索结果',
+            data: null
+        }
+        return;
+    }
+    context.body = {
+        code: 1,
+        msg: '搜索成功',
+        data: userList
+    }
 });
 
 module.exports = router;

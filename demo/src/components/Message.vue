@@ -63,7 +63,7 @@ export default defineComponent({
         const getMessageList = async () => {
             // 用户id
             const userId = store.state.userInfo.data.data._id;
-            let { data } = await axios.get(`/message/${userId}`);
+            let { data } = await axios.get(`/message/detail/${userId}`);
             console.log('getmessageList');
             console.log(data);
             // 将请求返回的文章数组赋值给articles
@@ -116,6 +116,7 @@ export default defineComponent({
 .message-cards {
     width: 750px;
     min-height: 70px;
+    margin-top: 10px;
     margin-left: 20px;
     box-shadow: gray 1.5px 1.5px 3px;
     border-radius: 4px ;

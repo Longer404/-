@@ -7,7 +7,9 @@ const UserSchema = new mongoose.Schema({
     phone: String,
     userAvatar: String,
     character: String,
+    characterTitle: String,
     collect: [String],
+    power: String,
     meta: getMeta(),
 });
 

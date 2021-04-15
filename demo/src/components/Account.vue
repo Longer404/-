@@ -31,9 +31,12 @@
                         <img width="100%" :src="dialogImageUrl" alt="">
                     </el-dialog>
                 </div>
-                <el-form ref="form" :model="form" label-width="80px">
+                <el-form ref="form" :model="form" label-width="100px" style="margin-left:50px">
                     <el-form-item label="用户昵称">
-                        <el-input v-model="form.name"></el-input>
+                        <el-input v-model="form.name" style="width: 300px !important" :placeholder="userInfo.nickname"></el-input>
+                    </el-form-item>
+                    <el-form-item label="绑定手机号">
+                        <el-input v-model="form.name" style="width: 300px !important" :placeholder="userInfo.phone" disabled></el-input>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="onSubmit">保存</el-button>
@@ -223,6 +226,8 @@ export default defineComponent({
       // 存储审核信息
       const semifinishedArticles = ref([]);
 
+      const userInfo = ref({});
+
       // 获取用户文章列表
       const getArticleList = async () => {
         // 用户id
@@ -341,6 +346,7 @@ export default defineComponent({
         getArticleList();
         getDraftList();
         getSemifinishedArticleList();
+        userInfo.value = store.state.userInfo.data.data;
         console.log(router.currentRoute.value.name);
         // console.log(store.state);
         // console.log(store.state.userInfo);
@@ -416,6 +422,7 @@ export default defineComponent({
         removeArticle,
         getDraft,
         removeDraft,
+        userInfo
       //     userAvatarUrl,
       //     form,
       //     dialogImageUrl,
@@ -452,13 +459,14 @@ export default defineComponent({
   /* margin: 0 auto; */
   padding-top: 20px;
   padding-bottom: 20px;
+  margin-left: 50px;
   width: 560px;
   display: flex;
   justify-content:flex-start;
   
 }
 .avatar-text {
-  width: 68px;
+  width: 88px;
   padding-right: 12px;
   font-size: 14px;
   line-height: 40px;
@@ -490,7 +498,7 @@ export default defineComponent({
     /* width: 100%; */
 }
 .card-info {
-    width: 300px;
+    width: 400px;
     /* background: rgb(140, 117, 241); */
     border-left-style:solid;
     border-left-width: 1px;
