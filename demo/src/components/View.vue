@@ -3,25 +3,45 @@
     <el-backtop ></el-backtop>
     <div class="top-pic">
     </div>
-    <el-menu
-      :default-active="activeIndex"
-      class="el-menu-demo"
-      mode="horizontal"
-      @select="handleSelect"
-      active-text-color="#409EFF"
-      >
-      <!-- background-color="#409EFF"
-      text-color="#fff"
-      active-text-color="#E6A23C" -->
-      <el-menu-item index="1">首页</el-menu-item>
-      <el-menu-item index="2">动画资讯</el-menu-item>
-      <el-menu-item index="3">漫画资讯</el-menu-item>
-      <el-menu-item index="4">游戏相关</el-menu-item>
-      <el-menu-item index="5">动漫周边</el-menu-item>
-      <el-menu-item index="6">同人创作</el-menu-item>
-      <el-menu-item index="7">漫展消息</el-menu-item>
-    </el-menu>
-    <div class="testcent">
+    <div class="el-menu-demo">
+      <el-menu
+        :default-active="activeIndex"
+        
+        mode="horizontal"
+        @select="handleSelect"
+        active-text-color="#409EFF"
+        >
+        <!-- background-color="#409EFF"
+        text-color="#fff"
+        active-text-color="#E6A23C" -->
+        <el-menu-item index="1">首页</el-menu-item>
+        <el-menu-item index="2">动画资讯</el-menu-item>
+        <el-menu-item index="3">漫画资讯</el-menu-item>
+        <el-menu-item index="4">游戏相关</el-menu-item>
+        <el-menu-item index="5">动漫周边</el-menu-item>
+        <el-menu-item index="6">同人创作</el-menu-item>
+        <el-menu-item index="7">漫展消息</el-menu-item>
+        
+      </el-menu>
+      <el-input
+        placeholder="根据资讯标题搜索"
+        size="medium"
+        style="width: 280px !important;margin-top:10px"
+        v-model="keyword"
+        class="input-with-select"
+        >
+        <template #append>
+            <el-button 
+              icon="el-icon-search" 
+              size="small" 
+              style="border-color:#409EFF;background-color:#409EFF;color:white" 
+              @click="searchArticleByName">
+            </el-button>
+        </template>
+      </el-input>
+    </div>
+    
+    <div v-show="showCarousel" class="testcent">
       <div class="paomadeng">
         <el-carousel :interval="3000" arrow="always">
           <el-carousel-item v-for="(item,index) in carouselArticles" :key="index">
@@ -97,20 +117,20 @@
               <div class="undercardpic">
                 <!-- <span class="iconfont icon-dianzan1">点赞</span> -->
                 <svg class="icon" aria-hidden="true">                 
-                  <use xlink:href="#icon-dianzan1"></use>                  
+                  <use xlink:href="#icon-dianzan"></use>                  
                 </svg>
-                <span class="undercardpic-span" @click="clickLike">点赞</span>
-                <svg class="icon" aria-hidden="true">                 
+                <span class="undercardpic-span" @click="clickLike(article._id)">点赞</span>
+                <!-- <svg class="icon" aria-hidden="true">                 
                   <use xlink:href="#icon-ziyuan173"></use>                  
-                </svg>
-                <span class="undercardpic-span" @click="clickDislike">不喜欢</span>
+                </svg> -->
+                <span class="undercardpic-span" @click="clickCollect(article._id)"><i class="el-icon-star-off"></i>收藏</span>
                 <!-- <span><i class="el-icon-share"></i></span> -->
                 <span class="undercardpic-span" @click="clickShare"><i class="el-icon-share"  ></i>分享</span>
               </div>
             </div>            
           </div>
         </div>
-        <div class="pagebox">
+        <div v-show="showPageBox" class="pagebox">
           <el-pagination
             background
             layout="prev, pager, next"
@@ -166,7 +186,12 @@ export default defineComponent ({
     }
   },
   setup() {
+    const keyword = ref('');
 
+    const showCarousel = ref(true);
+
+    const showPageBox = ref(true);
+    
     const router = useRouter()
     // 轮播图文章
     const carouselArticles = ref([{coverUrl: require('../../public/img/loading.png')},]);
@@ -242,30 +267,51 @@ export default defineComponent ({
       if (index === '1') {
         getList();
         curindexTitle.value = '首页';
+        showCarousel.value = true;
+        showPageBox.value = true;
+        curpage.value = 1;
       }
       if (index === '2') {
         getPartitionList('animation');
         curindexTitle.value = '动画资讯';
+        showCarousel.value = false;
+        showPageBox.value = true;
+        curpage.value = 1;
       }
       if (index === '3') {
         getPartitionList('comics');
         curindexTitle.value = '漫画资讯';
+        showCarousel.value = false;
+        showPageBox.value = true;
+        curpage.value = 1;
       }
       if (index === '4') {
         getPartitionList('game');
         curindexTitle.value = '游戏相关';
+        showCarousel.value = false;
+        showPageBox.value = true;
+        curpage.value = 1;
       }
       if (index === '5') {
         getPartitionList('peripheral');
         curindexTitle.value = '动漫周边';
+        showCarousel.value = false;
+        showPageBox.value = true;
+        curpage.value = 1;
       }
       if (index === '6') {
         getPartitionList('doujin');
         curindexTitle.value = '同人创作';
+        showCarousel.value = false;
+        showPageBox.value = true;
+        curpage.value = 1;
       }
       if (index === '7') {
         getPartitionList('exhibition');
         curindexTitle.value = '漫展消息';
+        showCarousel.value = false;
+        showPageBox.value = true;
+        curpage.value = 1;
       }
       
     }
@@ -318,24 +364,78 @@ export default defineComponent ({
     const goToDetail = async (articles) => {
       console.log(articles)
       // axios.get(`/article/${articles._id}`)
-      router.push(`/article/${articles._id}`)
+      router.push(`/article/detail/${articles._id}`)
     }
 
-    const clickLike = () =>{
-      ElMessage.success('点赞成功');
+    const clickLike = async (articleid) =>{
+      // console.log((store.state.userInfo.length));
+      if (!store.state.userStatus){
+        ElMessage.warning('请在登录后点赞');
+        return;
+      }
+      const { data } = await axios.post('/article/handlelike',{
+        userid: store.state.userInfo.data.data._id,
+        articleid: articleid
+      });
+      console.log(data);
+      ElMessage.success(data.msg);
 
     }
-    const clickDislike = () =>{
-      ElMessage.info('不喜欢ヽ(ー_ー)ノ');
+
+    const clickCollect = async (articleid) =>{
+      if (!store.state.userStatus){
+        ElMessage.warning('请在登录后进行收藏');
+        return;
+      }
+      const { data } = await axios.post('/user/collect',{
+        userid: store.state.userInfo.data.data._id,
+        articleid: articleid
+      });
+      console.log(data);
+      ElMessage.success(data.msg);
     }
+
     const clickShare = () =>{
       ElMessage.success('分享成功');
     }
-
+    const searchArticleByName = async () => {
+      if(keyword.value === ''){
+          ElMessage.warning('请输入关键词');
+          return;
+      }
+      console.log(keyword);
+      const {data} = await axios.get('/article/search',{
+          params: {
+              keyword: keyword.value,
+          }
+      });
+      console.log(data);
+      if (!data.code) {
+          keyword.value = '';
+          ElMessage.warning(data.msg);
+          return;
+      }
+      articles.value = data.data;
+      showCarousel.value = false;
+      showPageBox.value = false;
+      keyword.value = '';
+      curindexTitle.value = '搜索结果';
+      // totalArticle.value = data.data.length;
+      // getLocalTime(semifinishedArticles.value);
+      // tableDataOfUser.value = data.data;
+      // totalUser.value = data.data.length;
+      // console.log(format(res.data.data.list[0].meta.createdAt));
+      // getLocalTime(tableDataOfArticle.value);
+      // keyword.value = '';
+      // hadSearch.value = true;
+    }
     const testClick = () => {
       ElMessage.success('testing');
     }
     return {
+      keyword,
+      showCarousel,
+      showPageBox,
       articles,
       total,
       setPage,
@@ -348,9 +448,10 @@ export default defineComponent ({
       recommendEssays,
       handleSelect,
       clickLike,
-      clickDislike,
+      clickCollect,
       clickShare,
-      testClick
+      testClick,
+      searchArticleByName
       // resp
     }
   }
@@ -372,8 +473,8 @@ export default defineComponent ({
     font-weight: normal;
   }
   .icon {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
@@ -417,6 +518,12 @@ export default defineComponent ({
     /* background-position: 0 200px; */
     min-width: 1000px;
     width: 100%;
+  }
+  .el-menu-demo {
+    width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
   }
   .toplist {
     /* margin-right: 10%; */
@@ -557,6 +664,7 @@ export default defineComponent ({
     -webkit-box-orient: vertical;
   }
   .cardbottom {
+    margin-top: 5px;
     width: 440px;
     display: flex;
     justify-content: space-between;
@@ -569,7 +677,7 @@ export default defineComponent ({
   }
   .cardpic {
     width: 240px;
-    height: 150px;
+    height: 153px;
     object-fit: cover;
     cursor: pointer;
     /* background: #475669; */
@@ -582,7 +690,9 @@ export default defineComponent ({
   .undercardpic-span {
     padding-right:8px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
+    /* font-weight: 400; */
+    /* line-height: 12px; */
   }
   .pagebox {
     margin-top: 30px;
@@ -594,7 +704,7 @@ export default defineComponent ({
     position: -webkit-sticky;
     position: sticky;
     top:0;
-    background: #ecebeb;
+    background: #f3f3f3;
     width: 280px;
     margin-top: 40px;
     /* margin-right: 10%; */

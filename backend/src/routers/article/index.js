@@ -46,7 +46,7 @@ router.post('/post', async (context) => {
     })
     const res = await article.save();
 
-    console.log(2)
+    console.log('postart');
 
     context.body = {
         code: 1,
@@ -113,6 +113,7 @@ router.post('/update', async (context) => {
         one.content = essay.content
     }
     one.examined = "examining";
+    console.log('updateart');
     // 保存数据库记录
     await one.save();
     console.log('旧文章')
@@ -276,6 +277,7 @@ router.get('/list/:partition', async (context) => {
     const list = await Article
         .find({
             partition: partition,
+            examined: 'pass',
         })
         .sort({
             _id: -1,
@@ -288,6 +290,7 @@ router.get('/list/:partition', async (context) => {
     // const total = await Article.countDocuments();
     const total = await Article.find({
         partition: partition,
+        examined: 'pass',
     }).count();
     console.log(total);
 
@@ -319,7 +322,7 @@ router.get('/table/:type', async (context) => {
 
     const {
         page = 1,
-        
+        id
     } = context.query;
 
     let {
@@ -335,34 +338,34 @@ router.get('/table/:type', async (context) => {
         examined: 'pass',
     });
     // const list = await Article.find().exec();
-
+    
     // 通过当前页码page和每页显示的数量，从数据库中取出响应的记录
-    if (type === 'id') {
-        console.log('byID');
+    if (type === 'examining') {
+        console.log('examining');
+        console.log(id);
         var list = await Article
             .find({
-                examined: 'pass',
+                authorId: id,
+                examined: 'examining',
             })
             .sort({
                 _id: -1,
             })
-            .skip((page - 1) * size)
-            .limit(size)
             .exec();
     }
-    if (type === 'title') {
-        console.log('byTitle');
-        var list = await Article
-            .find({
-                examined: 'pass',
-            })
-            .sort({
-                title: -1,
-            })
-            .skip((page - 1) * size)
-            .limit(size)
-            .exec();
-    }
+    // if (type === 'title') {
+    //     console.log('byTitle');
+    //     var list = await Article
+    //         .find({
+    //             examined: 'pass',
+    //         })
+    //         .sort({
+    //             title: -1,
+    //         })
+    //         .skip((page - 1) * size)
+    //         .limit(size)
+    //         .exec();
+    // }
     if (type === 'createAt') {
         console.log('byCAt');
         var list = await Article
@@ -391,7 +394,7 @@ router.get('/table/:type', async (context) => {
     };
 });
 
-router.get('/:id', async (context) => {
+router.get('/detail/:id', async (context) => {
 
     const {
         id,
@@ -429,16 +432,21 @@ router.get('/manager/:id', async (context) => {
 
     const list = await Article.find({
         authorId: id,
+        examined: 'pass',
     }).exec();
-
-    if (!list) {
+    const total = list.length;
+    if (list.length === 0) {
         context.body = {
             code: 0,
             msg: '还没有任何投稿',
-            data: null,
+            data: {
+                list,
+                total
+            }
         };
+        return;
     }
-
+    
     console.log('list')
     
     // 最后返回前端所需的数据
@@ -446,10 +454,8 @@ router.get('/manager/:id', async (context) => {
         code: 1,
         msg: '获取成功',
         data: {
-            // total,
-            // page,
-            // size,
             list,
+            total
         }
     };
 });
@@ -508,6 +514,96 @@ router.delete('/:id', async (context) => {
         msg: '删除成功',
         code: 1,
     };
+});
+
+router.get('/searchSemiArt', async (context) => {
+    const {
+        keyword
+    } = context.query;
+    console.log("semi");
+    var articleList = await Article.find({
+        examined: 'examining',
+        title: {$regex: keyword}
+    }).exec();
+
+    // for(var i = 0; i < articleList.length; i++){
+    //     if(articleList[i].examined === 'pass'){
+    //         articleList.splice(i,1);
+    //     }
+    // }
+
+    if(!articleList) {
+        context.body = {
+            code: 0,
+            msg: '没有搜索结果',
+            data: null
+        }
+        return;
+    }
+    context.body = {
+        code: 1,
+        msg: '搜索成功',
+        data: articleList
+    }
+});
+
+router.get('/search', async (context) => {
+    const {
+        keyword
+    } = context.query;
+    console.log("pass");
+    var articleList = await Article.find({
+        examined : 'pass',
+        title: {$regex: keyword}
+    }).exec();
+
+    if(!articleList.length) {
+        context.body = {
+            code: 0,
+            msg: '没有搜索结果',
+            data: []
+        }
+        return;
+    }
+    context.body = {
+        code: 1,
+        msg: '搜索成功',
+        data: articleList
+    }
+});
+
+router.post('/handlelike', async (context) => {
+    // context.body = '注册成功';
+    // 新建两个变量获取前端返回的数据；
+    const {
+        userid,
+        articleid
+    } = context.request.body;
+
+    const oneArticle = await Article.findOne({
+        _id: articleid,
+    }).exec();
+
+    const flag = oneArticle.likes.indexOf(userid);
+
+    // 不等于-1则表示存在，flag为索引（下标
+    if(flag !== -1){
+        oneArticle.likes.remove(userid);
+        await oneArticle.save();
+        context.body = {
+            code: 1,
+            msg: '取消点赞成功',
+            data: null
+        };
+    } else if(flag === -1) {
+        oneArticle.likes.push(userid);
+        await oneArticle.save();
+        context.body = {
+            code: 1,
+            msg: '点赞成功',
+            data: null
+        };
+    }
 });
 
 module.exports = router;

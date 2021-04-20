@@ -86,7 +86,7 @@ const router = createRouter({
             // meta: { redirectAlreadyLogin: true }
         },
         {
-            path: '/article/:id',
+            path: '/article/detail/:id',
             name: 'article',
             component: Article,
             // component: () => import('./components/Article.vue')
@@ -166,7 +166,7 @@ router.beforeEach(async (to, from, next) => {
         // store.dispatch('getUserInfo');
         if (to.path === '/form' || to.path === '/account'){
             ElMessage.error('请先登录账户');
-            next({ path: '/login' });
+            next({ path: '/' });
             return;
         }
         next();

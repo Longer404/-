@@ -18,9 +18,53 @@
                     </template>
                 </el-input>
                 <el-button v-show="hadSearch" plain size="small" @click="goBackToUserTable">返回</el-button>
+                <el-button @click="dialogAddFormVisible = true" size="medium" type="primary" plain>添加用户&nbsp;<i class="el-icon-circle-plus-outline"></i></el-button>
             </div>
             <!-- <el-button type="primary" @click="getUserList">测试接口</el-button> -->
-            
+            <el-dialog title="添加普通用户" :lock-scroll="false" v-model="dialogAddFormVisible">
+                <el-form :model="addForm">
+                    <el-form-item 
+                        prop="nickname"
+                        label="用户昵称" 
+                        label-width="100px"
+                        
+                    >
+                    <el-input placeholder="请输入用户名" style="width: 360px !important;" v-model="addForm.nickname" autocomplete="off" ></el-input>
+                    </el-form-item>
+                    <el-form-item 
+                        prop="phone"
+                        label="手机号码" 
+                        label-width="100px"
+                        
+                    >
+                    <el-input style="width: 360px !important;" v-model="addForm.phone" autocomplete="off" placeholder="请输入手机号" maxlength="11"></el-input>
+                    </el-form-item>
+                    <el-form-item 
+                        prop="power"
+                        label="用户权限设置" 
+                        label-width="100px"
+                        
+                    >
+                    <!-- <el-input style="width: 360px !important;" v-model="form.nickname" autocomplete="off" placeholder="请输入用户密码"></el-input> -->
+                        <el-select v-model="addForm.power" placeholder="请选择用户权限">
+                            <el-option label="正常权限" value="1" style="color:green"></el-option>
+                            <el-option label="禁止发表评论" value="2" style="color:red"></el-option>
+                            <el-option label="禁止发布资讯" value="3" style="color:red"></el-option>
+                            <el-option label="只能浏览资讯" value="4" style="color:red"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <!-- <el-form-item label="密码" label-width="100px">
+                        <el-button type="danger" plain @click="resetUserPass">重置用户密码</el-button>
+                    </el-form-item> -->
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                    <el-button @click="dialogAddFormVisible = false,cleanAddUser()">取 消</el-button>
+                    <el-button type="primary" @click="addUser">保 存</el-button>
+                    <!-- <el-button @click="dialogFormVisible = false , dialogRegFormVisible = true" type="text" size="mini" style="margin-right:60px">未有账号，前去注册</el-button> -->
+                    </span>
+                </template>
+            </el-dialog>
             <el-table 
                 :data="tableDataOfUser"
                 :default-sort = "{prop: 'meta.createdAt', order: 'descending'}" 
@@ -33,21 +77,22 @@
                 <el-table-column prop="_id" label="用户ID" width="240" sortable>
                 </el-table-column>
                 
-                <el-table-column prop="character" label="用户角色" width="220">
+                <el-table-column prop="characterTitle" label="用户角色" width="100">
+                </el-table-column>
+                <el-table-column prop="phone" label="绑定手机号" width="120">
                 </el-table-column>
                 <el-table-column prop="meta.createdAt" label="创建日期" width="180" sortable>
                 </el-table-column>
-                <el-table-column prop="phone" label="绑定手机号" width="240">
-                </el-table-column>
+                
                 <!-- <el-table-column prop="zip" label="邮编" width="120">
                 </el-table-column> -->
-                <el-table-column fixed="right" label="操作" width="200">
+                <el-table-column fixed="right" label="操作" width="320">
                     <template #default="scope">
                         
                         <el-button type="text" size="small" @click="getUserComment(scope.row)">查看用户评论</el-button>
                         <el-button type="text" size="small" @click="setUser(scope.row)">编辑用户</el-button>
                         <el-button type="text" size="small" @click="getUserArticle(scope.row)">查看用户投稿</el-button>
-                        <el-button type="text" size="small" style="color:red;" @click="handleClick(scope.row)">删除用户</el-button>
+                        <el-button type="text" size="small" @click="deleteUserById(scope.row)" style="color:red;">删除用户</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -87,7 +132,7 @@
                         
                     >
                     <!-- <el-input style="width: 360px !important;" v-model="form.nickname" autocomplete="off" placeholder="请输入用户密码"></el-input> -->
-                        <el-select v-model="userForm.power" placeholder="请选择活动区域">
+                        <el-select v-model="userForm.power" placeholder="请选择用户权限">
                             <el-option label="正常权限" value="1" style="color:green"></el-option>
                             <el-option label="禁止发表评论" value="2" style="color:red"></el-option>
                             <el-option label="禁止发布资讯" value="3" style="color:red"></el-option>
@@ -100,20 +145,20 @@
                 </el-form>
                 <template #footer>
                     <span class="dialog-footer">
-                    <el-button @click="dialogUserFormVisible = false">取 消</el-button>
+                    <el-button @click="dialogUserFormVisible = false,cleanUserForm()">取 消</el-button>
                     <el-button type="primary" @click="resetUser">保 存</el-button>
                     <!-- <el-button @click="dialogFormVisible = false , dialogRegFormVisible = true" type="text" size="mini" style="margin-right:60px">未有账号，前去注册</el-button> -->
                     </span>
                 </template>
             </el-dialog>
         </el-tab-pane>
-        <el-tab-pane label="角色配置" name="second">
+        <!-- <el-tab-pane label="角色配置" name="second">
             <div class="tab-header-name">
                 角色配置
             </div>
-        </el-tab-pane>
+        </el-tab-pane> -->
         <!-- <el-tab-pane label="角色管理">角色管理</el-tab-pane> -->
-        <el-tab-pane label="审核投稿" name="third">
+        <el-tab-pane label="审核投稿" name="second">
             <div class="tab-header-name">
                 审核投稿
             </div>
@@ -127,10 +172,10 @@
                 class="input-with-select"
                 >
                     <template #append>
-                        <el-button icon="el-icon-search" @click="searchUserByName"></el-button>
+                        <el-button icon="el-icon-search" @click="searchSemiArticleByName"></el-button>
                     </template>
                 </el-input>
-                <el-button v-show="hadSearch" plain size="small" @click="goBackToUserTable">返回</el-button>
+                <el-button v-show="hadSearch" plain size="small" @click="goBackToSemifinishedArticlesTable">返回</el-button>
             </div>
             <el-table 
                 :data="semifinishedArticles"
@@ -140,15 +185,15 @@
                 stripe>
                 <el-table-column fixed prop="title" label="标题" width="240" sortable>
                 </el-table-column>
-                <el-table-column prop="_id" label="文章ID" width="220">
-                </el-table-column>
                 <el-table-column prop="author" label="作者昵称" width="120" sortable>
-                </el-table-column>
-                <el-table-column prop="authorId" label="作者ID" width="220" sortable>
                 </el-table-column>
                 <el-table-column prop="partition" label="分类" width="120" sortable>
                 </el-table-column>
                 <el-table-column prop="meta.createdAt" label="创建日期" width="180" sortable>
+                </el-table-column>
+                <el-table-column prop="_id" label="文章ID" width="220">
+                </el-table-column>
+                <el-table-column prop="authorId" label="作者ID" width="220" sortable>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="240">
                     <template #default="scope">
@@ -156,28 +201,8 @@
                         <el-button @click="getArticleCover(scope.row)" type="text" size="small">查看封面</el-button>
                         <el-button @click="getArticleAbout(scope.row)" type="text" size="small">查看摘要</el-button>
                         <el-button @click="setPass(scope.row)" type="text" size="small">通过</el-button>
-                        <el-button @click="setReject(scope.row)" type="text" size="small" style="color: red;">驳回</el-button>
-                        <el-dialog title="驳回原因" :lock-scroll="false" v-model="dialogFormVisible">
-                            <el-form :model="form">
-                                <el-form-item prop="message" >
-                                    <el-input 
-                                        v-model="form.message" 
-                                        resize="none"
-                                        :rows="5"
-                                        type="textarea" 
-                                        autocomplete="off" 
-                                        placeholder="请输入驳回原因">
-                                    </el-input>
-                                </el-form-item>
-                            </el-form>
-                            <template #footer>
-                                <span class="dialog-footer">
-                                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                                <el-button type="primary" @click="sendRejectMessage">发 送</el-button>
-                                <!-- <el-button @click="dialogFormVisible = false , dialogRegFormVisible = true" type="text" size="mini" style="margin-right:60px">未有账号，前去注册</el-button> -->
-                                </span>
-                            </template>
-                        </el-dialog>
+                        <el-button @click="setRejectSemi(scope.row)" type="text" size="small" style="color: red;">驳回</el-button>
+                        
                     </template>
                 </el-table-column>
             </el-table>
@@ -192,8 +217,29 @@
                     >
                 </el-pagination>
             </div>
+            <el-dialog title="驳回原因" :lock-scroll="false" v-model="dialogSemiFormVisible">
+                <el-form :model="form">
+                    <el-form-item prop="message" >
+                        <el-input 
+                            v-model="form.message" 
+                            resize="none"
+                            :rows="5"
+                            type="textarea" 
+                            autocomplete="off" 
+                            placeholder="请输入驳回原因">
+                        </el-input>
+                    </el-form-item>
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                    <el-button @click="dialogSemiFormVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="sendRejectMessage">发 送</el-button>
+                    
+                    </span>
+                </template>
+            </el-dialog>
         </el-tab-pane>
-        <el-tab-pane label="投稿管理" name="forth">
+        <el-tab-pane label="投稿管理" name="third">
             <div class="tab-header-name">
                 投稿管理
             </div>
@@ -207,10 +253,10 @@
                 class="input-with-select"
                 >
                     <template #append>
-                        <el-button icon="el-icon-search" @click="searchUserByName"></el-button>
+                        <el-button icon="el-icon-search" @click="searchArticleByName"></el-button>
                     </template>
                 </el-input>
-                <el-button v-show="hadSearch" plain size="small" @click="goBackToUserTable">返回</el-button>
+                <el-button v-show="hadSearch" plain size="small" @click="goBackToArticleTable">返回</el-button>
             </div>
             <!-- <div class="total-tag-box">
                 <div class="tag-box-title" > 标签分类</div>
@@ -249,10 +295,12 @@
                         <el-button @click="getArticleCover(scope.row)" type="text" size="small">查看封面</el-button>
                         <el-button @click="getArticleAbout(scope.row)" type="text" size="small">查看摘要</el-button>
                         <el-button @click="getArticleComment(scope.row)" type="text" size="small">查看评论区</el-button>
-                        <el-button type="text" size="small">驳回</el-button>
-                        <el-button type="text" size="small" style="color:red;">删除</el-button>
+                        <el-button @click="setRejectArticle(scope.row)" type="text" size="small">驳回</el-button>
+                        <el-button @click="deleteArticleById(scope.row)" type="text" size="small" style="color:red;">删除</el-button>
+                        
                     </template>
                 </el-table-column>
+                
             </el-table>
             <div class="page-box">
                 <el-pagination
@@ -265,25 +313,46 @@
                     >
                 </el-pagination>
             </div>
+            <el-dialog title="填写驳回原因" :lock-scroll="false" v-model="dialogArtFormVisible">
+                <el-form :model="form">
+                    <el-form-item prop="message" >
+                        <el-input 
+                            v-model="form.message" 
+                            resize="none"
+                            :rows="5"
+                            type="textarea" 
+                            autocomplete="off" 
+                            placeholder="请输入驳回原因">
+                        </el-input>
+                    </el-form-item>
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                    <el-button @click="dialogArtFormVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="sendRejectMessage">发 送</el-button>
+                    <!-- <el-button @click="dialogFormVisible = false , dialogRegFormVisible = true" type="text" size="mini" style="margin-right:60px">未有账号，前去注册</el-button> -->
+                    </span>
+                </template>
+            </el-dialog>
         </el-tab-pane>
-        <el-tab-pane label="评论管理" name="fifth">
+        <el-tab-pane label="评论管理" name="forth">
             <div class="tab-header-name">
                 评论管理
             </div>
             <div class="under-header">
-                <div class="total-box"> 用户总数 {{totalComment}}</div>
+                <div class="total-box"> 评论总数 {{totalComment}}</div>
                 <el-input
-                placeholder="根据标题搜索"
+                placeholder="根据内容搜索"
                 size="medium"
                 style="width: 360px !important;"
                 v-model="keyword"
                 class="input-with-select"
                 >
                     <template #append>
-                        <el-button icon="el-icon-search" @click="searchUserByName"></el-button>
+                        <el-button icon="el-icon-search" @click="searchCommentByContent"></el-button>
                     </template>
                 </el-input>
-                <el-button v-show="hadSearch" plain size="small" @click="goBackToUserTable">返回</el-button>
+                <el-button v-show="hadSearch" plain size="small" @click="goBackToCommentTable">返回</el-button>
             </div>
             <el-table 
                 :data="commentTable"
@@ -311,13 +380,13 @@
                 
                 <!-- <el-table-column prop="about" label="摘要" width="480">
                 </el-table-column> -->
-                <el-table-column fixed="right" label="操作" width="160">
+                <el-table-column fixed="right" label="操作" width="120">
                     <template #default="scope">
-                        <el-button @click="getArticleDetail(scope.row)" type="text" size="small">查看</el-button>
+                        <!-- <el-button @click="getArticleDetail(scope.row)" type="text" size="small">查看</el-button> -->
                         <!-- <el-button @click="getArticleCover(scope.row)" type="text" size="small">查看封面</el-button> -->
                         <!-- <el-button @click="getArticleAbout(scope.row)" type="text" size="small">查看摘要</el-button> -->
                         <!-- <el-button type="text" size="small">驳回</el-button> -->
-                        <el-button type="text" size="small" style="color:red;">删除</el-button>
+                        <el-button type="text" size="small" style="color:red;" @click="deleteCommentById(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -333,7 +402,7 @@
                 </el-pagination>
             </div>
         </el-tab-pane>
-        <el-tab-pane label="数据统计" name="sixth">
+        <el-tab-pane label="数据统计" name="fifth">
             <div class="tab-header-name">
                 数据统计
             </div>
@@ -384,19 +453,19 @@ export default defineComponent({
         [THEME_KEY]: "default"
     },
     setup() {
-        const totalData = ref([]);
-        const gettotalData = async () => {
-            const {data} = await axios.get('/message/systemdata');
-            // const {data} = await axios.get(`/user/detail/${row._id}`);
-            console.log(data.data);
-            totalData.value = [
-                data.data.totalUser, 
-                data.data.totalArticle, 
-                data.data.totalComment, 
-                data.data.totalSemifinishedArticle
-            ];
-            console.log(totalData.value[0]);
-        }
+        // const totalData = ref([]);
+        // const gettotalData = async () => {
+        //     const {data} = await axios.get('/message/systemdata');
+        //     // const {data} = await axios.get(`/user/detail/${row._id}`);
+        //     console.log(data.data);
+        //     totalData.value = [
+        //         data.data.totalUser, 
+        //         data.data.totalArticle, 
+        //         data.data.totalComment, 
+        //         data.data.totalSemifinishedArticle
+        //     ];
+        //     console.log(totalData.value[0]);
+        // }
         // var testdata = [
         //             totalData.value[0],
         //             totalData.value[1],
@@ -521,8 +590,10 @@ export default defineComponent({
         const totalSemifinishedArticle = ref(0);
         const commentTable = ref([]);
         const totalComment = ref(0);
-        const dialogFormVisible = ref(false);
+        const dialogSemiFormVisible = ref(false);
+        const dialogArtFormVisible = ref(false);
         const dialogUserFormVisible = ref(false);
+        const dialogAddFormVisible = ref(false);
         const currentId = ref('');
         const currentAuthorId = ref('');
         const form = reactive({
@@ -533,6 +604,11 @@ export default defineComponent({
             phone:'',
             power: '',
         });
+        const addForm = reactive({
+            nickname: '',
+            phone: '',
+            power: '',
+        })
         const currentUser = ref({});
         // 当前标签页
         const curTab = ref('0');
@@ -577,6 +653,32 @@ export default defineComponent({
             for(;lenth < data.length;lenth++) {
                 data[lenth].createAt = format(data[lenth].createAt);
             }
+        }
+        
+        const cleanAddUser = () => {
+            addForm.phone = '';
+            addForm.nickname = '';
+            addForm.power = '';
+        }
+
+        const addUser = async () => {
+            const { data } = await axios.post('/user/adduser', {
+                phone: addForm.phone,
+                nickname: addForm.nickname,
+                power: addForm.power,
+            });
+            console.log(data);
+            if(data.code){
+                ElMessage.success(data.msg);
+                getUserList();
+                dialogAddFormVisible.value = false;
+                cleanAddUser();
+                return;
+            }
+            ElMessage.warning(data.msg);
+            cleanAddUser();
+            dialogAddFormVisible.value = false;
+            return;
         }
 
         const getSemifinishedArticles = async () => {
@@ -666,23 +768,19 @@ export default defineComponent({
             } else if (tab.index === "1") {
                 curTab.value = '1';
                 // console.log(tab);
-                
+                getSemifinishedArticles();
             } else if (tab.index === "2") {
                 curTab.value = '2';
-                getSemifinishedArticles();
+                getAllArtList();
             } else if (tab.index === '3') {
                 curTab.value = '3';
-                getAllArtList();
+                getCommentTable();
                 // curPageOfComment.value = page;
             } else if (tab.index === '4') {
                 curTab.value = '4';
-                getCommentTable();
+                
                 // curPageOfComment.value = page;
-            } else if (tab.index === '5') {
-                curTab.value = '5';
-                // getCommentTable();
-                // curPageOfComment.value = page;
-            }
+            } 
             
         }
         // 当页码改变时执行setPage函数，将改变后的页码赋值给curpage
@@ -692,14 +790,14 @@ export default defineComponent({
             if (curTab.value === '0'){
                 curPageOfUser.value = page;
                 getUserList();
-            } else if (curTab.value === '2'){
+            } else if (curTab.value === '1'){
                 // console.log(1);
                 curPageOfSemifinishedArticles.value = page;
                 getSemifinishedArticles();
-            } else if (curTab.value === '3'){
+            } else if (curTab.value === '2'){
                 curPageOfArticle.value = page;
                 getAllArtList();
-            } else if (curTab.value === '4') {
+            } else if (curTab.value === '3') {
                 curPageOfComment.value = page;
                 getCommentTable();
                 
@@ -722,7 +820,7 @@ export default defineComponent({
 
         const getArticleDetail = async (row) => {
             console.log(row._id);
-            const res = await axios.get(`/article/${row._id}`);
+            const res = await axios.get(`/article/detail/${row._id}`);
             console.log(res);
             // console.log(MessageBox);
             ElMessageBox.alert(res.data.data.content, '资讯正文', {
@@ -732,11 +830,11 @@ export default defineComponent({
             
             // router.push(`/article/${id}`)
         }
-
+    
         const getArticleComment = async (row) => {
             
             console.log(row);
-            activeName.value = 'fifth';
+            activeName.value = 'forth';
             const res = await axios.get('/comment/list', {
                 params: {
                     commentTo: row._id,
@@ -745,11 +843,11 @@ export default defineComponent({
             console.log(res);
             commentTable.value = res.data.data;
             getCommentLocalTime(commentTable.value);
-            totalComment.value = res.data.data.total;
+            totalComment.value = res.data.data.length;
         }
 
         const getUserComment = async (row) => {
-            activeName.value = 'fifth';
+            activeName.value = 'forth';
             const res = await axios.get('/comment/byUserId', {
                 params: {
                     commentatorId: row._id,
@@ -758,22 +856,22 @@ export default defineComponent({
             console.log(res);
             commentTable.value = res.data.data;
             getCommentLocalTime(commentTable.value);
-            totalComment.value = res.data.data.total;
+            totalComment.value = res.data.data.length;
         }
 
         const getUserArticle = async (row) => {
-            activeName.value = 'forth';
+            activeName.value = 'third';
             let res = await axios.get(`/article/manager/${row._id}`);
             console.log(res);
             tableDataOfArticle.value = res.data.data.list;
             console.log(tableDataOfArticle.value);
             // getLocalTime(tableDataOfArticle.value);
-            totalArticle.value = res.data.data.list.length;
+            totalArticle.value = res.data.data.total;
         }
 
         const getArticleCover = async (row) => {
             console.log(row._id);
-            const res = await axios.get(`/article/${row._id}`);
+            const res = await axios.get(`/article/detail/${row._id}`);
             console.log(res);
             // console.log(MessageBox);
             ElMessageBox.alert(`<img src=${res.data.data.coverUrl}>`, '资讯封面', {
@@ -786,7 +884,7 @@ export default defineComponent({
 
         const getArticleAbout = async (row) => {
             console.log(row._id);
-            const res = await axios.get(`/article/${row._id}`);
+            const res = await axios.get(`/article/detail/${row._id}`);
             console.log(res);
             // console.log(MessageBox);
             ElMessageBox.alert(res.data.data.about, '资讯摘要', {
@@ -807,19 +905,21 @@ export default defineComponent({
             });
             console.log(res.data.code);
             if (res.data.code) {
-                ElMessage.success(res.data.msg);
+                ElMessage.success('审核通过' + res.data.msg);
             } else {
                 ElMessage.error(res.data.msg);
             }
             getSemifinishedArticles();
         }
 
-        const setReject = async (row) => {
+        const setRejectSemi = async (row) => {
             
             console.log(row._id);
             currentId.value = row._id;
             currentAuthorId.value = row.authorId;
-            dialogFormVisible.value = true;
+            dialogSemiFormVisible.value = true;
+            console.log(dialogSemiFormVisible.value);
+            console.log(dialogArtFormVisible.value);
             // let res = await axios.get(`/article/examination/${row._id}`, {
             //     params: {
             //         examined: 'reject',
@@ -833,6 +933,21 @@ export default defineComponent({
             // }
             // getSemifinishedArticles();
         }
+        const setRejectArticle = async (row) => {
+            
+            console.log(row._id);
+            currentId.value = row._id;
+            currentAuthorId.value = row.authorId;
+            dialogArtFormVisible.value = true;
+            console.log(dialogSemiFormVisible.value);
+            console.log(dialogArtFormVisible.value);
+        }
+
+        const cleanUserForm = () => {
+            userForm.nickname = '';
+            userForm.phone = '';
+            userForm.power = '';
+        }
 
         const resetUser = async () => {
             console.log(userForm);
@@ -842,12 +957,17 @@ export default defineComponent({
                 phone: userForm.phone,
                 power: userForm.power,
             });
-            ElMessage.success(data.msg);
-            getUserList();
-            dialogUserFormVisible.value = false;
-            userForm.nickname = '';
-            userForm.phone = '';
-            userForm.power = '';
+            if (data.code){
+                ElMessage.success(data.msg);
+                getUserList();
+                dialogUserFormVisible.value = false;
+                cleanUserForm();
+            } else {
+                ElMessage.warning(data.msg);
+                return;
+            }
+            
+            
         }
 
         const resetUserPass = async () => {
@@ -855,7 +975,7 @@ export default defineComponent({
             const { data } = await axios.post('/user/resetpass', {
                 id: currentUser.value._id,
             });
-            ElMessage.success(data.msg);
+            ElMessage.success('密码' + data.msg);
             // getUserList();
             // dialogUserFormVisible.value = false;
             // userForm.nickname = '';
@@ -887,12 +1007,14 @@ export default defineComponent({
             });
             console.log(res.data.code);
             if (res.data.code) {
-                ElMessage.success(res.data.msg);
+                ElMessage.success('驳回' + res.data.msg);
             } else {
                 ElMessage.error(res.data.msg);
             }
             getSemifinishedArticles();
-            dialogFormVisible.value = false;
+            getAllArtList();
+            dialogArtFormVisible.value = false;
+            dialogSemiFormVisible.value = false;
         }
 
         const handleClick = (row) => {
@@ -919,26 +1041,120 @@ export default defineComponent({
             hadSearch.value = true;
         }
 
+        const searchSemiArticleByName = async () => {
+            if(keyword.value === ''){
+                ElMessage.warning('请输入关键词');
+                return;
+            }
+            console.log(keyword);
+            const {data} = await axios.get('/article/searchSemiArt',{
+                params: {
+                    keyword: keyword.value,
+                }
+            });
+            console.log(data);
+            semifinishedArticles.value = data.data;
+            totalSemifinishedArticle.value = data.data.length;
+            // getLocalTime(semifinishedArticles.value);
+            // tableDataOfUser.value = data.data;
+            // totalUser.value = data.data.length;
+            // console.log(format(res.data.data.list[0].meta.createdAt));
+            getLocalTime(semifinishedArticles.value);
+            keyword.value = '';
+            hadSearch.value = true;
+        }
+
+        const searchArticleByName = async () => {
+            if(keyword.value === ''){
+                ElMessage.warning('请输入关键词');
+                return;
+            }
+            console.log(keyword);
+            const {data} = await axios.get('/article/search',{
+                params: {
+                    keyword: keyword.value,
+                }
+            });
+            console.log(data);
+            tableDataOfArticle.value = data.data;
+            totalArticle.value = data.data.length;
+            // getLocalTime(semifinishedArticles.value);
+            // tableDataOfUser.value = data.data;
+            // totalUser.value = data.data.length;
+            // console.log(format(res.data.data.list[0].meta.createdAt));
+            getLocalTime(tableDataOfArticle.value);
+            keyword.value = '';
+            hadSearch.value = true;
+        }
+
+        const searchCommentByContent = async () => {
+            if(keyword.value === ''){
+                ElMessage.warning('请输入关键词');
+                return;
+            }
+            console.log(keyword);
+            const {data} = await axios.get('/comment/search',{
+                params: {
+                    keyword: keyword.value,
+                }
+            });
+            console.log(data);
+            // commentTable.value = res.data.data.list;
+            // totalComment.value = res.data.data.total;
+            // getCommentLocalTime(commentTable.value);
+            commentTable.value = data.data;
+            totalComment.value = data.data.length;
+            getCommentLocalTime(commentTable.value);
+            keyword.value = '';
+            hadSearch.value = true;
+        }
+
         const goBackToUserTable = () => {
             hadSearch.value = false;
             getUserList();
         }
 
+        const goBackToSemifinishedArticlesTable = () => {
+            hadSearch.value = false;
+            getSemifinishedArticles();
+        }
+        const goBackToArticleTable = () => {
+            hadSearch.value = false;
+            getAllArtList();
+        }
+        const goBackToCommentTable = () => {
+            hadSearch.value = false;
+            getCommentTable();
+        }
         const test = () => {
             console.log(checkList);
         }
-
+        const deleteUserById = async (row) => {
+            let resp = await axios.delete(`/user/${row._id}`);
+            ElMessage.success('用户' + resp.data.msg);
+            getUserList();
+        }
+        const deleteArticleById = async (row) => {
+            let resp = await axios.delete(`/article/${row._id}`);
+            ElMessage.success('资讯' + resp.data.msg);
+            getAllArtList();
+        }
+        const deleteCommentById = async (row) => {
+            let resp = await axios.delete(`/comment/${row._id}`);
+            ElMessage.success('评论' + resp.data.msg);
+            getCommentTable();
+        }
         onMounted(() => {
             getUserList();
             // getAllArtList();
-            gettotalData();
+            // gettotalData();
             console.log(store.state.totalData);
             
         })
 
         return {
-            totalData,
-            gettotalData,
+            // totalData,
+            // gettotalData,
             option,
             option2,
             test,
@@ -955,14 +1171,25 @@ export default defineComponent({
             keyword,
             hadSearch,
             searchUserByName,
+            searchSemiArticleByName,
+            searchArticleByName,
+            searchCommentByContent,
             goBackToUserTable,
+            goBackToSemifinishedArticlesTable,
+            goBackToArticleTable,
+            goBackToCommentTable,
+            deleteUserById,
+            deleteArticleById,
+            deleteCommentById,
             tableDataOfUser,
             tableDataOfArticle,
             commentTable,
             handleClickinTab,
             handleClick,
             setPass,
-            setReject,
+            setRejectSemi,
+            setRejectArticle,
+            cleanUserForm,
             resetUser,
             resetUserPass,
             setUser,
@@ -981,12 +1208,17 @@ export default defineComponent({
             totalSemifinishedArticle,
             totalComment,
             format,
-            dialogFormVisible,
+            dialogSemiFormVisible,
+            dialogArtFormVisible,
             dialogUserFormVisible,
+            dialogAddFormVisible,
             form,
             userForm,
+            addForm,
             currentUser,
-            sendRejectMessage
+            sendRejectMessage,
+            cleanAddUser,
+            addUser
         }
     },
 })

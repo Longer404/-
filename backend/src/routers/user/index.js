@@ -6,6 +6,7 @@ const { verify, getToken } =require('../../helpers/token')
 
 const User = mongoose.model('User');
 const Character = mongoose.model('Character');
+const Article = mongoose.model('Article');
 
 const router = new Router({
     prefix: '/user'
@@ -73,6 +74,7 @@ router.post('/register', async (context) => {
         _id: res._id,
         userAvatar: res.userAvatar,
         character: res.character,
+        power: res.power,
     };
 
     context.body = {
@@ -145,7 +147,7 @@ router.post('/login', async (context) => {
 
     context.body = {
         code: 0,
-        msg: '用户名或密码错误',
+        msg: '手机号或密码错误',
         data: null,
     };
 });
@@ -267,7 +269,18 @@ router.post('/update', async (context) => {
         return;
     }
 
-    if (nickname) {
+    const userLikeNickname = await User.findOne({
+        nickname: nickname
+    }).exec();
+
+    if (userLikeNickname) {
+        context.body = {
+            code: 0,
+            msg: '该用户名已存在',
+            data: null,
+        };
+        return;
+    } else if(nickname) {
         one.nickname = nickname
     }
 
@@ -275,9 +288,21 @@ router.post('/update', async (context) => {
         one.userAvatar = userAvatar  
     }
 
-    if (phone) {
-        one.phone = phone  
+    const userLikePhone = await User.findOne({
+        phone: phone
+    }).exec();
+
+    if (userLikePhone) {
+        context.body = {
+            code: 0,
+            msg: '该手机号已绑定',
+            data: null,
+        };
+        return;
+    } else if(phone) {
+        one.phone = phone
     }
+
     if (power) {
         one.power = power  
     }
@@ -417,6 +442,253 @@ router.get('/search', async (context) => {
         msg: '搜索成功',
         data: userList
     }
+});
+
+router.delete('/:id', async (context) => {
+    const {
+        id,
+    } = context.params;
+
+    const delMsg = await User.deleteOne({
+        _id: id,
+    });
+    console.log('删除成功');
+    context.body = {
+        data: delMsg,
+        msg: '删除成功',
+        code: 1,
+    };
+});
+
+router.post('/updatepass', async (context) => {
+    // context.body = '登录成功';
+    const {
+        id,
+        password
+    } = context.request.body;
+
+    const one = await User.findOne({
+        _id: id
+    }).exec();
+
+    if (!one) {
+        context.body = {
+            code: 0,
+            msg: '未找到用户',
+            data: null,
+        };
+        return;
+    }
+    if (password === one.password) {
+        context.body = {
+            code: 0,
+            msg: '新密码不能与旧密码相同，请重新设置新密码',
+            data: null,
+        };
+        return;
+    } else {
+        one.password = password
+        await one.save();
+    }
+    context.body = {
+        code: 1,
+        msg: '修改成功',
+        data: null
+    };
+    return;
+});
+
+router.post('/updatephone', async (context) => {
+    // context.body = '登录成功';
+    const {
+        id,
+        phone
+    } = context.request.body;
+
+    const one = await User.findOne({
+        _id: id
+    }).exec();
+
+    if (!one) {
+        context.body = {
+            code: 0,
+            msg: '未找到用户',
+            data: null,
+        };
+        return;
+    }
+
+    const tow = await User.findOne({
+        phone: phone
+    }).exec();
+
+    if (phone === one.phone) {
+        context.body = {
+            code: 0,
+            msg: '新手机不能与旧手机相同，请重新改绑手机',
+            data: null,
+        };
+        return;
+    } else if (tow) {
+        context.body = {
+            code: 0,
+            msg: '您改绑的新手机号已被绑定，请重新改绑手机',
+            data: null,
+        };
+        return;
+    } else {
+        one.phone = phone
+        await one.save();
+    }
+    context.body = {
+        code: 1,
+        msg: '修改成功',
+        data: null
+    };
+    return;
+});
+
+router.post('/collect', async (context) => {
+    // context.body = '注册成功';
+    // 新建两个变量获取前端返回的数据；
+    const {
+        userid,
+        articleid
+    } = context.request.body;
+
+    const oneUser = await User.findOne({
+        _id: userid,
+    }).exec();
+
+    const flag = oneUser.collect.indexOf(articleid);
+
+    // 不等于-1则表示存在，flag为索引（下标
+    if(flag !== -1){
+        oneUser.collect.remove(articleid);
+        await oneUser.save();
+        context.body = {
+            code: 1,
+            msg: '取消收藏成功',
+            data: null
+        };
+    } else if(flag === -1) {
+        oneUser.collect.push(articleid);
+        await oneUser.save();
+        context.body = {
+            code: 1,
+            msg: '收藏成功',
+            data: null
+        };
+    }
+});
+
+router.get('/collection', async (context) => {
+
+    const {
+        id,
+    } = context.query;
+    console.log(id);
+
+    const oneUser = await User.findOne({
+        _id: id,
+    }).exec();
+
+    var collectionList = [];
+    console.log(oneUser);
+    for(let i = 0; i < oneUser.collect.length; i++){
+        const oneArticle = await Article.findOne({
+            _id: oneUser.collect[i],
+        }).exec();
+        collectionList.push(oneArticle);
+    }
+    context.body = {
+        code: 1,
+        msg: '查找收藏夹成功',
+        data: collectionList
+    };
+});
+
+router.post('/adduser', async (context) => {
+    // context.body = '注册成功';
+    // 新建两个变量获取前端返回的数据；
+    const {
+        phone,
+        nickname,
+        power,
+    } = context.request.body;
+    console.log(context)
+
+    const password = '123456';
+    // 使用findOne方法查询User表中是否存在与前端传来的用户名相同的用户名
+    const one = await User.findOne({
+        nickname: nickname,
+    }).exec();
+
+    // 如果存在则返回以下信息
+    if (one) {
+        context.body = {
+            code: 0,
+            msg: '已存在该用户',
+            data: null,
+        };
+        return;
+    }
+
+    // 使用findOne方法查询User表中是否存在与前端传来的邮箱相同的邮箱
+    const two = await User.findOne({
+        phone: phone,
+    }).exec();
+
+    // 如果存在则返回以下信息
+    if (two) {
+        context.body = {
+            code: 0,
+            msg: '该号码已被绑定',
+            data: null,
+        };
+        return;
+    }
+    const member = await Character.findOne({
+        title: '普通用户',
+    });
+
+    // 将两个变量的值传给user的model以创建数据库信息
+    const regiuser = new User({
+        phone: phone,
+        nickname: nickname,
+        password: password,
+        character: member._id,
+        characterTitle: member.title,
+        power: power,
+    });
+
+    // const res = 
+    await regiuser.save();
+    // console.log(res);
+    
+    // 生成token返回给前端
+    // const data = {
+    //     nickname: res.nickname,
+    //     phone: res.phone,
+    //     _id: res._id,
+    //     userAvatar: res.userAvatar,
+    //     character: res.character,
+    //     power: res.power,
+    // };
+
+    context.body = {
+        code: 1,
+        msg: '添加成功',
+        data: null
+    };
+    // return;
+    
+
+    // context.body = {
+    //     code: 1,
+    //     msg: '注册成功',
+    //     data: res,
+    // };
 });
 
 module.exports = router;

@@ -8,25 +8,32 @@
             <el-button  class="firstbut" type="text" icon="el-icon-edit">分区5</el-button>
         </div> -->
         <div class="page-container">
-            <div class="head-container">
+            <div class="head-container" v-show="showArticleDetail">
                 <div class="cover-img">
                     <img :src="detailInfo.coverUrl"/>
                     <!-- <img src="http://localhost:3000/1616662472411.png" alt> -->
                 </div>
                 <h1>{{detailInfo.title}}</h1>
-                <div class="info">创作日期，阅读量，评论，点赞</div>
+                <div class="info">
+                    创作日期
+                    &nbsp;
+                    {{detailInfo.createAt}}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    阅读量&nbsp;
+                    {{detailInfo.read}}
+                </div>
             </div>
             
             <!-- <div>{{detailInfo.content}}</div> -->
-            <div class="detail-container" v-html="detailInfo.content"></div>
-            <div class="comment-area">
+            <div class="detail-container" v-html="detailInfo.content" v-show="showArticleDetail"></div>
+            <div class="comment-area" v-show="showArticleDetail">
                 <div class="comment-area-title">评论</div>
                 <div class="user-comment-area">
                     <!-- <div class="comment-user-avatar"></div> -->
-                    <img v-if="$store.state.userInfo.data !== undefined" class="comment-user-avatar" :src="$store.state.userInfo.data.data.userAvatar">
-                    <img v-else class="comment-user-avatar" src="../assets/avatar.png">
+                    <img v-if="$store.state.userInfo.data !== undefined" class="comment-mainuser-avatar" :src="$store.state.userInfo.data.data.userAvatar">
+                    <img v-else class="comment-mainuser-avatar" src="../assets/avatar.png">
                     <el-input
-                        style="margin-bottom: 10px;width:70%;"
+                        style="margin-bottom: 10px;width:73%;"
                         type="textarea"
                         :rows="3"
                         placeholder="请输入内容"
@@ -97,6 +104,55 @@
                     </div>
                 </div> -->
             </div>
+            <div class="user-cardlist-left" v-show="showAuthorArticles">
+                <div class="user-over-cards-box">
+                    <div class="user-over-cards" >
+                        <i class="el-icon-s-flag"></i>
+                        作者投稿数{{totalArticles}}
+                    </div>
+                    <el-button @click="goBackToDetail" type="text" icon="el-icon-s-promotion">返回资讯正文</el-button>
+                </div>
+                <div v-for="article in articles" :key="article" class="cards">
+                    <div class="cardleft">
+                        <!-- <div class="cardpic"> -->
+                        <img class="cardpic" @click="goToDetail(article)" :src="article.coverUrl" >
+                        <!-- </div>             -->
+                    </div>
+                    <div class="cardright" >
+                        <h2 class="cardtitle" @click="goToOtherDetail(article)">{{article.title}}</h2>
+                        <div class="cardauthor">
+                            {{article.createAt}}
+                        </div>
+                        <div class="cardabout-box">
+                            <p class="cardabout"> 
+                                {{article.about}}
+                            </p>
+                        </div>
+                        <div class="cardbottom">
+                            <div class="cardtags">
+                                <el-tag v-if="article.partition === 'animation'" size="mini" effect="dark" type='danger' >动画</el-tag>
+                                <el-tag v-if="article.partition === 'comics'" size="mini" effect="dark" >漫画</el-tag>
+                                <el-tag v-if="article.partition === 'game'" size="mini" effect="dark" type='success'>游戏</el-tag>
+                                <el-tag v-if="article.partition === 'doujin'" size="mini" effect="dark" type='warning'>同人</el-tag>
+                                <el-tag v-if="article.partition === 'exhibition'" size="mini" effect="plain" type="info">漫展</el-tag>
+                                <el-tag v-if="article.partition === 'peripheral'" size="mini" effect="dark" type="info">模玩</el-tag>
+                                <!-- <el-tag size="mini" effect="plain" type="info">超小标签</el-tag> -->
+                                <el-tag v-if="article.likes > 10" size="mini" type="danger">多人点赞</el-tag>
+                                <el-tag v-if="article.read > 10" size="mini" >多人阅读</el-tag>
+                            </div>
+                            <!-- <div class="undercardpic">
+                                <svg class="icon" aria-hidden="true">                 
+                                <use xlink:href="#icon-dianzan"></use>                  
+                                </svg>
+                                <span class="undercardpic-span" @click="clickLike(article._id)">点赞</span>
+                                <span class="undercardpic-span" @click="clickCollect(article._id)"><i class="el-icon-star-off"></i>收藏</span>
+                                <span class="undercardpic-span" @click="clickShare"><i class="el-icon-share"  ></i>分享</span>
+                            </div> -->
+                        </div>            
+                    </div>
+                </div>
+        
+            </div>
         </div>
         <div class="fix-box">
             <div class="author-box">
@@ -112,25 +168,26 @@
                     </div>
                 </div>
             </div>
+            <div class="other-box-title" @click="getUserArticle">推荐文章</div>
             <div class="recommend-box">
                 <!-- <div v-for="article in articles" :key="article" class="cards"> -->
-                <div v-for="authorArticle in authorArticleList" :key="authorArticle" class="read-recommend">
-                    <div class="recommend-title-inarticle">{{authorArticle.title}}</div>
+                <div v-for="authorArticle in authorArticleList" :key="authorArticle" class="read-recommend" >
+                    <div class="recommend-title-inarticle" @click="goToDetail(authorArticle._id)">{{authorArticle.title}}</div>
                     <div class="recommend-info">{{authorArticle.createAt.split(/[\s\n]/)[1] + '-' + authorArticle.createAt.split(/[\s\n]/)[2] + '-' + authorArticle.createAt.split(/[\s\n]/)[3]}}</div>
                     <!-- rankessay.createAt.split(/[\s\n]/)[1] + '-' + rankessay.createAt.split(/[\s\n]/)[2] -->
                 </div>
                 
             </div>
             <div class="other-box">
-                <div class="other-box-title">更多</div>
+                <div class="other-box-title" >更多</div>
                 <div class="other-box-link">
                     <div class="link-box" >
                         <i class="el-icon-edit"></i>
                         <router-link to="/form">
-                            投稿
+                            前往投稿
                         </router-link>
                     </div>
-                    <div class="help-box"><i class="el-icon-question"></i>帮助</div>
+                    <div class="help-box"><i class="el-icon-question"></i>查看帮助</div>
                 </div>
             </div>
         </div>
@@ -139,7 +196,7 @@
 
 <script>
 import { defineComponent, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import store from '../store'
 import { getToken } from '../helpers/token'
@@ -149,7 +206,8 @@ export default defineComponent({
     setup() {
         const route = useRoute();
         // 获取页面跳转时文章的id
-        const id = route.params.id;
+        const id = ref(route.params.id);
+        const originalID = route.params.id;
 
         const detailInfo = ref({});
 
@@ -163,6 +221,14 @@ export default defineComponent({
         // 评论表
         const commentLists = ref([]);
 
+        const articles = ref([]);
+        const totalArticles = ref(0);
+
+        const router = useRouter();
+
+        const showArticleDetail = ref(true);
+        const showAuthorArticles = ref(false);
+        
         console.log(id);
 
         // const collapseChange = () => {
@@ -206,12 +272,12 @@ export default defineComponent({
         const getAuthorArticleList = async (authorId) => {
             const res = await axios.get(`/article/manager/${authorId}`);
             // console.log(res);
-            authorArticleList.value = res.data.data.list.slice(0, 5);
+            authorArticleList.value = res.data.data.list.slice(0, 3);
             console.log(authorArticleList);
         }
 
         const getArticle = async () => {
-            const res = await axios.get(`/article/${id}`);
+            const res = await axios.get(`/article/detail/${id.value}`);
             // console.log(res.data)
             detailInfo.value = res.data.data;
             console.log(detailInfo.value);
@@ -224,7 +290,7 @@ export default defineComponent({
         const getComments = async () => {
             const res = await axios.get('/comment/list', {
                 params: {
-                    commentTo: id,
+                    commentTo: id.value,
                 }
             });
             console.log(res);
@@ -239,55 +305,7 @@ export default defineComponent({
             // getAuthorArticleList(detailInfo.value.authorId);
         }
 
-        // const getReply = async (commentToId, index) => {
-        //     const res = await axios.get('/comment/replylist', {
-        //         params: {
-        //             commentTo: commentToId,
-        //         }
-        //     });
-        //     console.log(res.data);
-        //     console.log(index);
-        //     commentLists.value[index].replylist = res.data.data;
-        //     console.log(commentLists.value[index]);
-        //     // commentLists.value = res.data.data;
-        // }
-        // const submitReply = async (commentToId) => {
-        //     const commentDetail = {
-        //         // 回复者信息包括id 头像和昵称
-        //         commentatorId: store.state.userInfo.data.data._id,
-        //         nickname: store.state.userInfo.data.data.nickname,
-        //         userAvatar: store.state.userInfo.data.data.userAvatar,
-        //         // 评论对象,指向这条评论的回复对象（评论）的id
-        //         commentTo: commentToId,
-        //         // 
-        //         commentFrom: id,
-        //         // createAt: (new Date()).getTime(),
-        //         // 评论内容
-        //         content: replyText.value,
-        //     };
-        //     if (replyText.value === '') {
-        //         ElMessage.warning('请填写回复');
-        //         return;
-        //     }
-        //     const { data } = await axios.post(
-        //         '/comment/post', 
-        //         {
-        //             essay: commentDetail
-        //         },
-        //         {
-        //             headers: getHeader(),
-        //         }
-        //     );
-        //     if (data.code) {
-        //         ElMessage.success('回复成功');
-        //         replyText.value = '';
-        //     } else {
-        //         ElMessage.error('回复失败');
-        //     }
-        //     // getComments();
-        //     console.log(data);
-        //     return;
-        // }
+        
 
         const submitComment = async () => {
             if (store.state.userInfo.data === undefined) {
@@ -304,7 +322,7 @@ export default defineComponent({
                 nickname: store.state.userInfo.data.data.nickname,
                 userAvatar: store.state.userInfo.data.data.userAvatar,
                 // 评论对象
-                commentTo: id,
+                commentTo: id.value,
                 commentFrom: detailInfo.value.title,
                 // createAt: (new Date()).getTime(),
                 // 评论内容
@@ -333,6 +351,47 @@ export default defineComponent({
             console.log(data);
             return;
         }
+        
+        const goToDetail = async (articlid) => {
+            // console.log(articles)
+            // axios.get(`/article/${articles._id}`)
+            router.push(`/article/detail/${articlid}`);
+            id.value = articlid;
+            getArticle();
+            getComments();
+            showArticleDetail.value = true;
+            showAuthorArticles.value = false;
+        }
+
+        const goToOtherDetail = async (article) => {
+            router.push(`/article/detail/${article._id}`);
+            id.value = article._id;
+            getArticle();
+            getComments();
+            showArticleDetail.value = true;
+            showAuthorArticles.value = false;
+        }
+
+        const goBackToDetail = async () => {
+            router.push(`/article/detail/${originalID}`);
+            id.value = originalID;
+            getArticle();
+            getComments();
+            showArticleDetail.value = true;
+            showAuthorArticles.value = false;
+        }
+
+        const getUserArticle = async () => {
+            // activeName.value = 'third';
+            let { data } = await axios.get(`/article/manager/${detailInfo.value.authorId}`);
+            console.log(data);
+            articles.value = data.data.list;
+            console.log(articles.value);
+            showAuthorArticles.value = true;
+            showArticleDetail.value = false;
+            // getLocalTime(tableDataOfArticle.value);
+            totalArticles.value = data.data.total;
+        }
 
         onMounted(() => {
             // axios.get(`/article/${articles._id}`)
@@ -345,9 +404,17 @@ export default defineComponent({
             detailInfo,
             authorArticleList,
             commentLists,
+            articles,
+            totalArticles,
             commentText,
             replyText,
             submitComment,
+            goToDetail,
+            goToOtherDetail,
+            goBackToDetail,
+            getUserArticle,
+            showArticleDetail,
+            showAuthorArticles
             // submitReply,
             // getReply,
             // test
@@ -402,6 +469,27 @@ export default defineComponent({
       width: 700px;
       background: #ececec;
   }
+  .user-cardlist-left {
+      background: #fcfcfc;
+    /* margin-top: 40px; */
+        min-width: 700px;
+  }
+  .user-over-cards {
+      width: 200px;
+    font-size: 24px;
+    border-bottom-style: solid;
+    border-bottom-width: 4px;
+    border-bottom-color: #409EFF;
+  }
+  .user-over-cards-box {
+      height: 40px;
+      line-height: 40px;
+      border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #409EFF;
+      display: flex;
+    justify-content: space-between;
+  }
   .head-container {
       padding-bottom: 30px;
   }
@@ -420,22 +508,27 @@ export default defineComponent({
   }
   .comment-area-title {
       font-size: 24px;
-      margin-bottom: 10px;
+      padding-bottom: 10px;
+      /* margin-bottom: 10px; */
+      background: #f2f2f2;
   }
   .user-comment-area {
       height: 100px;
       display: flex;
       justify-content: space-between;
+      background: #f2f2f2;
   }
   .user-comment-area-mini {
       height: 70px;
       display: flex;
       justify-content: space-between;
+      
   }
   .comment-box {
       min-height: 80px;
-      padding-top: 10px;
-      padding-bottom: 10px;
+      /* padding-top: 10px;
+      padding-bottom: 10px; */
+      padding: 8px;
       background: #f8f8f8;
       border-bottom-style: solid;
       border-bottom-width: 0.5px;
@@ -451,16 +544,18 @@ export default defineComponent({
       justify-content: space-between;
   } */
   .comment-user-avatar {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      margin-right: 10px;
+      /* background: #555; */
+  }
+  .comment-mainuser-avatar {
       width: 70px;
       height: 70px;
       border-radius: 50%;
       /* background: #555; */
   }
-  /* .comment-user-avatar-mini {
-      width: 60px;
-      height: 60px;
-      background: #555;
-  } */
   .comment-detail {
       /* background: #e3e3e3; */
       width: 620px;
@@ -517,18 +612,19 @@ export default defineComponent({
       top: 20px;
       height: 510px;
       width: 280px;
-      background: #f8f8f8;
+      background: #fafafa;
       /* display: flex; */
     /* align-items: center; */
       /* justify-content: space-between; */
   }
   .author-box {
+      padding: 10px;
       display: flex;
     /* align-items: center; */
       justify-content: space-between;
-      border-bottom-style: solid;
+      /* border-bottom-style: solid;
       border-bottom-width: 0.5px;
-      border-bottom-color: #e3e3e3;
+      border-bottom-color: #e3e3e3; */
   }
   .author-info {
       width: 148px;
@@ -550,25 +646,30 @@ export default defineComponent({
       line-height: 30px;
   }
   .read-recommend {
-      height: 50px;
+      height: 40px;
+      padding: 5px;
       /* width: 240px; */
       /* background: #555; */
       border-bottom-style: solid;
       border-bottom-width: 0.5px;
       border-bottom-color: #e3e3e3;
       margin-top: 10px;
-      
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: space-between;
   }
   .recommend-title-inarticle {
+      font-size: 13px;
       display: -webkit-box;
     -webkit-line-clamp: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     -webkit-box-orient: vertical;
+    cursor: pointer;
   }
   .recommend-info {
       font-weight: 100;
-      font-size: 13px;
+      font-size: 12px;
       text-align: right;
   }
   .other-box {
@@ -577,11 +678,13 @@ export default defineComponent({
   }
   .other-box-title {
       font-size: 20px;
+      padding: 10px;
       border-bottom-style: solid;
       border-bottom-width: 0.5px;
       border-bottom-color: #e3e3e3;
       margin-bottom: 10px;
       padding-bottom: 10px;
+      cursor: pointer;
   }
   .other-box-link {
         display: flex;
@@ -589,28 +692,30 @@ export default defineComponent({
   }
   .link-box{
       text-align: center;
-      line-height: 50px;
-      width: 120px;
-      height: 50px;
-      /* background: #C6E2FF; */
+      line-height: 40px;
+      width: 110px;
+      height: 40px;
+      padding: 5px;
+      background: #f5f5f5;
       cursor: pointer;
       /* box-shadow: grey 1.5px 1.5px 3px; */
-      border-radius: 4px;
+      /* border-radius: 4px;
       border-bottom-style: solid;
       border-bottom-width: 0.5px;
-      border-bottom-color: #e3e3e3;
+      border-bottom-color: #e3e3e3; */
   }
   .help-box {
       text-align: center;
-      line-height: 50px;
-      width: 120px;
-      height: 50px;
-      /* background: #E9E9EB; */
+      line-height: 40px;
+      width: 110px;
+      height: 40px;
+      padding: 5px;
+      background: #f5f5f5;
       cursor: pointer;
       /* box-shadow: grey 1.5px 1.5px 3px; */
-    border-radius: 4px;
+    /* border-radius: 4px;
     border-bottom-style: solid;
       border-bottom-width: 0.5px;
-      border-bottom-color: #e3e3e3;
+      border-bottom-color: #e3e3e3; */
   }
 </style>

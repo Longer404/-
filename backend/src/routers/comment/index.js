@@ -170,4 +170,45 @@ router.get('/table', async (context) => {
     };
 });
 
+router.get('/search', async (context) => {
+    const {
+        keyword
+    } = context.query;
+    console.log("searchcomment");
+    var commentList = await Comment.find({
+        
+        content: {$regex: keyword}
+    }).exec();
+
+    if(!commentList) {
+        context.body = {
+            code: 0,
+            msg: '没有搜索结果',
+            data: null
+        }
+        return;
+    }
+    context.body = {
+        code: 1,
+        msg: '搜索成功',
+        data: commentList
+    }
+});
+
+router.delete('/:id', async (context) => {
+    const {
+        id,
+    } = context.params;
+
+    const delMsg = await Comment.deleteOne({
+        _id: id,
+    });
+    console.log('删除成功');
+    context.body = {
+        data: delMsg,
+        msg: '删除成功',
+        code: 1,
+    };
+});
+
 module.exports = router;

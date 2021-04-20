@@ -15,7 +15,7 @@
             <div class="botton-area">
             <!-- <el-form-item class="botton-area"> -->
                 <el-button type="primary" @click="login">提交</el-button>
-                <el-button @click="resetForm('ruleForm')">重置</el-button>
+                <el-button @click="resetForm(formData)">重置</el-button>
             <!-- </el-form-item> -->
             </div>
         </el-form>
@@ -104,6 +104,11 @@ export default defineComponent({
         //   repeatPassword: ''
         });
 
+        const resetForm = () => {
+          formData.password = '',
+          formData.phone = ''
+        }
+
         const login = async () => {
           //   console.log(formData);
           if (formData.phone === '') {
@@ -156,7 +161,8 @@ export default defineComponent({
 
         return {
             login,
-            formData
+            formData,
+            resetForm
         }
     },
 })

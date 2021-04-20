@@ -9,7 +9,10 @@ const UserSchema = new mongoose.Schema({
     character: String,
     characterTitle: String,
     collect: [String],
-    power: String,
+    power: {
+        type: String,
+        default: '1',
+    },
     meta: getMeta(),
 });
 

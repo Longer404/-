@@ -15,10 +15,7 @@ const ArticleSchema = new mongoose.Schema({
         type: String,
         default: 'examining',
     },
-    likes: {
-        type: Number,
-        default: 0,
-    },
+    likes: [String],
     read: {
         type: Number,
         default: 0,

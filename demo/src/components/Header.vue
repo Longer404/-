@@ -7,7 +7,7 @@
             <img class="leftdiv-img" src="../../public/img/title00.jpeg">
             <img class="leftdiv-img" src="../../public/img/title04.png">
         </div>
-        <div v-show="isLogin && this.$router.currentRoute.value.name !== 'adminpage'" class="rightdiv">
+        <div v-show="isLogin && this.$router.currentRoute.value.name !== 'adminpage' && this.$router.currentRoute.value.name !== 'adminlogin'" class="rightdiv">
         <!-- <div v-if="isLogin" class="rightdiv"> -->
         <!-- <div v-if="$store.state.userStatus" class="rightdiv"> -->
             <span class="header-nickname">欢迎，{{userNickname}}</span>
@@ -71,7 +71,7 @@
                             { required: true, message: '请输入绑定的手机号', trigger: 'blur' },
                         ]"
                     >
-                    <el-input style="width: 360px !important;" v-model="form.phone" autocomplete="off" placeholder="请输入绑定的手机号" maxlength="13"></el-input>
+                    <el-input style="width: 360px !important;" v-model="form.phone" autocomplete="off" placeholder="请输入绑定的手机号" maxlength="11"></el-input>
                     </el-form-item>
                     <el-form-item 
                         prop="password"
@@ -111,7 +111,7 @@
                             { required: true, message: '请输入手机号', trigger: 'blur' },
                         ]"
                     >
-                        <el-input v-model="regForm.phone" autocomplete="off" placeholder="请输入13位手机号" maxlength="13" style="width:360px"></el-input>
+                        <el-input v-model="regForm.phone" autocomplete="off" placeholder="请输入13位手机号" maxlength="11" style="width:360px"></el-input>
                         
                     </el-form-item>
                     <el-form-item 
@@ -244,13 +244,13 @@ export default defineComponent({
                     message: '请输入绑定的手机号',
                     type: 'warning'
                 });
-                return;
+                // return;
             } else if (form.password === '') {
                 ElMessage.warning({
                     message: '请输入密码',
                     type: 'warning'
                 });
-                return;
+                // return;
             }
             const { data } = await axios.post('/user/login', {
                 phone: form.phone,
@@ -396,6 +396,25 @@ export default defineComponent({
             // 将请求返回的文章总数赋值给total
             // total.value = res.data.data.total
         };
+
+        // const searchArticleByName = async () => {
+        //     if(keyword.value === ''){
+        //         ElMessage.warning('请输入关键词');
+        //         return;
+        //     }
+        //     console.log(keyword);
+        //     const {data} = await axios.get('/article/search',{
+        //         params: {
+        //             keyword: keyword.value,
+        //         }
+        //     });
+        //     console.log(data);
+        //     tableDataOfArticle.value = data.data;
+        //     totalArticle.value = data.data.length;
+        //     getLocalTime(tableDataOfArticle.value);
+        //     keyword.value = '';
+        //     hadSearch.value = true;
+        // }
 
         onMounted(async () => {
             console.log('挂载头部');
