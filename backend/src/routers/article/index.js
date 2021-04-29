@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const Article = mongoose.model('Article');
 const User = mongoose.model('User');
+const Message = mongoose.model('Message');
 
 const router = new Router({
     prefix: '/article'
@@ -26,6 +27,16 @@ router.post('/post', async (context) => {
         context.body = {
             code: 0,
             msg: '发布失败，你的账号已被禁止发布资讯',
+            // data: context.request.body,
+            data: null
+        };
+        return;
+    }
+
+    if(one.reputation < 60) {
+        context.body = {
+            code: 0,
+            msg: '发布失败，你的信誉积分低于60已被禁止发布资讯',
             // data: context.request.body,
             data: null
         };
@@ -460,6 +471,42 @@ router.get('/manager/:id', async (context) => {
     };
 });
 
+router.get('/personal/:id', async (context) => {
+    
+    // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
+    const {
+        id,
+    } = context.params;
+
+    const list = await Article.find({
+        authorId: id,
+    }).exec();
+    const total = list.length;
+    if (total === 0) {
+        context.body = {
+            code: 0,
+            msg: '还没有任何投稿',
+            data: {
+                list,
+                total
+            }
+        };
+        return;
+    }
+    
+    console.log('list')
+    
+    // 最后返回前端所需的数据
+    context.body = {
+        code: 1,
+        msg: '获取成功',
+        data: {
+            list,
+            total
+        }
+    };
+});
+
 router.get('/examination/:id', async (context) => {
     
     // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
@@ -469,6 +516,8 @@ router.get('/examination/:id', async (context) => {
 
     const {
         examined = 'pass',
+        title,
+        authorId
     } = context.query;
     
     const one = await Article.findOne({
@@ -483,7 +532,28 @@ router.get('/examination/:id', async (context) => {
         };
     }
 
-    console.log('examination article')
+    console.log('examination article');
+    if (examined === 'pass'){
+        const author = await User.findOne({
+            _id: authorId,
+        }).exec();
+
+        var i = 0;
+        for(;i < author.beFollowed.length; i++ ){
+            console.log(i);
+            const message = new Message({
+                messageFrom: authorId,
+                messageTo: author.beFollowed[i],
+                messageAbout: id,
+                createAt: (new Date()).getTime(),
+                content: title,
+                title: author.nickname + ' 发布了新的资讯',
+                messageType: 'message'
+            });
+            await message.save();
+        }
+
+    }
     
     one.examined = examined;
     await one.save();

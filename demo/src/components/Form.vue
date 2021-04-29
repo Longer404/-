@@ -186,9 +186,9 @@ export default defineComponent({
       async postDraft(){
         const total = {
           // 作者为当前登录的用户
-          author: store.state.userInfo.data.data.nickname,
-          authorId: store.state.userInfo.data.data._id,
-          authorAvatar: store.state.userInfo.data.data.userAvatar,
+          author: store.state.userInfo.nickname,
+          authorId: store.state.userInfo._id,
+          authorAvatar: store.state.userInfo.userAvatar,
           // 创作时间为提交时间
           createAt: Date(),
           coverUrl: this.imageUrl,
@@ -225,11 +225,11 @@ export default defineComponent({
                 
         );
         if (data.code) {
-            ElMessage.success(data.msg);
+            ElMessage.success('草稿' + data.msg);
             this.$router.push('/');
             return;
         } else {
-            ElMessage.error(data.msg);
+            ElMessage.error('草稿' + data.msg);
             return;
         }
       },
@@ -250,7 +250,7 @@ export default defineComponent({
               if (newEssay.about === store.state.articleDetail.about) {  
                 if (newEssay.content === store.state.articleDetail.content) {
                   console.log('draft is not change');
-                  ElMessage.success('保存成功');
+                  ElMessage.success('草稿保存成功');
                   return;
                 }
               }
@@ -267,11 +267,11 @@ export default defineComponent({
           }     
         );
         if (data.code) {
-            ElMessage.success(data.msg);
+            ElMessage.success('草稿' + data.msg + '。');
             this.$router.push('/');
             return;
         } else {
-            ElMessage.error(data.msg);
+            ElMessage.error('草稿' + data.msg + '。');
             return;
         }
       },
@@ -295,8 +295,8 @@ export default defineComponent({
       async postNewArticle(){
         const total = {
           // 作者为当前登录的用户
-          author: store.state.userInfo.data.data.nickname,
-          authorId: store.state.userInfo.data.data._id,
+          author: store.state.userInfo.nickname,
+          authorId: store.state.userInfo._id,
           // 创作时间为发表时间
           createAt: Date(),
           coverUrl: this.imageUrl,

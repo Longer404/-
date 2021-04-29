@@ -122,6 +122,18 @@ const router = createRouter({
             name: 'adminlogin',
             // component: Register,
             component: () => import('./components/Adminlogin.vue')
+        },
+        {
+            path: '/search/:keyword',
+            name: 'search',
+            // component: Register,
+            component: () => import('./components/Search.vue')
+        },
+        {
+            path: '/space/:id',
+            name: 'space',
+            component: () => import('./components/Space.vue')
+            // component: () => import('./components/Article.vue')
         }
     ]
 })

@@ -24,7 +24,7 @@
         
       </el-menu>
       <el-input
-        placeholder="根据资讯标题搜索"
+        placeholder="输入关键词搜索"
         size="medium"
         style="width: 280px !important;margin-top:10px"
         v-model="keyword"
@@ -125,7 +125,7 @@
                 </svg> -->
                 <span class="undercardpic-span" @click="clickCollect(article._id)"><i class="el-icon-star-off"></i>收藏</span>
                 <!-- <span><i class="el-icon-share"></i></span> -->
-                <span class="undercardpic-span" @click="clickShare"><i class="el-icon-share"  ></i>分享</span>
+                <!-- <span class="undercardpic-span" @click="clickShare"><i class="el-icon-share"  ></i>分享</span> -->
               </div>
             </div>            
           </div>
@@ -192,7 +192,7 @@ export default defineComponent ({
 
     const showPageBox = ref(true);
     
-    const router = useRouter()
+    const router = useRouter();
     // 轮播图文章
     const carouselArticles = ref([{coverUrl: require('../../public/img/loading.png')},]);
     // 请求获取数据库中的文章后存放在articles中
@@ -374,7 +374,7 @@ export default defineComponent ({
         return;
       }
       const { data } = await axios.post('/article/handlelike',{
-        userid: store.state.userInfo.data.data._id,
+        userid: store.state.userInfo._id,
         articleid: articleid
       });
       console.log(data);
@@ -388,7 +388,7 @@ export default defineComponent ({
         return;
       }
       const { data } = await axios.post('/user/collect',{
-        userid: store.state.userInfo.data.data._id,
+        userid: store.state.userInfo._id,
         articleid: articleid
       });
       console.log(data);
@@ -398,36 +398,35 @@ export default defineComponent ({
     const clickShare = () =>{
       ElMessage.success('分享成功');
     }
+
     const searchArticleByName = async () => {
       if(keyword.value === ''){
           ElMessage.warning('请输入关键词');
           return;
       }
-      console.log(keyword);
-      const {data} = await axios.get('/article/search',{
-          params: {
-              keyword: keyword.value,
-          }
-      });
-      console.log(data);
-      if (!data.code) {
-          keyword.value = '';
-          ElMessage.warning(data.msg);
-          return;
-      }
-      articles.value = data.data;
-      showCarousel.value = false;
-      showPageBox.value = false;
-      keyword.value = '';
-      curindexTitle.value = '搜索结果';
-      // totalArticle.value = data.data.length;
-      // getLocalTime(semifinishedArticles.value);
-      // tableDataOfUser.value = data.data;
-      // totalUser.value = data.data.length;
-      // console.log(format(res.data.data.list[0].meta.createdAt));
-      // getLocalTime(tableDataOfArticle.value);
+      console.log(keyword.value);
+
+      // console.log(articles)
+      // axios.get(`/article/${articles._id}`)
+      router.push(`/search/${keyword.value}`)
+
+      // const {data} = await axios.get('/article/search',{
+      //     params: {
+      //         keyword: keyword.value,
+      //     }
+      // });
+      // console.log(data);
+      // if (!data.code) {
+      //     keyword.value = '';
+      //     ElMessage.warning(data.msg);
+      //     return;
+      // }
+      // articles.value = data.data;
+      // showCarousel.value = false;
+      // showPageBox.value = false;
       // keyword.value = '';
-      // hadSearch.value = true;
+      // curindexTitle.value = '搜索结果';
+      
     }
     const testClick = () => {
       ElMessage.success('testing');

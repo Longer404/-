@@ -23,8 +23,11 @@ router.post('/post', async (context) => {
     const message = new Message({
         messageFrom: essay.messageFrom,
         messageTo: essay.messageTo,
+        messageAbout: essay.messageAbout,
         createAt: (new Date()).getTime(),
         content: essay.content,
+        title: essay.title,
+        messageType: essay.messageType
     })
     const res = await message.save();
 
@@ -35,6 +38,79 @@ router.post('/post', async (context) => {
         msg: '发送成功',
         // data: context.request.body,
         data: res
+    };
+});
+
+router.post('/report', async (context) => {
+    // context.body = '注册成功';
+    // 新建两个变量获取前端返回的数据；
+    const {
+        report
+    } = context.request.body;
+    // console.log(storage.fileFormat.filename)
+    console.log(report);
+
+    const message = new Message({
+        messageFromId: report.messageFrom,
+        messageTo: report.messageTo,
+        messageToId: report.messageToId,
+        messageAbout: report.messageAbout,
+        createAt: (new Date()).getTime(),
+        content: report.content,
+        title: report.title,
+        reporter: report.reporter,
+        reporterId: report.reporterId,
+        messageType: 'report'
+    })
+    const data = await message.save();
+
+    console.log('post report');
+
+    context.body = {
+        code: 1,
+        msg: '举报反馈成功',
+        // data: context.request.body,
+        data: data
+    };
+});
+
+router.get('/report', async (context) => {
+    
+    const {
+        page = 1,
+    } = context.query;
+    // console.log(typeof examined);
+    let {
+        size = 10,
+    } = context.query;
+    size = Number(size);
+
+    const list = await Message
+        .find({
+            title: '举报评论'
+        })
+        .sort({
+            createAt: -1
+        })
+        .skip((page - 1) * size)
+        .limit(size)
+        .exec();
+
+    const totalReport = await Message.find({
+        title: '举报评论'
+    }).exec();
+
+    const total = totalReport.length;
+    console.log('get report');
+
+    context.body = {
+        code: 1,
+        msg: '获取成功',
+        // data: context.request.body,
+        data: {
+            list,
+            total
+        }
     };
 });
 
@@ -49,6 +125,9 @@ router.get('/detail/:id', async (context) => {
 
     const messageList = await Message.find({
         messageTo: id,
+        messageFrom: {"$ne": id},
+    }).sort({
+        createAt: -1
     }).exec();
 
     context.body = {
@@ -116,23 +195,7 @@ router.post('/getcode', async (context) => {
         msg: '发送成功',
         data: randomNum,
     };
-})
-// router.get('/replylist', async (context) => {
-    
-//     // 前端get访问http://127.0.0.1:3000/?a=1,则context.query的内容就是？后面的内容
-//     const { commentTo } = context.query;
-
-//     // console.log(typeof examined);
-//     const commentList = await Comment.find({
-//         commentTo: commentTo,
-//     }).exec();
-
-//     context.body = {
-//         code: 1,
-//         msg: '获取成功',
-//         data: commentList,
-//     };
-// });
+});
 
 router.get('/systemdata', async (context) => {
     console.log('total1');
@@ -201,6 +264,22 @@ router.get('/totalpartition', async (context) => {
             totalExhibition
         }
         // data:'total'
+    };
+});
+
+router.delete('/:id', async (context) => {
+    const {
+        id,
+    } = context.params;
+
+    const delMsg = await Message.deleteOne({
+        _id: id,
+    });
+    console.log('删除成功');
+    context.body = {
+        data: delMsg,
+        msg: '删除成功',
+        code: 1,
     };
 });
 

@@ -31,9 +31,34 @@
                         <img width="100%" :src="dialogImageUrl" alt="">
                     </el-dialog>
                 </div>
+                <div class="account-reputation">
+                    <span class="reputation-text">
+                      信誉积分
+                    </span>
+                    <div v-show="userInfo.reputation >= 70" class="reputation-point" style="color:#409EFF">
+                      {{userInfo.reputation}}
+                    </div>
+                    <div v-show="70 > userInfo.reputation && userInfo.reputation >= 60" class="reputation-point" style="color:#E6A23C">
+                      {{userInfo.reputation}}
+                    </div>
+                    <div v-show="userInfo.reputation < 60" class="reputation-point" style="color:#F56C6C">
+                      {{userInfo.reputation}}
+                    </div>
+                </div>
                 <el-form ref="form" :model="form" label-width="100px" style="margin-left:50px">
                     <el-form-item label="用户昵称">
                         <el-input v-model="form.name" style="width: 300px !important" :placeholder="userInfo.nickname"></el-input>
+                    </el-form-item>
+                    <el-form-item label="个性签名">
+                        <el-input 
+                          v-model="form.note" 
+                          type="textarea"
+                          :rows="3"
+                          style="width: 300px !important" 
+                          resize="none"
+                          :placeholder="userInfo.note"
+                          >
+                        </el-input>
                     </el-form-item>
                     <el-form-item label="绑定手机号">
                         <el-input v-model="form.phone" style="width: 300px !important" :placeholder="userInfo.phone" disabled></el-input>
@@ -174,6 +199,10 @@
             </el-dialog>
             <el-tab-pane label="投稿管理" name="second">
               投稿管理
+              <div v-show="!articles.length" class="search-result">
+                    你还没有发布过资讯哦~
+                    <el-empty :image-size="200"></el-empty>
+                </div>
               <!-- <div class="card-manage"> -->
                 <!-- <div class="card-case"> -->
                 <div v-for="article in articles" :key="article" class="card-case">
@@ -187,6 +216,15 @@
                       {{article.createAt}}
                     </div>
                     <div class="card-info-handle">
+                      <div v-show="article.examined ==='examining'" class="progress-box" style="color:#409EFF">
+                        审核中...
+                      </div>
+                      <div v-show="article.examined === 'reject'" class="progress-box" style="color:#F56C6C">
+                        被驳回！
+                      </div>
+                      <div v-show="article.examined === 'pass'" class="progress-box" style="color:#67C23A">
+                        审核通过
+                      </div>
                       <el-button type="primary" size="small" @click="getArticle(article._id)">编辑</el-button>
                       <el-button type="danger" size="small" @click="removeArticle(article._id)">删除</el-button>
                     </div>
@@ -196,6 +234,10 @@
             </el-tab-pane>
             <el-tab-pane label="审核中" name="third">
               审核中
+              <div v-show="!semifinishedArticles.length" class="search-result">
+                    没有稿件在审核哦~
+                    <el-empty :image-size="200"></el-empty>
+                </div>
               <div v-for="semifinishedArticle in semifinishedArticles" :key="semifinishedArticle" class="card-case">
                   <img v-if="semifinishedArticle.coverUrl !== ''" class="card-img" :src="semifinishedArticle.coverUrl" >
                   <img v-else class="card-img" src="../../public/img/img-false.jpg">
@@ -222,6 +264,10 @@
             </el-tab-pane>
             <el-tab-pane label="草稿箱" name="fourth">
               草稿箱
+              <div v-show="!drafts.length" class="search-result">
+                    您还没有保存过草稿哦~
+                    <el-empty :image-size="200"></el-empty>
+                </div>
               <div v-for="draft in drafts" :key="draft" class="card-case">
                   <img class="card-img" :src="draft.coverUrl">
                   <div class="card-info">
@@ -244,6 +290,10 @@
               <!-- <div class="card-manage"> -->
                 <!-- <div class="card-case"> -->
                 收藏夹
+                <div v-show="!collectionList.length" class="search-result">
+                    您还没有收藏过资讯哦~
+                    <el-empty :image-size="200"></el-empty>
+                </div>
                 <div v-for="article in collectionList" :key="article" class="card-case">
                   <img v-if="article.coverUrl !== ''" class="card-img" :src="article.coverUrl" >
                   <img v-else class="card-img" src="../../public/img/img-false.jpg">
@@ -265,6 +315,10 @@
             </el-tab-pane>
             <el-tab-pane label="评论管理" name="sixth">
               评论管理
+              <div v-show="!commentList.length" class="search-result">
+                    您还没有发表过评论哦~
+                    <el-empty :image-size="200"></el-empty>
+                </div>
               <div v-for="comment in commentList" :key="comment" class="comment-card">
                   <!-- <img class="card-img" :src="draft.coverUrl"> -->
                   <!-- <div class="comment-card"> -->
@@ -287,7 +341,58 @@
                 </div>
               <!-- <el-button type="primary" @click="testbutton">测试接口</el-button> -->
             </el-tab-pane>
-            <!-- <el-tab-pane label="定时任务补偿">定时任务补偿</el-tab-pane> -->
+            <el-tab-pane label="关注列表" name="seventh">
+                关注列表
+                <div v-show="!followingList.length" class="search-result">
+                    您还没有关注其他用户哦~
+                    <el-empty :image-size="200"></el-empty>
+                </div>
+                <div v-for="following in followingList" :key="following"  class="follow-card-case">
+                  <div class="follow-avatar" @click="goToUserSpace(following._id)" >
+                    <el-avatar :size="72" :src="following.userAvatar">
+                    </el-avatar>
+                  </div>
+                  <div class="follow-card-info">
+                    <div class="card-info-title" @click="goToUserSpace(following._id)">
+                      {{following.nickname}}
+                    </div>
+                    <div class="card-info-date">
+                      {{following.note}}
+                    </div>
+                    <div class="card-info-handle">
+                      <!-- <el-button type="primary" @click="getArticle(article._id)">编辑</el-button> -->
+                      <!-- <el-button type="primary" size="small">发送消息</el-button> -->
+                      <el-button type="danger" size="small">取消关注</el-button>
+                    </div>
+                  </div>
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="粉丝列表" name="eighth">
+                粉丝列表
+                <div v-show="!fansList.length" class="search-result">
+                    您还没有粉丝哦~
+                    <el-empty :image-size="200"></el-empty>
+                </div>
+                <div v-for="fans in fansList" :key="fans" class="follow-card-case">
+                  <div class="follow-avatar" @click="goToUserSpace(fans._id)">
+                    <el-avatar :size="72" :src="fans.userAvatar">
+                    </el-avatar>
+                  </div>
+                  <div class="follow-card-info">
+                    <div class="card-info-title" @click="goToUserSpace(fans._id)">
+                       {{fans.nickname}}
+                    </div>
+                    <div class="card-info-date">
+                       {{fans.note}}
+                    </div>
+                    <div class="card-info-handle">
+                      <!-- <el-button type="primary" @click="getArticle(article._id)">编辑</el-button> -->
+                      <!-- <el-button type="primary" size="small">发送消息</el-button> -->
+                      <!-- <el-button type="danger" size="small">取消关注</el-button> -->
+                    </div>
+                  </div>
+                </div>
+            </el-tab-pane>
         </el-tabs>
     </div>
   </div>
@@ -310,6 +415,7 @@ export default defineComponent({
         userAvatarUrl: '',
         form: {
           name: '',
+          note: '',
           //   region: '',
           // date1: '',
           //   date2: '',
@@ -328,25 +434,30 @@ export default defineComponent({
     },
     methods: {
       async onSubmit() {
-        if (this.form.name === '' && this.userAvatarUrl === '') {
+        if (this.form.name === '' && this.form.note === '' && this.userAvatarUrl === '') {
           ElMessage.warning('请修改后保存');
           return;
-        }
+        } 
         console.log('submit!');
         // console.log(this.form);
         const { data } = await axios.post('/user/update', {
-            id: store.state.userInfo.data.data._id,
+            id: store.state.userInfo._id,
             nickname: this.form.name,
+            note: this.form.note,
             userAvatar: this.userAvatarUrl,
-              
         });
-        ElMessage.success('个人信息' + data.msg);
-        console.log(data);
-        // 设置全局状态
-        store.commit('setUserInfo', data);
-        store.commit('setUserStatus',true);
-        // 将token存在本地
-        setToken(data.data.token);
+        if (data.code){
+            ElMessage.success('个人信息' + data.msg);
+            console.log(data);
+            // 设置全局状态
+            store.commit('setUserInfo', data);
+            store.commit('setUserStatus',true);
+            // 将token存在本地
+            setToken(data.data.token);
+            return;
+        }
+        ElMessage.warning(data.msg);
+        return;
       },
       // async changePass() {
 
@@ -408,6 +519,10 @@ export default defineComponent({
       const commentList = ref([]);
 
       const collectionList = ref([]);
+
+      const followingList = ref([]);
+
+      const fansList = ref([]);
 
       const userInfo = ref({});
       const verificationCode = ref('');
@@ -504,7 +619,7 @@ export default defineComponent({
                 });
                 return;
             }
-            const userId = store.state.userInfo.data.data._id;
+            const userId = store.state.userInfo._id;
             const { data } = await axios.post('/user/updatepass', {
                 id: userId,
                 password: passForm.password,   
@@ -559,7 +674,7 @@ export default defineComponent({
                 });
                 return;
             }
-            const userId = store.state.userInfo.data.data._id;
+            const userId = store.state.userInfo._id;
             const { data } = await axios.post('/user/updatephone', {
                 id: userId,
                 phone: phoneForm.phone,
@@ -579,8 +694,8 @@ export default defineComponent({
       // 获取用户文章列表
       const getArticleList = async () => {
         // 用户id
-        const userId = store.state.userInfo.data.data._id;
-        let res = await axios.get(`/article/manager/${userId}`);
+        const userId = store.state.userInfo._id;
+        let res = await axios.get(`/article/personal/${userId}`);
         console.log('getlist')
         // 将请求返回的文章数组赋值给articles
         articles.value = res.data.data.list;
@@ -592,22 +707,9 @@ export default defineComponent({
 
       // 获取用户审核中的文章列表
       const getSemifinishedArticleList = async () => {
-        // var lenth = 0;
-        // console.log(articles.value.length);
-        // const templist = await getArticleList();
-        // console.log(templist.length);
-            // console.log(lenth);
-        // for(;lenth < templist.length;lenth++) {
-        //   if (templist[lenth].examined === 'examining' || templist[lenth].examined === 'reject'){
-        //     semifinishedArticles.value.push(templist[lenth]);
-        //   } else {
-        //     continue;
-        //   }
-            // data[lenth].meta.createdAt = format(data[lenth].meta.createdAt);
-        // }
-        // console.log(semifinishedArticles);
+
         const type = 'examining';
-        const userId = store.state.userInfo.data.data._id;
+        const userId = store.state.userInfo._id;
         let { data } = await axios.get(`/article/table/${type}`, {
             params: {
                 id: userId
@@ -629,28 +731,17 @@ export default defineComponent({
       };
       // 获取用户文章详细信息
       const getArticle = async (articleId) => {
-        // const aid = articleId;
-        // console.log(typeof articleId);
         let resp = await axios.get(`/article/detail/${articleId}`);
-        // let res = await axios.delete('/article/' + articleId);
-        // console.log(resp);
         store.commit('setArticleDetail', resp.data.data);
         store.commit('setArticleStatus','article');
-        // console.log(showdraft.value);
-        // if (showdraft.value) {
-        //   showdraft.value = !showdraft.value;
-        // }
         router.push('/form');
-        // activeName.value = 'fourth';
         console.log(store.state.articleDetail);
-        // ElMessage.success(resp.msg);
-        // getArticleList();
       };
 
       // 获取用户草稿列表
       const getDraftList = async () => {
         // 用户id
-        const userId = store.state.userInfo.data.data._id;
+        const userId = store.state.userInfo._id;
         let res = await axios.get(`/draft/manager/${userId}`);
         console.log('getdraft')
         // 将请求返回的文章数组赋值给articles
@@ -667,7 +758,7 @@ export default defineComponent({
         let resp = await axios.delete(`/draft/${draftId}`);
         // let res = await axios.delete('/article/' + articleId);
         console.log(resp);
-        ElMessage.success(resp.data.msg);
+        ElMessage.success('草稿' + resp.data.msg);
         getDraftList();
       };
 
@@ -680,10 +771,6 @@ export default defineComponent({
         // console.log(resp);
         store.commit('setArticleDetail', resp.data.data);
         store.commit('setArticleStatus','draft');
-        // console.log(showdraft.value);
-        // if (showdraft.value) {
-        //   showdraft.value = !showdraft.value;
-        // }
         router.push('/form');
         // activeName.value = 'fourth';
         console.log(store.state.articleDetail);
@@ -692,7 +779,7 @@ export default defineComponent({
       };
 
       const getUserComment = async () => {
-          const userId = store.state.userInfo.data.data._id;
+          const userId = store.state.userInfo._id;
             const res = await axios.get('/comment/byUserId', {
                 params: {
                     commentatorId: userId,
@@ -700,22 +787,19 @@ export default defineComponent({
             });
             console.log(res);
             commentList.value = res.data.data;
-            // totalComment.value = res.data.data.total;
-            // getCommentLocalTime(commentTable.value);
-            // total.value = res.data.data.total;
         }
 
       const deleteUserComment = async (commentId) => {
             let resp = await axios.delete(`/comment/${commentId}`);
-            ElMessage.success(resp.data.msg);
+            ElMessage.success('评论' + resp.data.msg);
             getUserComment();
         }
 
       const getUserCollection = async () => {
-        console.log(store.state.userInfo.data.data._id);
+        console.log(store.state.userInfo._id);
         const { data } = await axios.get('/user/collection',{
           params: {
-            id: store.state.userInfo.data.data._id
+            id: store.state.userInfo._id
           }  
         });
         console.log(data);
@@ -725,7 +809,7 @@ export default defineComponent({
 
       const removeCollection = async (articleid) => {
         const { data } = await axios.post('/user/collect',{
-          userid: store.state.userInfo.data.data._id,
+          userid: store.state.userInfo._id,
           articleid: articleid
         });
         console.log(data);
@@ -735,11 +819,42 @@ export default defineComponent({
 
       const testbutton = () => {
         // 用户id
-        const userId = store.state.userInfo.data.data._id;
+        const userId = store.state.userInfo._id;
         axios.post('/user/collection/', {
           id: userId,
         });
         // showdraft.value = !showdraft.value;
+      }
+      
+      const getAccountInfo = async () => {
+        const {data} = await axios.get(`/user/detail/${store.state.userInfo._id}`);
+        console.log(data);
+        userInfo.value = data.data;
+      }
+
+      const getFollowingList = async () => {
+        const { data } = await axios.get('/user/following',{
+          params: {
+            id: store.state.userInfo._id
+          }
+        });
+        console.log(data);
+        followingList.value = data.data;
+      }
+
+      const getFansList = async () => {
+        const { data } = await axios.get('/user/befollowed',{
+          params: {
+            id: store.state.userInfo._id
+          }
+        });
+        console.log(data);
+        fansList.value = data.data;
+      }
+
+      const goToUserSpace = (userId) => {
+          console.log(userId);
+          router.push(`/space/${userId}`);
       }
 
       onMounted(async () => {
@@ -749,71 +864,16 @@ export default defineComponent({
         getSemifinishedArticleList();
         getUserComment();
         getUserCollection();
-        userInfo.value = store.state.userInfo.data.data;
+        getFollowingList();
+        getFansList();
+        getAccountInfo();
+        console.log(userInfo.value);
         console.log(router.currentRoute.value.name);
-        // console.log(store.state);
+        console.log(store.state.userInfo);
         // console.log(store.state.userInfo);
       });
-        // const userAvatarUrl = ref('');
-        // const form = reactive({
-        //   name: '',
-          //   region: '',
-          // date1: '',
-          //   date2: '',
-          //   delivery: false,
-          //   type: [],
-          // resource: '',
-          // desc: ''
-      //   });
-      //   const dialogImageUrl = ref('');
-      //   const dialogVisible = ref(false);
-      //   const isMax = ref(false);
-      //   const header = {
-      //       Authorization: `Bearer ${getToken()}`
-      //   };
-
-      //   const onSubmit = () => {
-      //   console.log('submit!');
-      // }
-      // const handleRemove = (file, fileList) =>{
-      //   console.log(file, fileList);
-      //   isMax.value = false;
-      // };
-      // const handlePictureCardPreview = (file) =>{
-      //   dialogImageUrl.value = file.url;
-      //   dialogVisible.value = true;
-        // const test = "Bearer " + getToken()
-        // console.log(test)
-      // };
-      // 对头像上传的一些限制
-      // const beforeAvatarUpload = (file) => {
-      //   const isJPG = file.type === 'image/jpeg' || 'image/png';
-      //   const isLt2M = file.size / 1024 / 1024 < 3;
-
-      //   if (!isJPG) {
-      //     this.$message.error('上传头像图片只能是 JPG或PNG 格式!');
-      //   }
-      //   if (!isLt2M) {
-      //     this.$message.error('上传头像图片大小不能超过 3MB!');
-      //   }
-      //   return isJPG && isLt2M;
-      // };
-      // 上传框改变触发的钩子
-      // const change = () =>{
-      //     console.log('change')
-      //   isMax.value = true
-      // };
-      // 上传成功后服务端返回的信息
-      // const handle_success = (res) => {
-      //     console.log(res);
-      //     userAvatarUrl.value = res.url;
-      // };
-      // 上传时携带的请求头
-      // const getHeader = () => {
-      //     return {
-      //       Authorization: `Bearer ${getToken()}`
-      //     }
-      // };
+     
+     
 
       return {
         drafts,
@@ -844,20 +904,11 @@ export default defineComponent({
         clearPassForm,
         submitOriginalPhone,
         clearPhoneForm,
-        submitNewPhone
-      //     userAvatarUrl,
-      //     form,
-      //     dialogImageUrl,
-      //     dialogVisible,
-      //     isMax,
-      //     header,
-      //     onSubmit,
-      //     handleRemove,
-      //     handlePictureCardPreview,
-      //     beforeAvatarUpload,
-      //     change,
-      //     handle_success,
-      //     getHeader,
+        submitNewPhone,
+        followingList,
+        fansList,
+        goToUserSpace
+      
       }
     },
 
@@ -894,6 +945,28 @@ export default defineComponent({
   line-height: 40px;
   color: #606266;
   text-align: right;
+}
+.account-reputation {
+  /* margin: 0 auto; */
+  /* padding-top: 10px; */
+  padding-bottom: 10px;
+  margin-left: 50px;
+  width: 560px;
+  display: flex;
+  justify-content:flex-start;
+  
+}
+.reputation-text {
+  width: 88px;
+  padding-right: 12px;
+  font-size: 14px;
+  line-height: 40px;
+  color: #606266;
+  text-align: right;
+}
+.reputation-point {
+  line-height: 40px;
+  font-weight: 600;
 }
 .disabled .el-upload--picture-card {
     display: none;
@@ -937,19 +1010,49 @@ export default defineComponent({
     overflow: hidden;
     text-overflow: ellipsis;
     -webkit-box-orient: vertical;
+    cursor: pointer;
 }
 .card-info-date {
     font-size: 13px;
     font-weight: 200;
     margin-left: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
 }
 .card-info-handle {
     /* text-align: right; */
     display: flex;
     justify-content: flex-end;
 }
+.follow-card-case {
+  margin: 15px auto;
+    height: 90px;
+    width: 600px;
+    padding: 10px;
+    box-shadow: gray 1.5px 1.5px 3px;
+    border-radius: 4px ;
+    background: #e3e3e3;
+    display: flex;
+    justify-content: space-between;
+}
+.follow-avatar {
+  cursor: pointer;
+}
+.follow-card-info {
+  width: 515px;
+    /* background: rgb(140, 117, 241); */
+    border-left-style:solid;
+    border-left-width: 1px;
+    border-left-color: #99a9bf;
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: space-between;
+}
 .progress-box {
-    width: 130px;
+    width: 258px;
     font-size: 20px;
     /* text-align: center; */
     line-height: 32px;
@@ -989,5 +1092,10 @@ export default defineComponent({
   text-align: right;
   display: flex;
     justify-content: space-between;
+}
+.search-result {
+    text-align: center;
+    height: 450px;
+    margin: 50px auto;
 }
 </style>

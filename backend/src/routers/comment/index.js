@@ -30,6 +30,16 @@ router.post('/post', async (context) => {
         return;
     }
 
+    if(one.reputation < 70 ) {
+        context.body = {
+            code: 0,
+            msg: '你的信誉积分低于70，已被禁止评论',
+            // data: context.request.body,
+            data: null
+        };
+        return;
+    }
+
     const comment = new Comment({
         commentator: essay.nickname,
         commentatorAvatar: essay.userAvatar,

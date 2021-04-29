@@ -48,7 +48,7 @@ export default createStore({
     actions: {
         async getUserInfo(store) {
             
-            const data = await axios.get(
+            const {data} = await axios.get(
                 '/user/info',
                 {
                     headers: {
@@ -58,13 +58,13 @@ export default createStore({
             );
             console.log('getUserInfo');
             console.log(data);
-            if(data.data.code === 1){
-                store.commit('setUserInfo', data);
+            if(data.code === 1){
+                store.commit('setUserInfo', data.data);
                 store.commit('setUserStatus', true);
                 return data;
             } else {
                 setToken('');
-                alert(data.data.msg);
+                alert(data.msg);
                 window.location.href = '/';
             }
             

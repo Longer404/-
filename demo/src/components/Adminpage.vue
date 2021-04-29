@@ -356,7 +356,7 @@
             </div>
             <el-table 
                 :data="commentTable"
-                :default-sort = "{prop: 'meta.createdAt', order: 'descending'}"  
+                :default-sort = "{prop: 'createAt', order: 'descending'}"  
                 border 
                 style="width: 100%" 
                 stripe>
@@ -402,7 +402,83 @@
                 </el-pagination>
             </div>
         </el-tab-pane>
-        <el-tab-pane label="数据统计" name="fifth">
+        <el-tab-pane label="举报反馈" name="fifth">
+            <div class="tab-header-name">
+                举报反馈
+            </div>
+            <div class="under-header">
+                <div class="total-box"> 举报总数 {{totalReport}}</div>
+                <el-input
+                placeholder="根据标题搜索"
+                size="medium"
+                style="width: 360px !important;"
+                v-model="keyword"
+                class="input-with-select"
+                >
+                    <template #append>
+                        <el-button icon="el-icon-search" @click="searchArticleByName"></el-button>
+                    </template>
+                </el-input>
+                <el-button v-show="hadSearch" plain size="small" @click="goBackToArticleTable">返回</el-button>
+            </div>
+            <el-table 
+                :data="reportTable"
+                :default-sort = "{prop: 'createAt', order: 'descending'}"  
+                border 
+                style="width: 100%" 
+                stripe>
+                <el-table-column fixed prop="messageTo" label="评论者" width="120" sortable>
+                </el-table-column>
+                <el-table-column prop="messageAbout" label="评论内容" width="300" sortable>
+                </el-table-column>
+                <el-table-column prop="reporter" label="举报者" width="120" sortable>
+                </el-table-column>
+                <el-table-column prop="content" label="举报内容" width="220">
+                </el-table-column>
+                <el-table-column prop="createAt" label="创建日期" width="180" sortable>
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" width="160">
+                    <template #default="scope">
+                        <el-button @click="handleReport(scope.row)" type="text" size="small">采纳举报</el-button>
+                        <el-button @click="ignoreReport(scope.row)" type="text" size="small" style="color:red;">忽略举报</el-button>
+                    </template>
+                </el-table-column>
+                
+            </el-table>
+            <div class="page-box">
+                <el-pagination
+                    background
+                    layout="prev, pager, next"
+                    @current-change="setPage"
+                    :total="totalReport"
+                    :current-page="curPageOfReport"
+                    :page-size="10"
+                    >
+                </el-pagination>
+            </div>
+            <el-dialog title="填写驳回原因" :lock-scroll="false" v-model="dialogArtFormVisible">
+                <el-form :model="form">
+                    <el-form-item prop="message" >
+                        <el-input 
+                            v-model="form.message" 
+                            resize="none"
+                            :rows="5"
+                            type="textarea" 
+                            autocomplete="off" 
+                            placeholder="请输入驳回原因">
+                        </el-input>
+                    </el-form-item>
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                    <el-button @click="dialogArtFormVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="sendRejectMessage">发 送</el-button>
+                    <!-- <el-button @click="dialogFormVisible = false , dialogRegFormVisible = true" type="text" size="mini" style="margin-right:60px">未有账号，前去注册</el-button> -->
+                    </span>
+                </template>
+            </el-dialog>
+        </el-tab-pane>
+        <el-tab-pane label="数据统计" name="sixth">
             <div class="tab-header-name">
                 数据统计
             </div>
@@ -590,6 +666,8 @@ export default defineComponent({
         const totalSemifinishedArticle = ref(0);
         const commentTable = ref([]);
         const totalComment = ref(0);
+        const reportTable = ref([]);
+        const totalReport = ref(0);
         const dialogSemiFormVisible = ref(false);
         const dialogArtFormVisible = ref(false);
         const dialogUserFormVisible = ref(false);
@@ -620,6 +698,8 @@ export default defineComponent({
         const curPageOfSemifinishedArticles = ref(1);
         // 消息页当前页码
         const curPageOfComment = ref(1);
+        // 举报页当前页码
+        const curPageOfReport = ref(1);
         // 数据总数
         const total = ref(1);
 
@@ -758,6 +838,20 @@ export default defineComponent({
             // total.value = res.data.data.total;
         }
 
+        const getReportTable = async () => {
+            let { data } = await axios.get('/message/report', {
+                params: {
+                    page: curPageOfReport.value
+                }
+            });
+            console.log(data);
+            reportTable.value = data.data.list;
+            console.log(reportTable.value);
+            totalReport.value = data.data.total;
+            getCommentLocalTime(reportTable.value);
+            // total.value = res.data.data.total;
+        }
+
         const handleClickinTab = (tab) => {
             // console.log(tab);
             // console.log(tab.index);
@@ -778,7 +872,7 @@ export default defineComponent({
                 // curPageOfComment.value = page;
             } else if (tab.index === '4') {
                 curTab.value = '4';
-                
+                getReportTable();
                 // curPageOfComment.value = page;
             } 
             
@@ -801,6 +895,9 @@ export default defineComponent({
                 curPageOfComment.value = page;
                 getCommentTable();
                 
+            } else if (curTab.value === '4') {
+                curPageOfReport.value = page;
+                getReportTable();
             }
                 
         }
@@ -901,6 +998,8 @@ export default defineComponent({
             let res = await axios.get(`/article/examination/${row._id}`, {
                 params: {
                     examined: 'pass',
+                    title: row.title,
+                    authorId: row.authorId,
                 }
             });
             console.log(res.data.code);
@@ -909,6 +1008,21 @@ export default defineComponent({
             } else {
                 ElMessage.error(res.data.msg);
             }
+            const messageDetail = {
+                messageTo: row.authorId,
+                messageFrom: row._id,
+                messageAbout: row._id,
+                title: '您发布的资讯已审核通过：',
+                content: row.title,
+                messageType: 'message'
+            };
+            const { data } = await axios.post(
+                '/message/post', 
+                {
+                    essay: messageDetail
+                }
+            );
+            console.log(data);
             getSemifinishedArticles();
         }
 
@@ -954,9 +1068,18 @@ export default defineComponent({
             const { data } = await axios.post('/user/update', {
                 id: currentUser.value._id,
                 nickname: userForm.nickname,
-                phone: userForm.phone,
                 power: userForm.power,
             });
+            if (userForm.phone) {
+                const { data } = await axios.post('/user/updatephone', {
+                    id: currentUser.value._id,
+                    phone: userForm.phone,
+                });
+                if (!data.code) {
+                    ElMessage.warning(data.msg);
+                    return;
+                }
+            }
             if (data.code){
                 ElMessage.success(data.msg);
                 getUserList();
@@ -966,8 +1089,6 @@ export default defineComponent({
                 ElMessage.warning(data.msg);
                 return;
             }
-            
-            
         }
 
         const resetUserPass = async () => {
@@ -987,7 +1108,9 @@ export default defineComponent({
             const messageDetail = {
                 messageTo: currentAuthorId.value,
                 messageFrom: currentId.value,
+                title: '您发布的资讯已被驳回，具体驳回原因如下：',
                 content: form.message,
+                messageType: 'reject'
             };
             if (form.message === '') {
                 ElMessage.warning('请填写内容');
@@ -1015,6 +1138,82 @@ export default defineComponent({
             getAllArtList();
             dialogArtFormVisible.value = false;
             dialogSemiFormVisible.value = false;
+        }
+
+        const handleReport = async (message) => {
+            console.log(message);
+            const { data } = await axios.post(
+                '/user/reputation', 
+                {
+                    id: message.messageToId
+                }
+            );
+            if(data.code){
+                ElMessage.success(data.msg);
+                const messageToReporter = {
+                    messageTo: message.reporterId,
+                    title: '您的举报反馈已处理，具体执行如下：',
+                    content: message.messageTo + '，' + data.msg,
+                    messageType: 'message'
+                };
+                await axios.post(
+                    '/message/post', 
+                    {
+                        essay: messageToReporter
+                    }
+                );
+                const messageToReported = {
+                    messageTo: message.messageToId,
+                    title: '您的评论存在违规言论，具体处罚如下：',
+                    content: '您的评论： “' + message.messageAbout + '”，存在违规言论，已扣除您个人账号10点信誉积分。信誉积分低于70将无法发表评论，低于60将无法发布资讯。',
+                    messageType: 'message'
+                };
+                await axios.post(
+                    '/message/post', 
+                    {
+                        essay: messageToReported
+                    }
+                );
+                // console.log(sendMessageRes);
+                const res = await axios.delete(`/message/${message._id}`);
+                console.log(res);
+                getReportTable();
+                return;
+            }
+            ElMessage.warning(data.msg);
+            return;
+        }
+
+        const ignoreReport = async (message) => {
+            console.log(message);
+            const { data } = await axios.post(
+                '/user/reputation', 
+                {
+                    id: message.reporterId
+                }
+            );
+            if(data.code){
+                ElMessage.success('已忽略该举报信息');
+                const messageToReporter = {
+                    messageTo: message.reporterId,
+                    title: '您的举报反馈已处理，具体执行如下：',
+                    content: '经核实，用户 ' + message.messageTo + ' 的评论“' + message.messageAbout + '”未发现问题。',
+                    messageType: 'message'
+                };
+                await axios.post(
+                    '/message/post', 
+                    {
+                        essay: messageToReporter
+                    }
+                );
+                // console.log(sendMessageRes);
+                const res = await axios.delete(`/message/${message._id}`);
+                console.log(res);
+                getReportTable();
+                return;
+            }
+            ElMessage.warning(data.msg);
+            return;
         }
 
         const handleClick = (row) => {
@@ -1165,6 +1364,7 @@ export default defineComponent({
             curPageOfArticle,
             curPageOfSemifinishedArticles,
             curPageOfComment,
+            curPageOfReport,
             semifinishedArticles,
             total,
             setPage,
@@ -1184,6 +1384,7 @@ export default defineComponent({
             tableDataOfUser,
             tableDataOfArticle,
             commentTable,
+            reportTable,
             handleClickinTab,
             handleClick,
             setPass,
@@ -1203,6 +1404,8 @@ export default defineComponent({
             getAllArtList,
             getSemifinishedArticles,
             getCommentTable,
+            getReportTable,
+            totalReport,
             totalUser,
             totalArticle,
             totalSemifinishedArticle,
@@ -1218,7 +1421,9 @@ export default defineComponent({
             currentUser,
             sendRejectMessage,
             cleanAddUser,
-            addUser
+            addUser,
+            handleReport,
+            ignoreReport
         }
     },
 })

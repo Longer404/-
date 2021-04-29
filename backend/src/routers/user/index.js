@@ -12,6 +12,7 @@ const router = new Router({
     prefix: '/user'
 });
 
+
 router.post('/register', async (context) => {
     // context.body = '注册成功';
     // 新建两个变量获取前端返回的数据；
@@ -75,6 +76,8 @@ router.post('/register', async (context) => {
         userAvatar: res.userAvatar,
         character: res.character,
         power: res.power,
+        note: res.note,
+        reputation: res.reputation
     };
 
     context.body = {
@@ -124,13 +127,15 @@ router.post('/login', async (context) => {
         return;
     }
 
-    const data = {
+    const user = {
         nickname: one.nickname,
         phone: one.phone,
         _id: one._id,
         userAvatar: one.userAvatar,
         character: one.character,
         power: one.power,
+        note: one.note,
+        reputation: one.reputation
     };
 
     if (one.password === password) {
@@ -138,8 +143,8 @@ router.post('/login', async (context) => {
             code: 1,
             msg: '登录成功',
             data: {
-                data,
-                token: jwt.sign(data, config.JWT_SECRET),
+                user,
+                token: jwt.sign(user, config.JWT_SECRET),
             },
         };
         return;
@@ -157,13 +162,15 @@ router.get('/info', async (context) => {
     const one = await User.findOne({
         _id: data._id
     }).exec();
-    // console.log(one);
+    console.log(data);
     let isChange = false;
     if (data.phone !== one.phone) {
         isChange = true;
         console.log(11);
     } 
     if (data.power !== one.power){
+        console.log(data.power);
+        // console.log(typeof(one.power));
         isChange = true;
         console.log(22);
     } 
@@ -209,7 +216,13 @@ router.get('/detail/:id', async (context) => {
         data: {
             nickname: one.nickname,
             phone: one.phone,
+            _id: one._id,
+            userAvatar: one.userAvatar,
+            character: one.character,
             power: one.power,
+            note: one.note,
+            reputation: one.reputation,
+            read: one.read
         },
         code: 1,
         msg: '获取成功',
@@ -250,8 +263,8 @@ router.post('/update', async (context) => {
         id,
         nickname,
         userAvatar,
-        phone,
         power,
+        note,
     } = context.request.body;
 
     console.log(nickname + userAvatar)
@@ -288,19 +301,8 @@ router.post('/update', async (context) => {
         one.userAvatar = userAvatar  
     }
 
-    const userLikePhone = await User.findOne({
-        phone: phone
-    }).exec();
-
-    if (userLikePhone) {
-        context.body = {
-            code: 0,
-            msg: '该手机号已绑定',
-            data: null,
-        };
-        return;
-    } else if(phone) {
-        one.phone = phone
+    if (note) {
+        one.note = note  
     }
 
     if (power) {
@@ -308,11 +310,15 @@ router.post('/update', async (context) => {
     }
 
     await one.save();
+
     const user = {
         nickname: one.nickname,
         phone: one.phone,
         _id: one._id,
         userAvatar: one.userAvatar,
+        character: one.character,
+        power: one.power,
+        note: one.note
     };
 
     context.body = {
@@ -327,25 +333,25 @@ router.post('/update', async (context) => {
 
 });
 
-router.post('/collection', async (context) => {
-    const {
-        id,
-    } = context.request.body;
+// router.post('/collection', async (context) => {
+//     const {
+//         id,
+//     } = context.request.body;
 
-    const one = await User.findOne({
-        _id: id
-    }).exec();
+//     const one = await User.findOne({
+//         _id: id
+//     }).exec();
 
-    console.log(one);
-    one.collect.push('33','55');
-    console.log(one.collect);
+//     console.log(one);
+//     one.collect.push('33','55');
+//     console.log(one.collect);
 
-    context.body = {
-        code: 1,
-        msg: '测试成功',
-        data: null,
-    }
-})
+//     context.body = {
+//         code: 1,
+//         msg: '测试成功',
+//         data: null,
+//     }
+// });
 
 router.get('/table/:type', async (context) => {
     
@@ -689,6 +695,166 @@ router.post('/adduser', async (context) => {
     //     msg: '注册成功',
     //     data: res,
     // };
+});
+
+router.post('/reputation', async (context) => {
+    const {
+        id,
+    } = context.request.body;
+
+    const one = await User.findOne({
+        _id: id
+    }).exec();
+
+    if(!one) {
+        context.body = {
+            code: 0,
+            msg: '不存在该用户',
+            data: null,
+        };
+        return;
+    }
+    one.reputation = one.reputation - 10;
+    await one.save();
+    context.body = {
+        code: 1,
+        msg: '已扣除该用户10点信誉积分',
+        data: null,
+    };
+    return;
+});
+
+router.post('/follow', async (context) => {
+    // context.body = '注册成功';
+    // 新建两个变量获取前端返回的数据；
+    const {
+        userid,
+        authorid
+    } = context.request.body;
+
+    const oneUser = await User.findOne({
+        _id: userid,
+    }).exec();
+
+    const oneAuthor = await User.findOne({
+        _id: authorid,
+    }).exec();
+
+    const flag = oneUser.following.indexOf(authorid);
+
+    // 不等于-1则表示存在，flag为索引（下标
+    if(flag !== -1){
+        oneUser.following.remove(authorid);
+        oneAuthor.beFollowed.remove(userid);
+        await oneUser.save();
+        await oneAuthor.save();
+        context.body = {
+            code: 1,
+            msg: '取消关注成功',
+            data: null
+        };
+    } else if(flag === -1) {
+        oneUser.following.push(authorid);
+        oneAuthor.beFollowed.push(userid);
+        await oneUser.save();
+        await oneAuthor.save();
+        context.body = {
+            code: 1,
+            msg: '关注成功',
+            data: null
+        };
+    }
+
+    
+});
+
+router.get('/following', async (context) => {
+
+    const {
+        id,
+    } = context.query;
+    console.log(id);
+
+    const oneUser = await User.findOne({
+        _id: id,
+    }).exec();
+
+    var followingList = [];
+    // console.log(oneUser);
+    for(let i = 0; i < oneUser.following.length; i++){
+        const followingUser = await User.findOne({
+            _id: oneUser.following[i],
+        }).exec();
+        const one = {
+            _id: followingUser._id,
+            nickname: followingUser.nickname,
+            userAvatar: followingUser.userAvatar,
+            note: followingUser.note
+        }
+        followingList.push(one);
+    }
+    context.body = {
+        code: 1,
+        msg: '查找关注列表成功',
+        data: followingList
+    };
+});
+
+router.get('/befollowed', async (context) => {
+
+    const {
+        id,
+    } = context.query;
+    console.log(id);
+
+    const oneUser = await User.findOne({
+        _id: id,
+    }).exec();
+
+    var fansList = [];
+    // console.log(oneUser);
+    for(let i = 0; i < oneUser.beFollowed.length; i++){
+        const fans = await User.findOne({
+            _id: oneUser.beFollowed[i],
+        }).exec();
+        const one = {
+            _id: fans._id,
+            nickname: fans.nickname,
+            userAvatar: fans.userAvatar,
+            note: fans.note
+        }
+        fansList.push(one);
+    }
+    context.body = {
+        code: 1,
+        msg: '查找粉丝列表成功',
+        data: fansList
+    };
+});
+
+router.post('/read', async (context) => {
+
+    let {
+        id,
+        haveRead
+    } = context.request.body;
+
+    haveRead = Number(haveRead);
+    console.log(haveRead);
+    const oneUser = await User.findOne({
+        _id: id,
+    }).exec();
+
+    oneUser.read = oneUser.read + haveRead;
+    await oneUser.save();
+    // 不等于-1则表示存在，flag为索引（下标
+    
+    context.body = {
+        code: 1,
+        msg: '已读成功',
+        data: null
+    };
+    return;
 });
 
 module.exports = router;

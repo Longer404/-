@@ -27,11 +27,11 @@
                             个人中心
                         </router-link>
                     </el-dropdown-item>
-                    <el-dropdown-item divided>
-                        
-                        <router-link to="/message">
+                    <el-dropdown-item divided @click="goToMessage">
+                        消息中心
+                        <!-- <router-link to="/message">
                             消息中心
-                        </router-link>
+                        </router-link> -->
                         <el-badge v-show="messageLength" class="mark" :value="messageLength" />
                     </el-dropdown-item>
                     <!-- <el-dropdown-item>欢迎，{{userNickname}}</el-dropdown-item> -->
@@ -220,12 +220,17 @@ export default defineComponent({
             router.push('/');
         }
         const goToFormpage = () => {
-            if(store.state.userInfo.data.data.power === '4' || store.state.userInfo.data.data.power === '3'){
+            if(store.state.userInfo.power === '4' || store.state.userInfo.power === '3'){
                 ElMessage.error('你的账号已被禁止发布资讯');
                 return;
-            } else {
-                router.push('/form');
+            } 
+            if (store.state.userInfo.reputation < 60) {
+                ElMessage.error('你的信誉积分低于60，已被禁止发布资讯');
+                
+                return;
             }
+            router.push('/form');
+            
             // alert("test");
         }
         const logout = () => {
@@ -261,13 +266,13 @@ export default defineComponent({
             if (data.code) {
                 // console.log('hello?');
                 // 设置全局状态
-                store.commit('setUserInfo', data);
+                store.commit('setUserInfo', data.data.user);
                 store.commit('setUserStatus',true);
                 // 将token存在本地
                 setToken(data.data.token);
                 // isLogin.value = true;
-                avatarUrl.value = store.state.userInfo.data.data.userAvatar;
-                userNickname.value = store.state.userInfo.data.data.nickname;
+                avatarUrl.value = store.state.userInfo.userAvatar;
+                userNickname.value = store.state.userInfo.nickname;
                 isLogin.value = true;
                 // console.log(store.state.userInfo); 
                 dialogFormVisible.value = false;
@@ -275,6 +280,7 @@ export default defineComponent({
                     message: data.msg,
                     type: 'success'
                 });
+                getMessageList();
                 return;
             }
             dialogFormVisible.value = false;
@@ -367,7 +373,7 @@ export default defineComponent({
                 // 将token存在本地
                 setToken(data.data.token);
                 isLogin.value = true;
-                userNickname.value = store.state.userInfo.data.data.nickname;
+                userNickname.value = store.state.userInfo.nickname;
                 // avatarUrl.value = store.state.userInfo.data.user.userAvatar || '';
                 dialogFormVisible.value = false;
                 ElMessage.success({
@@ -383,38 +389,26 @@ export default defineComponent({
 
         const getMessageList = async () => {
             // 用户id
-            const userId = store.state.userInfo.data.data._id;
+            const userId = store.state.userInfo._id;
             let { data } = await axios.get(`/message/detail/${userId}`);
             console.log('getmessageList');
             console.log(data.data.length);
-            messageLength.value = data.data.length;
-            // 将请求返回的文章数组赋值给articles
-            // messageList.value = data.data;
-            // console.log(messageList);
-            // getLocalTime(messageList.value);
-            // return res.data.data.list;
-            // 将请求返回的文章总数赋值给total
-            // total.value = res.data.data.total
+            const res = await axios.get(`/user/detail/${userId}`);
+            console.log(res.data);
+            // 未读信息数=所有信息数-已读信息数
+            messageLength.value = data.data.length - res.data.data.read;
+            
         };
 
-        // const searchArticleByName = async () => {
-        //     if(keyword.value === ''){
-        //         ElMessage.warning('请输入关键词');
-        //         return;
-        //     }
-        //     console.log(keyword);
-        //     const {data} = await axios.get('/article/search',{
-        //         params: {
-        //             keyword: keyword.value,
-        //         }
-        //     });
-        //     console.log(data);
-        //     tableDataOfArticle.value = data.data;
-        //     totalArticle.value = data.data.length;
-        //     getLocalTime(tableDataOfArticle.value);
-        //     keyword.value = '';
-        //     hadSearch.value = true;
-        // }
+        const goToMessage = async () => {
+            const { data } = await axios.post('/user/read/', {
+                id: store.state.userInfo._id,
+                haveRead: messageLength.value,
+            });
+            console.log(data);
+            messageLength.value = 0;
+            router.push('/message');
+        }
 
         onMounted(async () => {
             console.log('挂载头部');
@@ -430,10 +424,11 @@ export default defineComponent({
                 const userInfo = await store.dispatch('getUserInfo');
 
                 if (userInfo) {
+                    console.log(userInfo) 
                     isLogin.value = true;
                     console.log(userInfo);
-                    avatarUrl.value = userInfo.data.data.userAvatar;
-                    userNickname.value = userInfo.data.data.nickname;
+                    avatarUrl.value = userInfo.data.userAvatar;
+                    userNickname.value = userInfo.data.nickname;
                     console.log(avatarUrl);
                 }
                 // store.commit('setUserStatus', true);
@@ -484,7 +479,8 @@ export default defineComponent({
             messageLength,
             getPhoneCode,
             showCode,
-            count
+            count,
+            goToMessage
         }
     },
 })
@@ -531,8 +527,8 @@ export default defineComponent({
       margin-right: 10px;
   }
   .user-avatar {
-      width: 50px;
-      height: auto;
+      width: 48px;
+      height: 48px;
       border-radius:50%;
       margin-right: 20px;
   }

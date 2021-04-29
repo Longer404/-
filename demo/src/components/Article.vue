@@ -30,7 +30,7 @@
                 <div class="comment-area-title">评论</div>
                 <div class="user-comment-area">
                     <!-- <div class="comment-user-avatar"></div> -->
-                    <img v-if="$store.state.userInfo.data !== undefined" class="comment-mainuser-avatar" :src="$store.state.userInfo.data.data.userAvatar">
+                    <img v-if="$store.state.userInfo !== undefined" class="comment-mainuser-avatar" :src="$store.state.userInfo.userAvatar">
                     <img v-else class="comment-mainuser-avatar" src="../assets/avatar.png">
                     <el-input
                         style="margin-bottom: 10px;width:73%;"
@@ -43,14 +43,23 @@
                     </el-input>
                     <el-button type="primary" style="height:73px" @click="submitComment">发表评论</el-button>
                 </div>
+                <!-- <el-button @click="ElMessage.success('testing!');">文字按钮</el-button> -->
                 <div v-for="comment in commentLists" :key="comment" class="comment-box">
                     <!-- <div class="comment-user-avatar"> -->
                     <img v-if="comment.commentatorAvatar" class="comment-user-avatar" :src="comment.commentatorAvatar">
                     <img v-else class="comment-user-avatar" src="../assets/avatar.png">
                     <!-- </div> -->
-                    <div class="comment-detail">                
-                        <div class="comment-user-nickname">#{{commentLists.indexOf(comment)}} &nbsp;&nbsp;{{comment.commentator}}</div>
-                        <div class="comment-text">{{comment.content}}</div>
+                    <div class="comment-detail">
+                        <div class="comment-user-title">
+                            <div class="comment-user-nickname">
+                                
+                                #{{commentLists.indexOf(comment) + 1}} &nbsp;&nbsp;{{comment.commentator}}
+                                
+                            </div>
+                            <i @click="reportComment(comment)" class="el-icon-warning-outline" style="cursor: pointer;font-size:12px">举报评论</i>
+                        </div>
+                        <div class="comment-text" v-html="comment.content"></div>
+                         
                         <div class="comment-info">
                             {{comment.createAt}}
                             <!-- {{comment.createAt.split(/[\s\n]/)[1] + '-' + comment.createAt.split(/[\s\n]/)[2]}} -->
@@ -104,6 +113,27 @@
                     </div>
                 </div> -->
             </div>
+            <el-dialog title="举报原因" :lock-scroll="false" v-model="dialogVisible">
+                <el-form :model="reportForm">
+                    <el-form-item prop="message" >
+                        <el-input 
+                            v-model="reportForm.message" 
+                            resize="none"
+                            :rows="3"
+                            type="textarea"
+                            autocomplete="off" 
+                            placeholder="请输入举报原因">
+                        </el-input>
+                    </el-form-item>
+                </el-form>
+                <template #footer>
+                    <span class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="sendReportMessage">发 送</el-button>
+                    
+                    </span>
+                </template>
+            </el-dialog>
             <div class="user-cardlist-left" v-show="showAuthorArticles">
                 <div class="user-over-cards-box">
                     <div class="user-over-cards" >
@@ -157,6 +187,7 @@
         <div class="fix-box">
             <div class="author-box">
                 <div class="block"><el-avatar :size="72" :src="'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"></el-avatar></div>
+                <!-- <div class="block"><el-avatar :size="72" :src="detailInfo.avatar"></el-avatar></div> -->
                 <div class="author-info">
                     <div class="author-info-name">作者 {{detailInfo.author}}</div>
                     <div class="article-info">
@@ -164,7 +195,7 @@
                         <span>{{detailInfo.read}}</span>
                     </div>
                     <div class="like-button">
-                        <el-button size="mini" type="primary" style="width:75px"> 点 赞 </el-button>
+                        <el-button @click="handleFollow(detailInfo.authorId)" size="mini" type="primary" style="width:105px"> 关 注 </el-button>
                     </div>
                 </div>
             </div>
@@ -195,7 +226,7 @@
 </template>
 
 <script>
-import { defineComponent, onMounted, ref } from 'vue'
+import { defineComponent, onMounted, ref, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import store from '../store'
@@ -203,6 +234,11 @@ import { getToken } from '../helpers/token'
 import { ElMessage } from 'element-plus'
 
 export default defineComponent({
+    methods: {
+        testClick(){
+            ElMessage.success('test');
+        }
+    },
     setup() {
         const route = useRoute();
         // 获取页面跳转时文章的id
@@ -228,7 +264,12 @@ export default defineComponent({
 
         const showArticleDetail = ref(true);
         const showAuthorArticles = ref(false);
-        
+        // 当前操作的评论
+        const currentComment = ref({});
+        const dialogVisible = ref(false);
+        const reportForm = reactive({
+            message: ''
+        });
         console.log(id);
 
         // const collapseChange = () => {
@@ -305,29 +346,95 @@ export default defineComponent({
             // getAuthorArticleList(detailInfo.value.authorId);
         }
 
-        
+        const sendCommentMessage = async () => {
+            const messageDetail = {
+                messageTo: detailInfo.value.authorId,
+                messageFrom: store.state.userInfo._id,
+                messageAbout: id.value,
+                content: commentText.value,
+                title: store.state.userInfo.nickname + '  评论了你的资讯',
+                messageType: 'comment'
+            };
+            const { data } = await axios.post(
+                '/message/post', 
+                {
+                    essay: messageDetail
+                }
+            );
+            console.log(data);
+        }
+
+        const sendReportMessage = async () => {
+            const messageDetail = {
+                // 评论者
+                messageTo: currentComment.value.commentator,
+                // 评论者id
+                messageToId: currentComment.value.commentatorId,
+                // 评论
+                messageFromId: currentComment.value._id,
+                // 评论内容
+                messageAbout: currentComment.value.content,
+                // 举报内容
+                content: reportForm.message,
+                // 举报者信息
+                title: '举报评论',
+                reporter: store.state.userInfo.nickname,
+                reporterId: store.state.userInfo._id
+            };
+            const { data } = await axios.post(
+                '/message/report', 
+                {
+                    report: messageDetail
+                }
+            );
+            console.log(data);
+            if (data.code) {
+                ElMessage.success(data.msg);
+                dialogVisible.value = false;
+                return;
+            } else {
+                ElMessage.warning('未知错误，请重新尝试');
+                dialogVisible.value = false;
+                return;
+            }
+        }
+
+        const reportComment = async (comment) => {
+            currentComment.value = comment;
+            dialogVisible.value = true;
+            return;
+        }
 
         const submitComment = async () => {
-            if (store.state.userInfo.data === undefined) {
+            if (store.state.userInfo._id === undefined) {
                 ElMessage.warning('请登录账号后评论');
+                commentText.value = '';
                 return;
             }
-            if (store.state.userInfo.data.data.power === '2' || store.state.userInfo.data.data.power === '4'){
+            if (store.state.userInfo.power === '2' || store.state.userInfo.power === '4'){
                 ElMessage.error('你的账号已被禁止评论');
+                commentText.value = '';
                 return;
             }
+            if (store.state.userInfo.reputation < 70) {
+                ElMessage.error('你的信誉积分低于70，已被禁止评论');
+                commentText.value = '';
+                return;
+            }
+            // console.log(store.state.userInfo);
             const commentDetail = {
-                // 评论者id
-                commentatorId: store.state.userInfo.data.data._id,
-                nickname: store.state.userInfo.data.data.nickname,
-                userAvatar: store.state.userInfo.data.data.userAvatar,
-                // 评论对象
+                
+                commentatorId: store.state.userInfo._id,
+                nickname: store.state.userInfo.nickname,
+                userAvatar: store.state.userInfo.userAvatar,
+                
                 commentTo: id.value,
                 commentFrom: detailInfo.value.title,
                 // createAt: (new Date()).getTime(),
                 // 评论内容
                 content: commentText.value,
             };
+            console.log(commentDetail);
             if (commentText.value === '') {
                 ElMessage.warning('请填写评论');
                 return;
@@ -343,10 +450,15 @@ export default defineComponent({
             );
             if (data.code) {
                 ElMessage.success(data.msg);
+                sendCommentMessage();
                 commentText.value = '';
+                
             } else {
                 ElMessage.error(data.msg);
+                commentText.value = '';
+                return;
             }
+            
             getComments();
             console.log(data);
             return;
@@ -393,6 +505,23 @@ export default defineComponent({
             totalArticles.value = data.data.total;
         }
 
+        const handleFollow = async (authorid) =>{
+            if (!store.state.userStatus){
+                ElMessage.warning('请在登录后进行关注');
+                return;
+            }
+            const { data } = await axios.post('/user/follow',{
+                userid: store.state.userInfo._id,
+                authorid: authorid
+            });
+            console.log(data);
+            ElMessage.success(data.msg);
+        }
+        
+        // const testClick = () =>{
+        //     ElMessage.success('testing!');
+        // }
+
         onMounted(() => {
             // axios.get(`/article/${articles._id}`)
             getArticle();
@@ -414,7 +543,13 @@ export default defineComponent({
             goBackToDetail,
             getUserArticle,
             showArticleDetail,
-            showAuthorArticles
+            showAuthorArticles,
+            reportComment,
+            dialogVisible,
+            reportForm,
+            sendReportMessage,
+            handleFollow
+            // testClick
             // submitReply,
             // getReply,
             // test
@@ -525,7 +660,7 @@ export default defineComponent({
       
   }
   .comment-box {
-      min-height: 80px;
+      min-height: 75px;
       /* padding-top: 10px;
       padding-bottom: 10px; */
       padding: 8px;
@@ -544,8 +679,8 @@ export default defineComponent({
       justify-content: space-between;
   } */
   .comment-user-avatar {
-      width: 65px;
-      height: 65px;
+      width: 55px;
+      height: 55px;
       border-radius: 50%;
       margin-right: 10px;
       /* background: #555; */
@@ -576,6 +711,10 @@ export default defineComponent({
       flex-flow: column wrap;
       justify-content: space-between;
   } */
+  .comment-user-title {
+      display: flex;
+      justify-content: space-between;
+  }
   .comment-user-nickname {
       height: 20px;
       margin-bottom: 5px;
@@ -641,7 +780,7 @@ export default defineComponent({
       line-height: 20px;
   }
   .like-button {
-      text-align: center;
+      text-align: left;
       height: 35px;
       line-height: 30px;
   }
