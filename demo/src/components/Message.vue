@@ -181,7 +181,7 @@ export default defineComponent({
 .message-cards-author {
     font-size: 16px;
     font-weight: 600;
-    width: 600px;
+    width: 570px;
     margin-left: 20px;
     cursor: pointer;
 }

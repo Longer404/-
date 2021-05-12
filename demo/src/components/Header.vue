@@ -69,6 +69,7 @@
                         label-width="100px"
                         :rules="[
                             { required: true, message: '请输入绑定的手机号', trigger: 'blur' },
+                            
                         ]"
                     >
                     <el-input style="width: 360px !important;" v-model="form.phone" autocomplete="off" placeholder="请输入绑定的手机号" maxlength="11"></el-input>
@@ -109,6 +110,7 @@
                         label-width="120px"
                         :rules="[
                             { required: true, message: '请输入手机号', trigger: 'blur' },
+                            { type: 'number', message: '输入必须为数字'}
                         ]"
                     >
                         <el-input v-model="regForm.phone" autocomplete="off" placeholder="请输入13位手机号" maxlength="11" style="width:360px"></el-input>
@@ -249,13 +251,27 @@ export default defineComponent({
                     message: '请输入绑定的手机号',
                     type: 'warning'
                 });
-                // return;
+                return;
             } else if (form.password === '') {
                 ElMessage.warning({
                     message: '请输入密码',
                     type: 'warning'
                 });
-                // return;
+                return;
+            }
+            if (form.phone.length !== 11){
+                ElMessage.warning({
+                    message: '请输入11位手机号码',
+                    type: 'warning'
+                });
+                return;
+            }
+            if (form.password.length < 6 ){
+                ElMessage.warning({
+                    message: '密码长度不能少于6位，请重新输入密码',
+                    type: 'warning'
+                });
+                return;
             }
             const { data } = await axios.post('/user/login', {
                 phone: form.phone,
@@ -354,6 +370,12 @@ export default defineComponent({
             } else if (regForm.nickname === '') {
                 ElMessage.warning({
                     message: '请输入用户昵称',
+                    type: 'warning'
+                });
+                return;
+            } else if (regForm.checkpass.length < 6){
+                ElMessage.warning({
+                    message: '密码长度不能少于6位，请重新输入密码',
                     type: 'warning'
                 });
                 return;

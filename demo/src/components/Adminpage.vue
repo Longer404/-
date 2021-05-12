@@ -674,6 +674,7 @@ export default defineComponent({
         const dialogAddFormVisible = ref(false);
         const currentId = ref('');
         const currentAuthorId = ref('');
+        const currentTitle = ref('');
         const form = reactive({
             message: '',
         });
@@ -1031,6 +1032,7 @@ export default defineComponent({
             console.log(row._id);
             currentId.value = row._id;
             currentAuthorId.value = row.authorId;
+            currentTitle.value = row.title;
             dialogSemiFormVisible.value = true;
             console.log(dialogSemiFormVisible.value);
             console.log(dialogArtFormVisible.value);
@@ -1052,6 +1054,7 @@ export default defineComponent({
             console.log(row._id);
             currentId.value = row._id;
             currentAuthorId.value = row.authorId;
+            currentTitle.value = row.title;
             dialogArtFormVisible.value = true;
             console.log(dialogSemiFormVisible.value);
             console.log(dialogArtFormVisible.value);
@@ -1108,7 +1111,7 @@ export default defineComponent({
             const messageDetail = {
                 messageTo: currentAuthorId.value,
                 messageFrom: currentId.value,
-                title: '您发布的资讯已被驳回，具体驳回原因如下：',
+                title: '您发布的资讯  ' + currentTitle.value + '  已被驳回，具体驳回原因如下：',
                 content: form.message,
                 messageType: 'reject'
             };

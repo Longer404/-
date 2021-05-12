@@ -272,6 +272,17 @@ router.delete('/:id', async (context) => {
         id,
     } = context.params;
 
+    const tempMsg = await Message.findOne({
+        _id: id,
+    });
+
+    const oneUser = await User.findOne({
+        _id: tempMsg.messageTo,
+    }).exec();
+
+    oneUser.read = oneUser.read-1;
+    await oneUser.save();
+
     const delMsg = await Message.deleteOne({
         _id: id,
     });

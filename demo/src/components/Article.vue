@@ -186,10 +186,10 @@
         </div>
         <div class="fix-box">
             <div class="author-box">
-                <div class="block"><el-avatar :size="72" :src="'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'"></el-avatar></div>
+                <div class="block"><el-avatar :size="72" :src="authorInfo.userAvatar"></el-avatar></div>
                 <!-- <div class="block"><el-avatar :size="72" :src="detailInfo.avatar"></el-avatar></div> -->
                 <div class="author-info">
-                    <div class="author-info-name">作者 {{detailInfo.author}}</div>
+                    <div class="author-info-name">作者 {{authorInfo.nickname}}</div>
                     <div class="article-info">
                         阅读量
                         <span>{{detailInfo.read}}</span>
@@ -246,6 +246,7 @@ export default defineComponent({
         const originalID = route.params.id;
 
         const detailInfo = ref({});
+        const authorInfo = ref({});
 
         const authorArticleList = ref({});
         // const testInfo = '<h1>测试</h1>'
@@ -317,10 +318,17 @@ export default defineComponent({
             console.log(authorArticleList);
         }
 
+        const getAuthorInfo = async (authorId) => {
+            const {data} = await axios.get(`/user/detail/${authorId}`);
+            console.log(data);
+            authorInfo.value = data.data;
+        }
+
         const getArticle = async () => {
             const res = await axios.get(`/article/detail/${id.value}`);
             // console.log(res.data)
             detailInfo.value = res.data.data;
+            getAuthorInfo(res.data.data.authorId);
             console.log(detailInfo.value);
             if (detailInfo.value.coverUrl === undefined) {
                 detailInfo.value.coverUrl = "http://localhost:3000/1616658254684.jpeg"
@@ -531,6 +539,7 @@ export default defineComponent({
 
         return {
             detailInfo,
+            authorInfo,
             authorArticleList,
             commentLists,
             articles,
@@ -581,7 +590,7 @@ export default defineComponent({
   .main-box {
       min-width: 1000px;
       /* min-height: 1500px; */
-      /* background: #999; */
+      /* background: #e3e3e3; */
       margin: 40px auto;
       display: flex;
       justify-content: space-between;
@@ -602,7 +611,7 @@ export default defineComponent({
   .page-container {
       min-height: 800px;
       width: 700px;
-      background: #ececec;
+      background: #f8f8f8;
   }
   .user-cardlist-left {
       background: #fcfcfc;

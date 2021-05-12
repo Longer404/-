@@ -18,7 +18,7 @@
                 
                 <div class="space-owner-handle">
                     <el-button>关注</el-button>
-                    <el-button>发消息</el-button>
+                    <!-- <el-button>发消息</el-button> -->
                 </div>
             </div>
         </div>
@@ -235,19 +235,20 @@ export default defineComponent({
     margin-left: 20px;
 }
 .space-owner-nickname {
-    font-weight: 600;
+    font-weight: 700;
     /* color: white; */
 }
 .space-owner-info {
-    width: 500px;
+    width: 550px;
 }
 .space-owner-note {
     margin-top: 10px;
     font-size: 13px;
 }
 .space-owner-handle {
-    margin-top: 30px;
+    margin-top: 15px;
     height: 40px;
+    width: 100px;
 }
 .space-card-case {
     margin: 15px auto;
